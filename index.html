@@ -44,7 +44,6 @@
     backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
     padding: 14px 16px 12px;
     border-bottom: 1px solid var(--border-subtle);
-    transition: opacity 0.2s;
   }
 
   .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
@@ -180,7 +179,7 @@
   /* ===== SOUNDBAR (PADS) ===== */
   .pads-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Всегда 2 колонки для крупных пэдов */
+    grid-template-columns: repeat(2, 1fr);
     gap: 14px;
     padding-bottom: 20px;
   }
@@ -210,43 +209,56 @@
   
   .pad-handle {
     position: absolute;
-    top: 10px; left: 10px;
-    font-size: 20px; color: rgba(255,255,255,0.6);
+    top: 8px; left: 8px;
+    font-size: 18px; color: rgba(255,255,255,0.6);
     display: none;
     cursor: grab;
     touch-action: none;
     z-index: 5;
-    padding: 8px;
+    padding: 6px;
   }
   .pads-grid.edit-mode .pad-handle { display: block; }
   .pads-grid.edit-mode .pad { cursor: grab; }
   
   .pad-icon {
-    font-size: 42px; margin-bottom: 6px; line-height: 1;
+    font-size: 42px; margin-bottom: 4px; line-height: 1;
   }
   .pad-title {
-    font-size: 15px; font-weight: 800; text-align: center;
-    line-height: 1.15;
+    font-size: 16px; font-weight: 800; text-align: center;
+    line-height: 1.1;
     word-break: break-word;
     color: #fff;
     text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    margin-bottom: 2px;
+  }
+  .pad-trackname {
+    font-size: 10px; font-weight: 500; text-align: center;
+    color: rgba(255,255,255,0.7);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    width: 100%; padding: 0 4px;
   }
   .pad-add {
     font-size: 60px; color: rgba(255,255,255,0.4);
     font-weight: 200; line-height: 1;
   }
   
+  /* Кнопка перестановки (переехала выше, стала круглой) */
   .edit-mode-btn {
-    position: fixed; right: 16px; bottom: 130px; z-index: 25;
-    background: var(--accent-blue); color: white;
-    padding: 12px 20px; border-radius: 99px;
-    font-weight: 700; font-size: 14px;
-    border: none; cursor: pointer;
+    position: fixed; right: 16px; bottom: 220px; z-index: 25;
+    width: 52px; height: 52px; border-radius: 50%;
+    background: rgba(28,28,34,0.95); color: #fff;
+    font-size: 22px;
+    border: 1px solid rgba(255,255,255,0.15);
+    cursor: pointer;
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     display: none;
+    align-items: center; justify-content: center;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    transition: transform 0.1s, background 0.15s;
   }
-  .edit-mode-btn.visible { display: flex; align-items: center; gap: 8px; }
-  .edit-mode-btn.active { background: var(--danger); }
+  .edit-mode-btn:active { transform: scale(0.9); }
+  .edit-mode-btn.visible { display: flex; }
+  .edit-mode-btn.active { background: var(--danger); border-color: var(--danger); }
 
   /* ===== SHOW TIMER ===== */
   .show-timer {
@@ -408,12 +420,13 @@
   }
   .lock-indicator.visible { display: block; }
   
+  /* Оверлей для блокировки: затемняет всё, но пропускает клики к замку */
   .locked-overlay {
     display: none;
     position: fixed;
     inset: 0;
     z-index: 15;
-    background: transparent;
+    background: rgba(0, 0, 0, 0.65);
   }
   .locked-overlay.visible { display: block; }
 
@@ -427,6 +440,18 @@
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   }
   .color-swatch.selected { border-color: #fff; transform: scale(1.1); }
+
+  /* Иконки для пэдов */
+  .icon-grid {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;
+  }
+  .icon-option {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; background: #0d0d11; border: 2px solid transparent;
+    cursor: pointer;
+  }
+  .icon-option.selected { border-color: var(--accent-blue); background: rgba(26,115,232,0.2); }
 </style>
 </head>
 <body>
@@ -448,8 +473,8 @@
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
       </button>
-      <button class="icon-btn" id="lockBtn" onclick="toggleLock()" title="Заблокировать экран" style="pointer-events: auto !important; z-index: 100;">
-        <svg id="lockIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button class="icon-btn" id="lockBtn" onclick="toggleLock()" title="Заблокировать экран" style="pointer-events: auto !important; z-index: 100; position: relative;">
+        <svg id="lockIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
           <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
         </svg>
@@ -476,9 +501,14 @@
 
 <div class="content-container" id="mainContainer"></div>
 
-<!-- Кнопка "Переставить" для саундбара -->
+<!-- Кнопка перестановки (круглая, со стрелками) -->
 <button class="edit-mode-btn" id="editModeBtn" onclick="togglePadEditMode()">
-  🔀 Переставить
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="17 1 21 5 17 9"></polyline>
+    <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+    <polyline points="7 23 3 19 7 15"></polyline>
+    <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+  </svg>
 </button>
 
 <div class="vol-container" id="volContainer">
@@ -576,7 +606,7 @@
   </div>
 </div>
 
-<!-- Модалка источника (общая для сценариев и пэдов) -->
+<!-- Модалка источника -->
 <div class="modal-overlay" id="addSourceModal" onclick="if(event.target === this) closeModal('addSourceModal')">
   <div class="modal-box">
     <h3>Добавить звук</h3>
@@ -600,7 +630,7 @@
   </div>
 </div>
 
-<!-- Модалка выбора из плеера (С ПОИСКОМ) -->
+<!-- Модалка выбора из плеера -->
 <div class="modal-overlay" id="libraryPickerModal" onclick="if(event.target === this) closeModal('libraryPickerModal')">
   <div class="modal-box">
     <h3>Выберите трек</h3>
@@ -612,18 +642,27 @@
   </div>
 </div>
 
-<!-- Модалка настройки пэда (Цвет, Название, Иконка) -->
+<!-- Модалка настройки пэда -->
 <div class="modal-overlay" id="padModal" onclick="if(event.target === this) closeModal('padModal')">
   <div class="modal-box">
     <h3 id="padModalHeading">Настроить пэд</h3>
     
     <input type="hidden" id="inputPadTrackId">
     
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; padding:10px 12px; background:#0d0d11; border-radius:12px; border:1px solid var(--border-subtle);">
+      <div style="flex:1; min-width:0;">
+        <div style="font-size:11px; color:var(--text-muted); margin-bottom:2px;">Текущий трек</div>
+        <div id="padCurrentTrackName" style="font-size:14px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">—</div>
+      </div>
+      <button class="m-btn" onclick="changePadTrack()" style="flex:none; padding:8px 12px; font-size:13px;">Сменить</button>
+    </div>
+    
     <label class="field-label">Название на пэде:</label>
     <input type="text" class="modal-input" id="inputPadTitle" placeholder="Например: Смех">
     
-    <label class="field-label">Иконка (эмодзи):</label>
-    <input type="text" class="modal-input" id="inputPadIcon" placeholder="😂" maxlength="2">
+    <label class="field-label">Иконка:</label>
+    <div class="icon-grid" id="padIconGrid"></div>
+    <input type="hidden" id="inputPadIcon" value="🎵">
     
     <label class="field-label">Цвет:</label>
     <div class="color-palette" id="padColorPalette"></div>
@@ -695,6 +734,7 @@
   let currentAudio = null;
   let currentBlobUrl = null;
   let currentTrackId = null;
+  let currentPadContext = null; // Если играет пэд, храним ссылку на него для UI
   let currentQueueIds = [];
   let isSeeking = false;
 
@@ -720,19 +760,23 @@
   let showTimerRemaining = 0;
   
   let pickerTarget = null; // 'pad' или 'scenario'
+  let padTrackChangeMode = false; // флаг, что мы меняем трек у существующего пэда
   
   // Палитра для пэдов
   const PAD_COLORS = [
-    "linear-gradient(135deg,#1565c0,#42a5f5)", // синий
-    "linear-gradient(135deg,#2e7d32,#66bb6a)", // зелёный
-    "linear-gradient(135deg,#ef6c00,#ffa726)", // оранжевый
-    "linear-gradient(135deg,#ad1457,#ec407a)", // розовый
-    "linear-gradient(135deg,#4527a0,#7e57c2)", // фиолетовый
-    "linear-gradient(135deg,#b71c1c,#e53935)", // красный
-    "linear-gradient(135deg,#00695c,#26a69a)", // бирюзовый
-    "linear-gradient(135deg,#37474f,#607d8b)"  // серый
+    "linear-gradient(135deg,#1565c0,#42a5f5)",
+    "linear-gradient(135deg,#2e7d32,#66bb6a)",
+    "linear-gradient(135deg,#ef6c00,#ffa726)",
+    "linear-gradient(135deg,#ad1457,#ec407a)",
+    "linear-gradient(135deg,#4527a0,#7e57c2)",
+    "linear-gradient(135deg,#b71c1c,#e53935)",
+    "linear-gradient(135deg,#00695c,#26a69a)",
+    "linear-gradient(135deg,#37474f,#607d8b)"
   ];
   let selectedPadColor = PAD_COLORS[0];
+
+  // Иконки для пэдов
+  const PAD_ICONS = ["😂", "🎵", "🎺", "📦", "💃", "🔮", "🎉", "👏", "⚡", "❄️", "🎅", "🎁", "🐻", "🌟", "🎈", "🚀"];
 
   // ============ DB ============
   const dbReq = indexedDB.open("KKPlayerDB_v5", 1); 
@@ -827,22 +871,21 @@
     isLocked = !isLocked;
     const btn = document.getElementById('lockBtn');
     const indicator = document.getElementById('lockIndicator');
-    const header = document.getElementById('mainHeader');
     const overlay = document.getElementById('lockedOverlay');
     
     btn.classList.toggle('active', isLocked);
     indicator.classList.toggle('visible', isLocked);
     overlay.classList.toggle('visible', isLocked);
     
+    // Чтобы замок был всегда ярким, поднимаем его z-index поверх оверлея
     if (isLocked) {
-      header.style.opacity = '0.4';
-      header.style.pointerEvents = 'none';
-      document.getElementById('lockBtn').style.pointerEvents = 'auto';
-      document.getElementById('lockBtn').style.opacity = '1';
+      btn.style.zIndex = '100';
+      btn.style.color = '#64b5f6'; // яркий цвет
     } else {
-      header.style.opacity = '1';
-      header.style.pointerEvents = 'auto';
+      btn.style.zIndex = '';
+      btn.style.color = '';
     }
+    
     renderCurrentView();
   }
 
@@ -856,15 +899,12 @@
     document.getElementById("tabScenarios").classList.toggle("active", section === "scenarios");
     document.getElementById("tabSoundbar").classList.toggle("active", section === "soundbar");
     
-    // Кнопка поиска только в "Вся музыка"
     document.getElementById("searchBtn").style.display = (section === "all") ? "flex" : "none";
     
-    // Кнопка перестановки только в саундбаре
     document.getElementById("editModeBtn").classList.toggle("visible", section === "soundbar");
     if (section !== "soundbar") {
       padEditMode = false;
       document.getElementById("editModeBtn").classList.remove("active");
-      document.getElementById("editModeBtn").innerHTML = "🔀 Переставить";
     }
     
     renderCurrentView();
@@ -894,10 +934,8 @@
     const btn = document.getElementById("editModeBtn");
     if (padEditMode) {
       btn.classList.add("active");
-      btn.innerHTML = "✔️ Готово";
     } else {
       btn.classList.remove("active");
-      btn.innerHTML = "🔀 Переставить";
     }
     renderCurrentView();
   }
@@ -991,7 +1029,6 @@
         padEl.dataset.index = idx;
         
         if (!track) {
-          // Пустой пэд (добавление)
           padEl.innerHTML = `<div class="pad-add">+</div>`;
           if (!padEditMode) {
             padEl.onclick = () => {
@@ -1004,23 +1041,22 @@
           const [bg] = pad.color ? pad.color.split("|") : (track.tag || "#333").split("|");
           padEl.style.background = bg;
           
-          // Ручка для перетаскивания (видна только в режиме редактирования)
           const handle = `<div class="pad-handle">☰</div>`;
           
           padEl.innerHTML = `
             ${handle}
             <div class="pad-icon">${pad.icon || "🎵"}</div>
             <div class="pad-title">${pad.title || track.name}</div>
+            <div class="pad-trackname">${track.name}</div>
           `;
           
           if (!padEditMode) {
             padEl.onclick = () => {
               if (isLocked) return;
-              playTrack(pad.trackId, null);
+              playPad(pad.id);
             };
           }
           
-          // Долгое нажатие для редактирования (только если не в режиме перестановки)
           if (!padEditMode) {
             let holdTimer = null;
             const startEdit = () => {
@@ -1043,7 +1079,6 @@
         gridEl.appendChild(padEl);
       });
       
-      // Кнопка добавления нового пэда (всегда последняя)
       const addPadBtn = document.createElement("div");
       addPadBtn.className = "pad empty";
       addPadBtn.innerHTML = `<div class="pad-add">+</div>`;
@@ -1056,7 +1091,6 @@
       }
       gridEl.appendChild(addPadBtn);
       
-      // Навешиваем drag-and-drop для пэдов
       if (padEditMode) {
         gridEl.querySelectorAll('.pad[data-index]').forEach(padEl => {
           attachPadDragEvents(padEl);
@@ -1514,7 +1548,7 @@
     }
   }
 
-  // ============ ADD SOURCE (Pads & Scenarios) ============
+  // ============ ADD SOURCE ============
   function openAddSourceModal(scenarioId, target = 'scenario') {
     if (isLocked) return;
     if (target === 'scenario') {
@@ -1528,12 +1562,10 @@
   
   function addFromDeviceToPad() {
     closeModal("addSourceModal");
-    // Открываем модалку загрузки трека, но после сохранения сразу переходим к настройке пэда
     openTrackModalForPad();
   }
   
   function openTrackModalForPad() {
-    // Упрощенная загрузка (только файл)
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'audio/*';
@@ -1553,7 +1585,6 @@
         addReq.onsuccess = (res) => {
           const newTrackId = res.target.result;
           loadAllData(() => {
-            // Открываем настройки пэда с уже выбранным треком
             editingPadId = null;
             openPadEditor(newTrackId);
           });
@@ -1567,7 +1598,6 @@
   function openLibraryPicker(target) {
     closeModal("addSourceModal");
     pickerTarget = target;
-    const listEl = document.getElementById("libraryPickList");
     const searchInput = document.getElementById("pickerSearch");
     if (searchInput) searchInput.value = "";
     
@@ -1602,10 +1632,25 @@
       item.onclick = () => {
         closeModal("libraryPickerModal");
         if (pickerTarget === 'pad') {
-          editingPadId = null;
-          openPadEditor(t.id);
+          if (padTrackChangeMode) {
+            // Меняем трек у существующего пэда
+            const pad = pads.find(p => p.id === editingPadId);
+            if (pad) {
+              pad.trackId = t.id;
+              const tx = db.transaction("pads", "readwrite");
+              tx.objectStore("pads").put(pad);
+              tx.oncomplete = () => {
+                loadAllData(() => {
+                  padTrackChangeMode = false;
+                  openPadEditor();
+                });
+              };
+            }
+          } else {
+            editingPadId = null;
+            openPadEditor(t.id);
+          }
         } else {
-          // Для сценария (добавление трека)
           const sc = scenarios.find(s => s.id === addTargetScenarioId);
           if (sc && !(sc.trackIds || []).includes(t.id)) {
             sc.trackIds = [...(sc.trackIds || []), t.id];
@@ -1622,14 +1667,14 @@
   // ============ PAD EDITOR ============
   function openPadEditor(trackId = null) {
     const titleInput = document.getElementById("inputPadTitle");
-    const iconInput = document.getElementById("inputPadIcon");
     const deleteBtn = document.getElementById("deletePadBtn");
     const trackInput = document.getElementById("inputPadTrackId");
+    const currentTrackNameEl = document.getElementById("padCurrentTrackName");
     
     // Инициализация палитры
     const paletteEl = document.getElementById("padColorPalette");
     paletteEl.innerHTML = "";
-    PAD_COLORS.forEach((color, i) => {
+    PAD_COLORS.forEach((color) => {
       const swatch = document.createElement("div");
       swatch.className = "color-swatch" + (selectedPadColor === color ? " selected" : "");
       swatch.style.background = color;
@@ -1641,30 +1686,62 @@
       paletteEl.appendChild(swatch);
     });
     
+    // Инициализация иконок
+    const iconGrid = document.getElementById("padIconGrid");
+    iconGrid.innerHTML = "";
+    const currentIcon = document.getElementById("inputPadIcon").value || "🎵";
+    PAD_ICONS.forEach(ico => {
+      const opt = document.createElement("div");
+      opt.className = "icon-option" + (currentIcon === ico ? " selected" : "");
+      opt.textContent = ico;
+      opt.onclick = () => {
+        document.getElementById("inputPadIcon").value = ico;
+        document.querySelectorAll("#padIconGrid .icon-option").forEach(el => el.classList.remove("selected"));
+        opt.classList.add("selected");
+      };
+      iconGrid.appendChild(opt);
+    });
+    
     if (editingPadId) {
       const pad = pads.find(p => p.id === editingPadId);
       if (pad) {
         document.getElementById("padModalHeading").innerText = "Настроить пэд";
         titleInput.value = pad.title || "";
-        iconInput.value = pad.icon || "🎵";
+        document.getElementById("inputPadIcon").value = pad.icon || "🎵";
         trackInput.value = pad.trackId || "";
         selectedPadColor = pad.color || PAD_COLORS[0];
         deleteBtn.style.display = "block";
-        // Обновить выделение цвета
+        
+        const tr = tracks.find(t => t.id === pad.trackId);
+        currentTrackNameEl.textContent = tr ? tr.name : "—";
+        
         document.querySelectorAll("#padColorPalette .color-swatch").forEach((el, i) => {
           el.classList.toggle("selected", PAD_COLORS[i] === selectedPadColor);
+        });
+        document.querySelectorAll("#padIconGrid .icon-option").forEach(el => {
+          el.classList.toggle("selected", el.textContent === (pad.icon || "🎵"));
         });
       }
     } else {
       document.getElementById("padModalHeading").innerText = "Настроить пэд";
       titleInput.value = "";
-      iconInput.value = "🎵";
+      document.getElementById("inputPadIcon").value = "🎵";
       trackInput.value = trackId || "";
       selectedPadColor = PAD_COLORS[0];
       deleteBtn.style.display = "none";
+      
+      const tr = trackId ? tracks.find(t => t.id === trackId) : null;
+      currentTrackNameEl.textContent = tr ? tr.name : "Не выбран";
     }
     
     document.getElementById("padModal").style.display = "flex";
+  }
+  
+  function changePadTrack() {
+    padTrackChangeMode = true;
+    closeModal('padModal');
+    // Открываем выбор источника
+    openAddSourceModal(null, 'pad');
   }
 
   function savePad() {
@@ -1703,6 +1780,13 @@
       if (sc) return (sc.trackIds || []).filter(id => tracks.some(t => t.id === id));
     }
     return tracks.map(t => t.id);
+  }
+  
+  function playPad(padId) {
+    const pad = pads.find(p => p.id === padId);
+    if (!pad) return;
+    currentPadContext = pad;
+    playTrack(pad.trackId, null);
   }
 
   function requestPlay(trackId, scenarioContextId = null) {
@@ -1894,6 +1978,7 @@
     if (currentAudio) { currentAudio.pause(); currentAudio.src = ""; currentAudio = null; }
     if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
     currentTrackId = null;
+    currentPadContext = null; // сбрасываем контекст пэда
     releaseWakeLock();
     stopShowTimer();
     if (navigator.mediaSession) { navigator.mediaSession.metadata = null; navigator.mediaSession.playbackState = "none"; }
@@ -1958,11 +2043,24 @@
       return;
     }
     const track = tracks.find(t => t.id === currentTrackId); if (!track) return;
-    const [bg, ico] = (track.tag || "linear-gradient(135deg,#1565c0,#42a5f5)|🎵").split("|");
-    const coverEl = document.getElementById("playerCover");
-    coverEl.style.background = bg; coverEl.innerText = ico;
-    document.getElementById("playerTitle").innerText = track.name;
-    document.getElementById("playerSub").innerText = track.note || track.purpose || "ʞk Player";
+    
+    // Если играет пэд, показываем его данные
+    if (currentPadContext) {
+      const pad = currentPadContext;
+      const [bg] = pad.color ? pad.color.split("|") : (track.tag || "#333").split("|");
+      document.getElementById("playerCover").style.background = bg;
+      document.getElementById("playerCover").innerText = pad.icon || "🎵";
+      document.getElementById("playerTitle").innerText = pad.title || track.name;
+      document.getElementById("playerSub").innerText = track.name;
+    } else {
+      // Обычный трек
+      const [bg, ico] = (track.tag || "linear-gradient(135deg,#1565c0,#42a5f5)|🎵").split("|");
+      const coverEl = document.getElementById("playerCover");
+      coverEl.style.background = bg; coverEl.innerText = ico;
+      document.getElementById("playerTitle").innerText = track.name;
+      document.getElementById("playerSub").innerText = track.note || track.purpose || "ʞk Player";
+    }
+    
     playBtn.innerHTML = currentAudio.paused ? SVG_PLAY : SVG_PAUSE;
 
     const cur = currentAudio.currentTime || 0;
