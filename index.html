@@ -7,7 +7,6 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
 <title>ʞk Player</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <style>
   :root {
@@ -442,40 +441,38 @@
     cursor: pointer;
   }
   .icon-option.selected { border-color: var(--accent-blue); background: rgba(26,115,232,0.2); }
-
-  .progress-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-    z-index: 100; align-items: center; justify-content: center; flex-direction: column;
-  }
-  .progress-overlay.visible { display: flex; }
-  .progress-text { color: #fff; font-size: 18px; font-weight: 700; margin-bottom: 16px; }
-  .progress-bar-bg { width: 80%; max-width: 300px; height: 8px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; }
-  .progress-bar-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.3s; }
 </style>
 </head>
 <body>
 
 <div class="lock-indicator" id="lockIndicator">🔒 ЗАБЛОКИРОВАНО</div>
 <div class="show-timer" id="showTimer">00:00</div>
-<div class="locked-overlay" id="lockedOverlay" onclick="return false;"></div>
 
-<div class="progress-overlay" id="progressOverlay">
-  <div class="progress-text" id="progressText">Подготовка...</div>
-  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBarFill"></div></div>
-</div>
+<div class="locked-overlay" id="lockedOverlay" onclick="return false;"></div>
 
 <header id="mainHeader">
   <div class="header-top">
-    <div class="brand"><h1 class="brand-title">ʞk</h1></div>
+    <div class="brand">
+      <h1 class="brand-title">ʞk</h1>
+    </div>
     <div class="header-actions">
       <button class="icon-btn" id="searchBtn" onclick="toggleSearch()" title="Поиск" style="display:none;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
       </button>
       <button class="icon-btn" id="lockBtn" onclick="toggleLock()" title="Заблокировать экран" style="pointer-events: auto !important; z-index: 100; position: relative;">
-        <svg id="lockIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <svg id="lockIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
       </button>
       <button class="icon-btn" onclick="openSettings()" title="Настройки" id="settingsBtn">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
       </button>
     </div>
   </div>
@@ -506,7 +503,11 @@
       <div class="player-sub" id="playerSub">Назначение</div>
     </div>
     <button class="icon-btn" id="volBtn" onclick="toggleVolume()" title="Громкость" style="width:40px;height:40px;">
-      <svg id="volIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+      <svg id="volIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+      </svg>
     </button>
   </div>
   <div class="seek-container">
@@ -515,26 +516,188 @@
     <span class="time-txt" id="timeDuration" style="text-align:right">0:00</span>
   </div>
   <div class="player-controls">
-    <button class="p-ctrl" onclick="playPrevTrack()" title="Предыдущий"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14l-11-7z"/></svg></button>
-    <button class="p-ctrl p-ctrl-stop" onclick="stopAndReset()" title="Стоп (сброс)"><svg width="22" height="22" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg></button>
+    <button class="p-ctrl" onclick="playPrevTrack()" title="Предыдущий">
+      <svg width="24" height="24" viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14l-11-7z"/></svg>
+    </button>
+    <button class="p-ctrl p-ctrl-stop" onclick="stopAndReset()" title="Стоп (сброс)">
+      <svg width="22" height="22" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>
+    </button>
     <button class="p-ctrl p-ctrl-main" id="playPauseBtn" onclick="togglePauseCurrent()"></button>
-    <button class="p-ctrl" onclick="restartCurrent()" title="Заново"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
-    <button class="p-ctrl" onclick="playNextTrack()" title="Следующий"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+    <button class="p-ctrl" onclick="restartCurrent()" title="Заново">
+      <svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+    </button>
+    <button class="p-ctrl" onclick="playNextTrack()" title="Следующий">
+      <svg width="24" height="24" viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>
+    </button>
   </div>
 </div>
 
-<!-- Модалки (все на месте) -->
-<div class="modal-overlay" id="trackModal" onclick="if(event.target === this) closeModal('trackModal')"><div class="modal-box"><h3 id="trackModalHeading">Добавить трек</h3><div id="addTrackFields"><label class="field-label">Аудиофайлы (можно несколько):</label><input type="file" class="modal-input" id="inputTrackFiles" accept="audio/*" multiple></div><div id="editTrackFields" style="display:none"><label class="field-label">Название трека:</label><input type="text" class="modal-input" id="inputTrackName" placeholder="Например: Выход Снегурочки"><label class="field-label">Назначение / Исполнитель:</label><input type="text" class="modal-input" id="inputTrackPurpose" placeholder="Например: Фанфары"><label class="field-label">Обложка и цвет:</label><select class="modal-select" id="inputTrackTag"><option value="linear-gradient(135deg,#1565c0,#42a5f5)|🎵">Синий — Музыка</option><option value="linear-gradient(135deg,#2e7d32,#66bb6a)|🎺">Зелёный — Фанфары</option><option value="linear-gradient(135deg,#ef6c00,#ffa726)|📦">Оранжевый — Эффект</option><option value="linear-gradient(135deg,#ad1457,#ec407a)|💃">Розовый — Танцы</option><option value="linear-gradient(135deg,#4527a0,#7e57c2)|🔮">Фиолетовый — Тайна</option></select><label class="checkbox-row"><input type="checkbox" id="inputTrackLoop">Повторять трек по кругу</label><label class="field-label">Заменить аудиофайл:</label><input type="file" class="modal-input" id="inputTrackFileReplace" accept="audio/*"></div><div class="modal-btns"><button class="m-btn" onclick="closeModal('trackModal')">Отмена</button><button class="m-btn m-btn-primary" id="saveTrackBtn" onclick="saveTrack()">Сохранить</button></div></div></div>
+<!-- Модалки -->
+<div class="modal-overlay" id="trackModal" onclick="if(event.target === this) closeModal('trackModal')">
+  <div class="modal-box">
+    <h3 id="trackModalHeading">Добавить трек</h3>
+    <div id="addTrackFields">
+      <label class="field-label">Аудиофайлы (можно несколько):</label>
+      <input type="file" class="modal-input" id="inputTrackFiles" accept="audio/*" multiple>
+    </div>
+    <div id="editTrackFields" style="display:none">
+      <label class="field-label">Название трека:</label>
+      <input type="text" class="modal-input" id="inputTrackName" placeholder="Например: Выход Снегурочки">
+      <label class="field-label">Назначение / Исполнитель:</label>
+      <input type="text" class="modal-input" id="inputTrackPurpose" placeholder="Например: Фанфары">
+      <label class="field-label">Обложка и цвет:</label>
+      <select class="modal-select" id="inputTrackTag">
+        <option value="linear-gradient(135deg,#1565c0,#42a5f5)|🎵">Синий — Музыка</option>
+        <option value="linear-gradient(135deg,#2e7d32,#66bb6a)|🎺">Зелёный — Фанфары</option>
+        <option value="linear-gradient(135deg,#ef6c00,#ffa726)|📦">Оранжевый — Эффект</option>
+        <option value="linear-gradient(135deg,#ad1457,#ec407a)|💃">Розовый — Танцы</option>
+        <option value="linear-gradient(135deg,#4527a0,#7e57c2)|🔮">Фиолетовый — Тайна</option>
+      </select>
+      <label class="checkbox-row">
+        <input type="checkbox" id="inputTrackLoop">
+        Повторять трек по кругу
+      </label>
+      <label class="field-label">Заменить аудиофайл:</label>
+      <input type="file" class="modal-input" id="inputTrackFileReplace" accept="audio/*">
+    </div>
+    <div class="modal-btns">
+      <button class="m-btn" onclick="closeModal('trackModal')">Отмена</button>
+      <button class="m-btn m-btn-primary" id="saveTrackBtn" onclick="saveTrack()">Сохранить</button>
+    </div>
+  </div>
+</div>
 
-<div class="modal-overlay" id="scenarioModal" onclick="if(event.target === this) closeModal('scenarioModal')"><div class="modal-box"><h3 id="scenarioModalHeading">Создать сценарий</h3><label class="field-label">Название сценария:</label><input type="text" class="modal-input" id="inputScName" placeholder="Например: Новогодний утренник"><label class="field-label">Таймер (длительность):</label><select class="modal-select" id="inputScDur"><option value="15">15 минут</option><option value="30">30 минут</option><option value="60">60 минут</option></select><div class="modal-btns"><button class="m-btn" onclick="closeModal('scenarioModal')">Отмена</button><button class="m-btn m-btn-primary" onclick="saveScenario()">Сохранить</button></div></div></div>
+<div class="modal-overlay" id="scenarioModal" onclick="if(event.target === this) closeModal('scenarioModal')">
+  <div class="modal-box">
+    <h3 id="scenarioModalHeading">Создать сценарий</h3>
+    <label class="field-label">Название сценария:</label>
+    <input type="text" class="modal-input" id="inputScName" placeholder="Например: Новогодний утренник">
+    <label class="field-label">Таймер (длительность):</label>
+    <select class="modal-select" id="inputScDur">
+      <option value="15">15 минут</option>
+      <option value="30">30 минут</option>
+      <option value="60">60 минут</option>
+    </select>
+    <div class="modal-btns">
+      <button class="m-btn" onclick="closeModal('scenarioModal')">Отмена</button>
+      <button class="m-btn m-btn-primary" onclick="saveScenario()">Сохранить</button>
+    </div>
+  </div>
+</div>
 
-<div class="modal-overlay" id="addSourceModal" onclick="if(event.target === this) closeModal('addSourceModal')"><div class="modal-box"><h3>Добавить звук</h3><div class="choice-card" onclick="openLibraryPicker('pad')"><div style="font-size:24px">🎵</div><div><div style="font-weight:700;font-size:15px">Из списка плеера</div><div style="font-size:12px;color:var(--text-muted)">Выбрать из «Вся музыка»</div></div></div><div class="choice-card" onclick="addFromDeviceToPad()"><div style="font-size:24px">📱</div><div><div style="font-weight:700;font-size:15px">Из памяти телефона</div><div style="font-size:12px;color:var(--text-muted)">Загрузить новый файл</div></div></div><div class="modal-btns" style="margin-top:8px"><button class="m-btn" onclick="closeModal('addSourceModal')">Закрыть</button></div></div></div>
+<div class="modal-overlay" id="addSourceModal" onclick="if(event.target === this) closeModal('addSourceModal')">
+  <div class="modal-box">
+    <h3>Добавить звук</h3>
+    <div class="choice-card" onclick="openLibraryPicker('pad')">
+      <div style="font-size:24px">🎵</div>
+      <div>
+        <div style="font-weight:700;font-size:15px">Из списка плеера</div>
+        <div style="font-size:12px;color:var(--text-muted)">Выбрать из «Вся музыка»</div>
+      </div>
+    </div>
+    <div class="choice-card" onclick="addFromDeviceToPad()">
+      <div style="font-size:24px">📱</div>
+      <div>
+        <div style="font-weight:700;font-size:15px">Из памяти телефона</div>
+        <div style="font-size:12px;color:var(--text-muted)">Загрузить новый файл</div>
+      </div>
+    </div>
+    <div class="modal-btns" style="margin-top:8px">
+      <button class="m-btn" onclick="closeModal('addSourceModal')">Закрыть</button>
+    </div>
+  </div>
+</div>
 
-<div class="modal-overlay" id="libraryPickerModal" onclick="if(event.target === this) closeModal('libraryPickerModal')"><div class="modal-box"><h3>Выберите трек</h3><input type="text" class="modal-input" id="pickerSearch" placeholder="Поиск..." oninput="filterPickerList()"><div class="library-pick-list" id="libraryPickList"></div><div class="modal-btns"><button class="m-btn" onclick="closeModal('libraryPickerModal')">Отмена</button></div></div></div>
+<div class="modal-overlay" id="libraryPickerModal" onclick="if(event.target === this) closeModal('libraryPickerModal')">
+  <div class="modal-box">
+    <h3>Выберите трек</h3>
+    <input type="text" class="modal-input" id="pickerSearch" placeholder="Поиск..." oninput="filterPickerList()">
+    <div class="library-pick-list" id="libraryPickList"></div>
+    <div class="modal-btns">
+      <button class="m-btn" onclick="closeModal('libraryPickerModal')">Отмена</button>
+    </div>
+  </div>
+</div>
 
-<div class="modal-overlay" id="padModal" onclick="if(event.target === this) closeModal('padModal')"><div class="modal-box"><h3 id="padModalHeading">Настроить пэд</h3><input type="hidden" id="inputPadTrackId"><div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; padding:10px 12px; background:#0d0d11; border-radius:12px; border:1px solid var(--border-subtle);"><div style="flex:1; min-width:0;"><div style="font-size:11px; color:var(--text-muted); margin-bottom:2px;">Текущий трек</div><div id="padCurrentTrackName" style="font-size:14px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">—</div></div><button class="m-btn" onclick="changePadTrack()" style="flex:none; padding:8px 12px; font-size:13px;">Сменить</button></div><label class="field-label">Название на пэде:</label><input type="text" class="modal-input" id="inputPadTitle" placeholder="Например: Смех"><label class="field-label">Иконка:</label><div class="icon-grid" id="padIconGrid"></div><input type="hidden" id="inputPadIcon" value="🎵"><label class="field-label">Цвет:</label><div class="color-palette" id="padColorPalette"></div><div class="modal-btns" style="margin-top:10px"><button class="m-btn" onclick="closeModal('padModal')">Отмена</button><button class="m-btn m-btn-primary" onclick="savePad()">Сохранить</button></div><div class="modal-btns" style="margin-top:10px"><button class="m-btn m-btn-danger" onclick="deletePad()" id="deletePadBtn">Удалить пэд</button></div></div></div>
+<div class="modal-overlay" id="padModal" onclick="if(event.target === this) closeModal('padModal')">
+  <div class="modal-box">
+    <h3 id="padModalHeading">Настроить пэд</h3>
+    
+    <input type="hidden" id="inputPadTrackId">
+    
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; padding:10px 12px; background:#0d0d11; border-radius:12px; border:1px solid var(--border-subtle);">
+      <div style="flex:1; min-width:0;">
+        <div style="font-size:11px; color:var(--text-muted); margin-bottom:2px;">Текущий трек</div>
+        <div id="padCurrentTrackName" style="font-size:14px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">—</div>
+      </div>
+      <button class="m-btn" onclick="changePadTrack()" style="flex:none; padding:8px 12px; font-size:13px;">Сменить</button>
+    </div>
+    
+    <label class="field-label">Название на пэде:</label>
+    <input type="text" class="modal-input" id="inputPadTitle" placeholder="Например: Смех">
+    
+    <label class="field-label">Иконка:</label>
+    <div class="icon-grid" id="padIconGrid"></div>
+    <input type="hidden" id="inputPadIcon" value="🎵">
+    
+    <label class="field-label">Цвет:</label>
+    <div class="color-palette" id="padColorPalette"></div>
+    
+    <div class="modal-btns" style="margin-top:10px">
+      <button class="m-btn" onclick="closeModal('padModal')">Отмена</button>
+      <button class="m-btn m-btn-primary" onclick="savePad()">Сохранить</button>
+    </div>
+    <div class="modal-btns" style="margin-top:10px">
+      <button class="m-btn m-btn-danger" onclick="deletePad()" id="deletePadBtn">Удалить пэд</button>
+    </div>
+  </div>
+</div>
 
-<div class="modal-overlay" id="settingsModal" onclick="if(event.target === this) closeModal('settingsModal')"><div class="modal-box"><h3>Настройки</h3><div class="choice-card" onclick="resetVolume()"><div style="font-size:24px">🔊</div><div><div style="font-weight:700;font-size:15px">Громкость 100%</div><div style="font-size:12px;color:var(--text-muted)">Сбросить на максимум</div></div></div><label class="checkbox-row" style="background:var(--bg-pill);padding:14px;border-radius:12px;margin-top:10px;"><input type="checkbox" id="settingCrossfade" onchange="toggleCrossfadeSetting()" style="width:20px;height:20px;accent-color:var(--accent-blue);"><div><div style="font-weight:700;font-size:14px">Плавный переход (Crossfade)</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Затухание 2.5 сек при смене трека</div></div></label><label class="checkbox-row" style="background:var(--bg-pill);padding:14px;border-radius:12px;margin-top:10px;"><input type="checkbox" id="settingSafeMode" onchange="toggleSafeModeSetting()" style="width:20px;height:20px;accent-color:var(--accent-blue);"><div><div style="font-weight:700;font-size:14px">Безопасный выбор (Safe Mode)</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Трек не играет сразу, а встаёт в очередь</div></div></label><div class="choice-card" onclick="exportBackup()" style="margin-top:10px; border: 1px solid var(--accent-blue);"><div style="font-size:24px">📤</div><div><div style="font-weight:700;font-size:15px; color:#64b5f6;">Экспортировать всё (ZIP)</div><div style="font-size:12px;color:var(--text-muted)">Скачать треки и сценарии одним архивом</div></div></div><div class="choice-card" onclick="triggerImportBackup()"><div style="font-size:24px">📥</div><div><div style="font-weight:700;font-size:15px">Импортировать из архива (ZIP)</div><div style="font-size:12px;color:var(--text-muted)">Загрузить треки и сценарии из файла</div></div></div><input type="file" id="importFileInput" accept=".zip" style="display:none;" onchange="handleImportFile(event)"><div class="choice-card" onclick="forceAppUpdate()" style="margin-top:10px;"><div style="font-size:24px">🔄</div><div><div style="font-weight:700;font-size:15px">Проверить обновления</div><div style="font-size:12px;color:var(--text-muted)">Скачать новую версию с сервера</div></div></div><div class="modal-hint" style="margin-top:16px; text-align:center; font-size:11px;">Версия приложения: <strong>v12.1</strong><br>Ваши треки и пэды хранятся в безопасности (IndexedDB v9)</div><div class="modal-btns" style="margin-top:16px"><button class="m-btn" onclick="closeModal('settingsModal')">Закрыть</button></div></div></div>
+<div class="modal-overlay" id="settingsModal" onclick="if(event.target === this) closeModal('settingsModal')">
+  <div class="modal-box">
+    <h3>Настройки</h3>
+    <div class="choice-card" onclick="resetVolume()">
+      <div style="font-size:24px">🔊</div>
+      <div>
+        <div style="font-weight:700;font-size:15px">Громкость 100%</div>
+        <div style="font-size:12px;color:var(--text-muted)">Сбросить на максимум</div>
+      </div>
+    </div>
+    
+    <label class="checkbox-row" style="background:var(--bg-pill);padding:14px;border-radius:12px;margin-top:10px;">
+      <input type="checkbox" id="settingCrossfade" onchange="toggleCrossfadeSetting()" style="width:20px;height:20px;accent-color:var(--accent-blue);">
+      <div>
+        <div style="font-weight:700;font-size:14px">Плавный переход (Crossfade)</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Затухание 2.5 сек при смене трека</div>
+      </div>
+    </label>
+
+    <label class="checkbox-row" style="background:var(--bg-pill);padding:14px;border-radius:12px;margin-top:10px;">
+      <input type="checkbox" id="settingSafeMode" onchange="toggleSafeModeSetting()" style="width:20px;height:20px;accent-color:var(--accent-blue);">
+      <div>
+        <div style="font-weight:700;font-size:14px">Безопасный выбор (Safe Mode)</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Трек не играет сразу, а встаёт в очередь</div>
+      </div>
+    </label>
+
+    <div class="choice-card" onclick="forceAppUpdate()" style="margin-top:10px;">
+      <div style="font-size:24px">🔄</div>
+      <div>
+        <div style="font-weight:700;font-size:15px">Проверить обновления</div>
+        <div style="font-size:12px;color:var(--text-muted)">Скачать новую версию с сервера</div>
+      </div>
+    </div>
+
+    <div class="modal-hint" style="margin-top:16px; text-align:center; font-size:11px;">
+      Версия приложения: <strong>v14</strong><br>
+      Ваши треки хранятся в безопасности (IndexedDB v9)
+    </div>
+
+    <div class="modal-btns" style="margin-top:16px">
+      <button class="m-btn" onclick="closeModal('settingsModal')">Закрыть</button>
+    </div>
+  </div>
+</div>
 
 <script>
   // ============ STATE ============
@@ -637,7 +800,7 @@
     return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
   }
 
-  // ============ SETTINGS & UPDATE ============
+  // ============ SETTINGS ============
   function toggleCrossfadeSetting() {
     crossfadeEnabled = document.getElementById("settingCrossfade").checked;
     localStorage.setItem("kk_crossfade", crossfadeEnabled);
@@ -675,205 +838,6 @@
     if (cf) cf.checked = crossfadeEnabled;
     if (sm) sm.checked = safeModeEnabled;
   }, 100);
-
-  // ============ EXPORT / IMPORT LOGIC ============
-  function showProgress(text, percent) {
-    const overlay = document.getElementById("progressOverlay");
-    overlay.classList.add("visible");
-    document.getElementById("progressText").innerText = text;
-    document.getElementById("progressBarFill").style.width = percent + "%";
-  }
-  function hideProgress() {
-    document.getElementById("progressOverlay").classList.remove("visible");
-  }
-
-  async function exportBackup() {
-    closeModal('settingsModal');
-    showProgress("Сборка архива...", 0);
-    
-    try {
-      const zip = new JSZip();
-      const audioFolder = zip.folder("audio");
-      
-      const config = {
-        version: 1,
-        tracks: [],
-        scenarios: scenarios.map(s => ({ 
-          name: s.name, 
-          duration: s.duration, 
-          order: s.order,
-          pads: (s.pads || []).map(p => ({
-            title: p.title,
-            icon: p.icon,
-            color: p.color,
-            trackFileName: tracks.find(t => t.id === p.trackId)?.fileName || null
-          }))
-        })),
-        globalPads: pads.map(p => ({
-          title: p.title,
-          icon: p.icon,
-          color: p.color,
-          trackFileName: tracks.find(t => t.id === p.trackId)?.fileName || null
-        }))
-      };
-
-      for (let i = 0; i < tracks.length; i++) {
-        const t = tracks[i];
-        const fileName = `track_${t.id}.mp3`; 
-        
-        const blob = new Blob([t.data], { type: t.mimeType || "audio/mpeg" });
-        audioFolder.file(fileName, blob);
-        
-        config.tracks.push({
-          fileName: fileName,
-          name: t.name,
-          purpose: t.purpose,
-          tag: t.tag,
-          loop: t.loop
-        });
-
-        if (i % 2 === 0) {
-          showProgress(`Сборка треков... ${i}/${tracks.length}`, Math.round((i / tracks.length) * 100));
-          await new Promise(r => setTimeout(r, 10));
-        }
-      }
-
-      zip.file("config.json", JSON.stringify(config, null, 2));
-
-      showProgress("Финализация...", 99);
-      const content = await zip.generateAsync({ type: "blob" }, (metadata) => {
-        showProgress(`Сжатие... ${Math.round(metadata.percent)}%`, Math.round(metadata.percent));
-      });
-
-      const url = URL.createObjectURL(content);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `kk_player_backup_${new Date().toISOString().slice(0, 10)}.zip`;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 5000);
-      
-      hideProgress();
-    } catch (err) {
-      hideProgress();
-      alert("Ошибка экспорта: " + err.message);
-    }
-  }
-
-  function triggerImportBackup() {
-    closeModal('settingsModal');
-    document.getElementById("importFileInput").value = "";
-    document.getElementById("importFileInput").click();
-  }
-
-  async function handleImportFile(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    showProgress("Чтение архива...", 0);
-
-    try {
-      const zip = await JSZip.loadAsync(file);
-      const configFile = zip.file("config.json");
-      if (!configFile) throw new Error("Не найден файл конфигурации.");
-      
-      const config = JSON.parse(await configFile.async("string"));
-      
-      const txClear = db.transaction(["tracks", "scenarios", "pads"], "readwrite");
-      txClear.objectStore("tracks").clear();
-      txClear.objectStore("scenarios").clear();
-      txClear.objectStore("pads").clear();
-      await new Promise((resolve, reject) => {
-        txClear.oncomplete = resolve;
-        txClear.onerror = reject;
-      });
-
-      const trackIdMap = {}; 
-      const trackEntries = Object.values(zip.files).filter(f => f.name.startsWith("audio/") && !f.dir);
-      
-      for (let i = 0; i < trackEntries.length; i++) {
-        const zipEntry = trackEntries[i];
-        const fileName = zipEntry.name.replace("audio/", "");
-        const arrayBuffer = await zipEntry.async("arraybuffer");
-        
-        const meta = config.tracks.find(t => t.fileName === fileName);
-        
-        const tx = db.transaction("tracks", "readwrite");
-        const addReq = tx.objectStore("tracks").add({
-          name: meta ? meta.name : fileName,
-          purpose: meta ? meta.purpose : "",
-          tag: meta ? meta.tag : "linear-gradient(135deg,#1565c0,#42a5f5)|🎵",
-          loop: meta ? meta.loop : false,
-          order: i,
-          data: arrayBuffer,
-          mimeType: "audio/mpeg"
-        });
-        
-        await new Promise((resolve, reject) => {
-          addReq.onsuccess = (e) => {
-            trackIdMap[fileName] = e.target.result;
-            resolve();
-          };
-          addReq.onerror = reject;
-        });
-        
-        showProgress(`Загрузка треков... ${i+1}/${trackEntries.length}`, Math.round(((i+1) / trackEntries.length) * 80));
-      }
-
-      showProgress("Восстановление сценариев...", 85);
-      for (const scConfig of config.scenarios) {
-        const newPads = [];
-        for (const pConfig of scConfig.pads) {
-          if (pConfig.trackFileName && trackIdMap[pConfig.trackFileName]) {
-            newPads.push({
-              id: Date.now() + Math.random(),
-              trackId: trackIdMap[pConfig.trackFileName],
-              title: pConfig.title,
-              icon: pConfig.icon,
-              color: pConfig.color,
-              order: newPads.length
-            });
-          }
-        }
-        
-        const tx = db.transaction("scenarios", "readwrite");
-        tx.objectStore("scenarios").add({
-          name: scConfig.name,
-          duration: scConfig.duration,
-          order: scConfig.order,
-          trackIds: [],
-          pads: newPads
-        });
-        await new Promise(r => setTimeout(r, 10));
-      }
-
-      showProgress("Финальный штрих...", 95);
-      const txPads = db.transaction("pads", "readwrite");
-      for (const pConfig of config.globalPads) {
-        if (pConfig.trackFileName && trackIdMap[pConfig.trackFileName]) {
-          txPads.objectStore("pads").add({
-            trackId: trackIdMap[pConfig.trackFileName],
-            title: pConfig.title,
-            icon: pConfig.icon,
-            color: pConfig.color,
-            order: 0
-          });
-        }
-      }
-      
-      await new Promise((resolve, reject) => {
-        txPads.oncomplete = resolve;
-        txPads.onerror = reject;
-      });
-      
-      hideProgress();
-      alert("Импорт завершен! Все треки и сценарии загружены.");
-      window.location.reload();
-
-    } catch (err) {
-      hideProgress();
-      alert("Ошибка импорта: " + err.message);
-    }
-  }
 
   // ============ WAKE LOCK ============
   async function requestWakeLock() {
