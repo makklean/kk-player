@@ -24,20 +24,13 @@
     --success: #43a047;
     --warning: #ff9800;
   }
-
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
   body {
-    margin: 0;
-    padding: 0 0 200px 0;
+    margin: 0; padding: 0 0 200px 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--bg-main);
-    color: var(--text-main);
-    user-select: none;
-    overflow-x: hidden;
-    -webkit-user-select: none;
+    background-color: var(--bg-main); color: var(--text-main);
+    user-select: none; overflow-x: hidden; -webkit-user-select: none;
   }
-
   header {
     position: sticky; top: 0; z-index: 20;
     background: rgba(9, 9, 11, 0.94);
@@ -45,12 +38,9 @@
     padding: 14px 16px 12px;
     border-bottom: 1px solid var(--border-subtle);
   }
-
   .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-  .brand { display: flex; align-items: center; gap: 10px; }
-  .brand-title { font-size: 24px; font-weight: 800; letter-spacing: 0.4px; color: #fff; margin: 0; }
+  .brand-title { font-size: 24px; font-weight: 800; color: #fff; margin: 0; }
   .header-actions { display: flex; align-items: center; gap: 8px; }
-
   .icon-btn {
     width: 40px; height: 40px; border-radius: 50%; border: none; background: transparent;
     color: var(--text-main); display: flex; align-items: center; justify-content: center;
@@ -58,8 +48,7 @@
   }
   .icon-btn:active { transform: scale(0.92); background: rgba(255,255,255,0.1); }
   .icon-btn.active { background: rgba(26,115,232,0.3); color: #64b5f6; }
-
-  .main-tabs { display: flex; align-items: center; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
+  .main-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
   .main-tabs::-webkit-scrollbar { display: none; }
   .tab-pill {
     padding: 8px 16px; border-radius: 99px; border: none; background: var(--bg-pill);
@@ -68,7 +57,6 @@
   }
   .tab-pill:active { transform: scale(0.96); }
   .tab-pill.active { background: var(--accent-blue); color: #fff; box-shadow: 0 3px 12px rgba(26,115,232,0.4); }
-
   .search-bar { display: none; margin-top: 12px; }
   .search-bar.visible { display: block; }
   .search-input {
@@ -76,9 +64,7 @@
     border: 1px solid var(--border-subtle); background: var(--bg-pill);
     color: #fff; font-size: 14px; outline: none;
   }
-
   .content-container { max-width: 720px; margin: 0 auto; padding: 14px 16px; }
-
   .playlist-sub-header {
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
     margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border-subtle);
@@ -89,7 +75,6 @@
     color: #fff; font-size: 13px; font-weight: 600; cursor: pointer;
   }
   .sub-header-title { flex: 1; font-size: 17px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
   .primary-action-btn {
     width: 100%; padding: 12px 16px; border-radius: 14px;
     border: 1px dashed rgba(41,121,255,0.55); background: rgba(26,115,232,0.12);
@@ -98,10 +83,8 @@
     margin-bottom: 14px; transition: background 0.15s, transform 0.1s;
   }
   .primary-action-btn:active { transform: scale(0.98); background: rgba(26,115,232,0.22); }
-
   .items-list { display: flex; flex-direction: column; gap: 12px; }
   .empty-state { text-align: center; color: var(--text-muted); padding: 46px 20px; font-size: 14px; line-height: 1.5; }
-
   .list-row {
     display: flex; align-items: center; gap: 13px; padding: 6px 4px;
     border-radius: 14px; cursor: pointer; transition: background 0.15s, opacity 0.15s;
@@ -109,10 +92,8 @@
   .list-row:active { background: rgba(255,255,255,0.05); }
   .list-row.dragging { opacity: 0.35; }
   .list-row.drag-over { border-top: 2px solid var(--accent-blue-bright); }
-
   .drag-handle { color: #555562; font-size: 18px; padding: 8px 2px; cursor: grab; touch-action: none; }
   .drag-handle.hidden { visibility: hidden; }
-
   .row-cover {
     width: 54px; height: 54px; border-radius: 13px;
     display: flex; align-items: center; justify-content: center;
@@ -129,7 +110,6 @@
   .eq-bar:nth-child(3) { animation-delay: 0.4s; height: 13px; }
   .eq-bar:nth-child(4) { animation-delay: 0.15s; height: 21px; }
   @keyframes eqBounce { 0% { transform: scaleY(0.35); } 100% { transform: scaleY(1); } }
-
   .row-info { flex: 1; min-width: 0; }
   .row-title {
     font-size: 16px; font-weight: 700; color: var(--text-main);
@@ -137,7 +117,6 @@
   }
   .list-row.playing .row-title, .list-row.paused .row-title { color: #4fc3f7; }
   .row-subtitle { font-size: 13px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
   .row-actions { display: flex; align-items: center; gap: 4px; }
   .row-btn {
     width: 34px; height: 34px; border-radius: 50%; border: none; background: transparent;
@@ -145,130 +124,73 @@
     display: flex; align-items: center; justify-content: center;
   }
   .row-btn:active { background: rgba(255,255,255,0.1); color: #fff; }
-
   .scenario-card {
-    background: var(--bg-pill);
-    border: 1px solid var(--border-subtle);
-    border-radius: 18px;
-    padding: 16px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    cursor: pointer;
-    transition: transform 0.1s, background 0.15s, border-color 0.15s;
-    position: relative;
+    background: var(--bg-pill); border: 1px solid var(--border-subtle);
+    border-radius: 18px; padding: 16px; display: flex; align-items: center; gap: 14px;
+    cursor: pointer; transition: transform 0.1s, background 0.15s, border-color 0.15s; position: relative;
   }
   .scenario-card:active { transform: scale(0.98); background: rgba(255,255,255,0.06); }
   .scenario-card .row-title { font-size: 18px; margin-bottom: 6px; }
   .scenario-card .row-subtitle { font-size: 14px; }
-
-  .pads-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-    padding-bottom: 20px;
-  }
-  @media (min-width: 500px) {
-    .pads-grid { grid-template-columns: repeat(3, 1fr); }
-  }
+  .pads-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding-bottom: 20px; }
+  @media (min-width: 500px) { .pads-grid { grid-template-columns: repeat(3, 1fr); } }
   .pad {
-    aspect-ratio: 1 / 1;
-    border-radius: 22px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    position: relative;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    transition: transform 0.1s, box-shadow 0.15s;
-    overflow: hidden;
-    border: 2px solid transparent;
-    padding: 10px;
+    aspect-ratio: 1 / 1; border-radius: 22px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; cursor: pointer; position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4); transition: transform 0.1s, box-shadow 0.15s;
+    overflow: hidden; border: 2px solid transparent; padding: 10px;
   }
   .pad:active { transform: scale(0.95); }
   .pad.playing { border-color: #fff; box-shadow: 0 0 20px rgba(255,255,255,0.5); }
   .pad.empty { background: rgba(255,255,255,0.05); border: 2px dashed rgba(255,255,255,0.2); }
   .pad.dragging { opacity: 0.3; }
   .pad.drag-over { border: 3px dashed #fff; }
-  
   .pad-handle {
-    position: absolute;
-    top: 8px; left: 8px;
-    font-size: 18px; color: rgba(255,255,255,0.6);
-    display: none;
-    cursor: grab;
-    touch-action: none;
-    z-index: 5;
-    padding: 6px;
+    position: absolute; top: 8px; left: 8px; font-size: 18px; color: rgba(255,255,255,0.6);
+    display: none; cursor: grab; touch-action: none; z-index: 5; padding: 6px;
   }
   .pads-grid.edit-mode .pad-handle { display: block; }
   .pads-grid.edit-mode .pad { cursor: grab; }
-  
-  .pad-icon {
-    font-size: 44px; margin-bottom: 2px; line-height: 1;
-  }
+  .pad-icon { font-size: 44px; margin-bottom: 2px; line-height: 1; }
   .pad-title {
-    font-size: 20px; font-weight: 900; text-align: center;
-    line-height: 1.1;
-    word-break: break-word;
-    color: #fff;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    margin-bottom: 2px;
+    font-size: 20px; font-weight: 900; text-align: center; line-height: 1.1;
+    word-break: break-word; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); margin-bottom: 2px;
   }
   .pad-trackname {
-    font-size: 11px; font-weight: 500; text-align: center;
-    color: rgba(255,255,255,0.7);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    width: 100%; padding: 0 4px;
+    font-size: 11px; font-weight: 500; text-align: center; color: rgba(255,255,255,0.7);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; padding: 0 4px;
   }
-  .pad-add {
-    font-size: 60px; color: rgba(255,255,255,0.4);
-    font-weight: 200; line-height: 1;
-  }
-  
+  .pad-add { font-size: 60px; color: rgba(255,255,255,0.4); font-weight: 200; line-height: 1; }
   .edit-mode-btn {
-    display: none;
-    width: 52px; height: 52px; border-radius: 50%;
-    background: rgba(28,28,34,0.95); color: #fff;
-    font-size: 22px;
-    border: 1px solid rgba(255,255,255,0.15);
-    cursor: pointer;
+    display: none; width: 52px; height: 52px; border-radius: 50%;
+    background: rgba(28,28,34,0.95); color: #fff; font-size: 22px;
+    border: 1px solid rgba(255,255,255,0.15); cursor: pointer;
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     align-items: center; justify-content: center;
     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    transition: transform 0.1s, background 0.15s;
-    margin: 10px auto 0 auto;
+    transition: transform 0.1s, background 0.15s; margin: 10px auto 0 auto;
   }
   .edit-mode-btn:active { transform: scale(0.9); }
   .edit-mode-btn.visible { display: flex; }
   .edit-mode-btn.active { background: var(--danger); border-color: var(--danger); }
-
   .save-scenario-btn {
-    display: none;
-    width: 100%; padding: 14px; border-radius: 14px;
-    background: var(--success); color: #fff;
-    font-size: 16px; font-weight: 700;
-    border: none; cursor: pointer;
-    margin-top: 20px;
+    display: none; width: 100%; padding: 14px; border-radius: 14px;
+    background: var(--success); color: #fff; font-size: 16px; font-weight: 700;
+    border: none; cursor: pointer; margin-top: 20px;
     box-shadow: 0 4px 12px rgba(67,160,71,0.4);
   }
   .save-scenario-btn.visible { display: block; }
-
   .show-timer {
     position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
-    background: rgba(0,0,0,0.85); color: white;
-    padding: 8px 18px; border-radius: 99px;
-    font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums;
-    z-index: 25; display: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    border: 1px solid var(--border-subtle);
+    background: rgba(0,0,0,0.85); color: white; padding: 8px 18px;
+    border-radius: 99px; font-size: 16px; font-weight: 700;
+    font-variant-numeric: tabular-nums; z-index: 25; display: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5); border: 1px solid var(--border-subtle);
   }
   .show-timer.visible { display: block; }
   .show-timer.warning { background: var(--warning); color: #000; animation: pulse 1s infinite; }
   .show-timer.danger { background: var(--danger); color: #fff; animation: pulse 0.5s infinite; }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-
   .player-bar {
     position: fixed; left: 10px; right: 10px; bottom: 10px;
     max-width: 700px; margin: 0 auto;
@@ -278,7 +200,6 @@
     transform: translateY(130%); transition: transform 0.28s cubic-bezier(0.2,0.8,0.2,1);
   }
   .player-bar.visible { transform: translateY(0); }
-
   .player-top { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
   .player-cover {
     width: 44px; height: 44px; border-radius: 10px;
@@ -288,12 +209,7 @@
   .player-meta { flex: 1; min-width: 0; }
   .player-title { font-size: 15px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .player-sub { font-size: 12px; color: rgba(255,255,255,0.78); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  .player-controls {
-    display: flex; align-items: center; gap: 4px;
-    justify-content: center; flex-wrap: nowrap;
-  }
-
+  .player-controls { display: flex; align-items: center; gap: 4px; justify-content: center; flex-wrap: nowrap; }
   .p-ctrl {
     width: 52px; height: 52px; border-radius: 16px; border: none; background: transparent;
     color: #fff; font-size: 22px; cursor: pointer;
@@ -302,19 +218,12 @@
   }
   .p-ctrl:active { background: rgba(255,255,255,0.16); transform: scale(0.92); }
   .p-ctrl svg { display: block; fill: #fff; }
-
-  .p-ctrl-main {
-    width: 64px; height: 64px; border-radius: 20px;
-    background: rgba(255,255,255,0.15);
-  }
+  .p-ctrl-main { width: 64px; height: 64px; border-radius: 20px; background: rgba(255,255,255,0.15); }
   .p-ctrl-main:active { background: rgba(255,255,255,0.3); }
-
   .p-ctrl-stop { color: #ffcdd2; }
   .p-ctrl-stop:active { background: rgba(229,57,53,0.3); }
-
   .seek-container { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
   .time-txt { font-size: 11px; color: rgba(255,255,255,0.85); font-variant-numeric: tabular-nums; min-width: 34px; }
-
   .seek-slider {
     -webkit-appearance: none; appearance: none; flex: 1; height: 5px;
     border-radius: 99px; background: rgba(255,255,255,0.28); outline: none; cursor: pointer; margin: 0;
@@ -323,12 +232,10 @@
     -webkit-appearance: none; appearance: none; width: 15px; height: 15px;
     border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.45); cursor: pointer;
   }
-
   .safe-play-btn {
-    position: absolute; right: 14px; top: 10px;
-    padding: 8px 16px; border-radius: 99px;
-    background: var(--success); color: white; font-weight: 700; font-size: 13px;
-    border: none; cursor: pointer; display: none;
+    position: absolute; right: 14px; top: 10px; padding: 8px 16px;
+    border-radius: 99px; background: var(--success); color: white;
+    font-weight: 700; font-size: 13px; border: none; cursor: pointer; display: none;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   }
   .safe-play-btn.visible { display: block; animation: pulseGreen 1.5s infinite; }
@@ -336,7 +243,6 @@
     0%, 100% { box-shadow: 0 0 0 0 rgba(67,160,71,0.7); }
     50% { box-shadow: 0 0 0 10px rgba(67,160,71,0); }
   }
-
   .modal-overlay {
     display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.78);
     backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
@@ -364,14 +270,12 @@
   .m-btn-primary { background: var(--accent-blue); border: none; }
   .m-btn-danger { background: var(--danger); border: none; }
   .modal-hint { font-size: 12px; color: var(--text-muted); margin: -6px 0 14px; line-height: 1.45; }
-
   .choice-card {
-    display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 14px;
-    background: var(--bg-pill); border: 1px solid var(--border-subtle);
+    display: flex; align-items: center; gap: 12px; padding: 14px;
+    border-radius: 14px; background: var(--bg-pill); border: 1px solid var(--border-subtle);
     margin-bottom: 10px; cursor: pointer;
   }
   .choice-card:active { background: rgba(26,115,232,0.22); border-color: var(--accent-blue); }
-
   .library-pick-list {
     max-height: 280px; overflow-y: auto; display: flex; flex-direction: column;
     gap: 8px; margin-bottom: 14px;
@@ -382,14 +286,11 @@
     cursor: pointer;
   }
   .pick-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent-blue); }
-
   .row-btn.warn { color: var(--danger); }
-
   .vol-container {
     position: fixed; right: 14px; bottom: 130px; z-index: 31;
-    width: 44px; height: 140px;
-    background: rgba(0,0,0,0.7); border-radius: 22px;
-    display: none; align-items: center; justify-content: center;
+    width: 44px; height: 140px; background: rgba(0,0,0,0.7);
+    border-radius: 22px; display: none; align-items: center; justify-content: center;
     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   }
   .vol-container.visible { display: flex; }
@@ -403,7 +304,6 @@
     width: 20px; height: 20px; border-radius: 50%;
     background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.5);
   }
-
   .lock-indicator {
     position: fixed; top: 8px; left: 50%; transform: translateX(-50%);
     background: var(--danger); color: #fff; padding: 4px 14px;
@@ -411,97 +311,70 @@
     z-index: 60; display: none; letter-spacing: 0.5px;
   }
   .lock-indicator.visible { display: block; }
-  
   .locked-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 15;
+    display: none; position: fixed; inset: 0; z-index: 15;
     background: rgba(0, 0, 0, 0.65);
   }
   .locked-overlay.visible { display: block; }
-
-  .color-palette {
-    display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;
-  }
+  .color-palette { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
   .color-swatch {
     width: 48px; height: 48px; border-radius: 50%;
     border: 3px solid transparent; cursor: pointer;
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   }
   .color-swatch.selected { border-color: #fff; transform: scale(1.1); }
-
-  .icon-grid {
-    display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;
-  }
+  .icon-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
   .icon-option {
     width: 48px; height: 48px; border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 26px; background: #0d0d11; border: 2px solid transparent;
-    cursor: pointer;
+    font-size: 26px; background: #0d0d11; border: 2px solid transparent; cursor: pointer;
   }
   .icon-option.selected { border-color: var(--accent-blue); background: rgba(26,115,232,0.2); }
-  .progress-overlay {
+
+  /* Прогресс-бар (скрыт по умолчанию, всё в inline) */
+  #progressOverlay {
     display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-    z-index: 100; align-items: center; justify-content: center; flex-direction: column;
+    z-index: 100; flex-direction: column; align-items: center; justify-content: center;
   }
-  .progress-overlay.visible { display: flex; }
-  .progress-text { color: #fff; font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+  #progressOverlay.visible { display: flex; }
+  #progressText { color: #fff; font-size: 18px; font-weight: 700; margin-bottom: 16px; }
   .progress-bar-bg { width: 80%; max-width: 300px; height: 8px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; }
-  .progress-bar-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.3s; }
-.progress-overlay {
-  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-  z-index: 100; align-items: center; justify-content: center; flex-direction: column;
-}
-.progress-overlay.visible { display: flex; }
-.progress-text { color: #fff; font-size: 18px; font-weight: 700; margin-bottom: 16px; }
-.progress-bar-bg { width: 80%; max-width: 300px; height: 8px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; }
-.progress-bar-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.3s; }
-</>
+  #progressBarFill { height: 100%; background: var(--success); width: 0%; transition: width 0.3s; }
+</style>
 </head>
 <body>
 
 <div class="lock-indicator" id="lockIndicator">🔒 ЗАБЛОКИРОВАНО</div>
 <div class="show-timer" id="showTimer">00:00</div>
-<div class="progress-overlay" id="progressOverlay">
-  <div class="progress-text" id="progressText">Подготовка...</div>
-  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBarFill"></div></div>
+
+<!-- Прогресс-бар (скрыт по умолчанию) -->
+<div id="progressOverlay">
+  <div id="progressText">Подготовка...</div>
+  <div class="progress-bar-bg"><div id="progressBarFill"></div></div>
 </div>
+
 <div class="locked-overlay" id="lockedOverlay" onclick="return false;"></div>
 
 <header id="mainHeader">
   <div class="header-top">
-    <div class="brand">
-      <h1 class="brand-title">ʞk</h1>
-    </div>
+    <div class="brand"><h1 class="brand-title">ʞk</h1></div>
     <div class="header-actions">
-      <button class="icon-btn" id="searchBtn" onclick="toggleSearch()" title="Поиск" ="display:none;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="7"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
+      <button class="icon-btn" id="searchBtn" onclick="toggleSearch()" title="Поиск" style="display:none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
       </button>
-      <button class="icon-btn" id="lockBtn" onclick="toggleLock()" title="Заблокировать экран" ="pointer-events: auto !important; z-index: 100; position: relative;">
-        <svg id="lockIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-        </svg>
+      <button class="icon-btn" id="lockBtn" onclick="toggleLock()" title="Заблокировать экран" style="pointer-events: auto !important; z-index: 100; position: relative;">
+        <svg id="lockIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
       </button>
       <button class="icon-btn" onclick="openSettings()" title="Настройки" id="settingsBtn">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"></circle>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-        </svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       </button>
     </div>
   </div>
-
   <div class="main-tabs">
     <button class="tab-pill active" id="tabAllMusic" onclick="switchSection('all')">Вся музыка</button>
     <button class="tab-pill" id="tabScenarios" onclick="switchSection('scenarios')">Сценарии</button>
     <button class="tab-pill" id="tabSoundbar" onclick="switchSection('soundbar')">Саундбар</button>
   </div>
-
   <div class="search-bar" id="searchBar">
     <input type="text" class="search-input" id="searchInput" placeholder="Поиск по названию..." oninput="renderCurrentView()">
   </div>
@@ -521,33 +394,21 @@
       <div class="player-title" id="playerTitle">Название трека</div>
       <div class="player-sub" id="playerSub">Назначение</div>
     </div>
-    <button class="icon-btn" id="volBtn" onclick="toggleVolume()" title="Громкость" ="width:40px;height:40px;">
-      <svg id="volIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-      </svg>
+    <button class="icon-btn" id="volBtn" onclick="toggleVolume()" title="Громкость" style="width:40px;height:40px;">
+      <svg id="volIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
     </button>
   </div>
   <div class="seek-container">
     <span class="time-txt" id="timeCurrent">0:00</span>
     <input type="range" class="seek-slider" id="seekSlider" min="0" max="1000" value="0">
-    <span class="time-txt" id="timeDuration" ="text-align:right">0:00</span>
+    <span class="time-txt" id="timeDuration" style="text-align:right">0:00</span>
   </div>
   <div class="player-controls">
-    <button class="p-ctrl" onclick="playPrevTrack()" title="Предыдущий">
-      <svg width="24" height="24" viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14l-11-7z"/></svg>
-    </button>
-    <button class="p-ctrl p-ctrl-stop" onclick="stopAndReset()" title="Стоп (сброс)">
-      <svg width="22" height="22" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>
-    </button>
+    <button class="p-ctrl" onclick="playPrevTrack()" title="Предыдущий"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14l-11-7z"/></svg></button>
+    <button class="p-ctrl p-ctrl-stop" onclick="stopAndReset()" title="Стоп (сброс)"><svg width="22" height="22" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg></button>
     <button class="p-ctrl p-ctrl-main" id="playPauseBtn" onclick="togglePauseCurrent()"></button>
-    <button class="p-ctrl" onclick="restartCurrent()" title="Заново">
-      <svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
-    </button>
-    <button class="p-ctrl" onclick="playNextTrack()" title="Следующий">
-      <svg width="24" height="24" viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>
-    </button>
+    <button class="p-ctrl" onclick="restartCurrent()" title="Заново"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
+    <button class="p-ctrl" onclick="playNextTrack()" title="Следующий"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
   </div>
 </div>
 
@@ -559,7 +420,7 @@
       <label class="field-label">Аудиофайлы (можно несколько):</label>
       <input type="file" class="modal-input" id="inputTrackFiles" accept="audio/*" multiple>
     </div>
-    <div id="editTrackFields" ="display:none">
+    <div id="editTrackFields" style="display:none">
       <label class="field-label">Название трека:</label>
       <input type="text" class="modal-input" id="inputTrackName" placeholder="Например: Выход Снегурочки">
       <label class="field-label">Назначение / Исполнитель:</label>
@@ -572,10 +433,7 @@
         <option value="linear-gradient(135deg,#ad1457,#ec407a)|💃">Розовый — Танцы</option>
         <option value="linear-gradient(135deg,#4527a0,#7e57c2)|🔮">Фиолетовый — Тайна</option>
       </select>
-      <label class="checkbox-row">
-        <input type="checkbox" id="inputTrackLoop">
-        Повторять трек по кругу
-      </label>
+      <label class="checkbox-row"><input type="checkbox" id="inputTrackLoop">Повторять трек по кругу</label>
       <label class="field-label">Заменить аудиофайл:</label>
       <input type="file" class="modal-input" id="inputTrackFileReplace" accept="audio/*">
     </div>
@@ -608,20 +466,20 @@
   <div class="modal-box">
     <h3>Добавить звук</h3>
     <div class="choice-card" onclick="openLibraryPicker('pad')">
-      <div ="font-size:24px">🎵</div>
+      <div style="font-size:24px">🎵</div>
       <div>
-        <div ="font-weight:700;font-size:15px">Из списка плеера</div>
-        <div ="font-size:12px;color:var(--text-muted)">Выбрать из «Вся музыка»</div>
+        <div style="font-weight:700;font-size:15px">Из списка плеера</div>
+        <div style="font-size:12px;color:var(--text-muted)">Выбрать из «Вся музыка»</div>
       </div>
     </div>
     <div class="choice-card" onclick="addFromDeviceToPad()">
-      <div ="font-size:24px">📱</div>
+      <div style="font-size:24px">📱</div>
       <div>
-        <div ="font-weight:700;font-size:15px">Из памяти телефона</div>
-        <div ="font-size:12px;color:var(--text-muted)">Загрузить новый файл</div>
+        <div style="font-weight:700;font-size:15px">Из памяти телефона</div>
+        <div style="font-size:12px;color:var(--text-muted)">Загрузить новый файл</div>
       </div>
     </div>
-    <div class="modal-btns" ="margin-top:8px">
+    <div class="modal-btns" style="margin-top:8px">
       <button class="m-btn" onclick="closeModal('addSourceModal')">Закрыть</button>
     </div>
   </div>
@@ -641,32 +499,26 @@
 <div class="modal-overlay" id="padModal" onclick="if(event.target === this) closeModal('padModal')">
   <div class="modal-box">
     <h3 id="padModalHeading">Настроить пэд</h3>
-    
     <input type="hidden" id="inputPadTrackId">
-    
-    <div ="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; padding:10px 12px; background:#0d0d11; border-radius:12px; border:1px solid var(--border-subtle);">
-      <div ="flex:1; min-width:0;">
-        <div ="font-size:11px; color:var(--text-muted); margin-bottom:2px;">Текущий трек</div>
-        <div id="padCurrentTrackName" ="font-size:14px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">—</div>
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; padding:10px 12px; background:#0d0d11; border-radius:12px; border:1px solid var(--border-subtle);">
+      <div style="flex:1; min-width:0;">
+        <div style="font-size:11px; color:var(--text-muted); margin-bottom:2px;">Текущий трек</div>
+        <div id="padCurrentTrackName" style="font-size:14px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">—</div>
       </div>
-      <button class="m-btn" onclick="changePadTrack()" ="flex:none; padding:8px 12px; font-size:13px;">Сменить</button>
+      <button class="m-btn" onclick="changePadTrack()" style="flex:none; padding:8px 12px; font-size:13px;">Сменить</button>
     </div>
-    
     <label class="field-label">Название на пэде:</label>
     <input type="text" class="modal-input" id="inputPadTitle" placeholder="Например: Смех">
-    
     <label class="field-label">Иконка:</label>
     <div class="icon-grid" id="padIconGrid"></div>
     <input type="hidden" id="inputPadIcon" value="🎵">
-    
     <label class="field-label">Цвет:</label>
     <div class="color-palette" id="padColorPalette"></div>
-    
-    <div class="modal-btns" ="margin-top:10px">
+    <div class="modal-btns" style="margin-top:10px">
       <button class="m-btn" onclick="closeModal('padModal')">Отмена</button>
       <button class="m-btn m-btn-primary" onclick="savePad()">Сохранить</button>
     </div>
-    <div class="modal-btns" ="margin-top:10px">
+    <div class="modal-btns" style="margin-top:10px">
       <button class="m-btn m-btn-danger" onclick="deletePad()" id="deletePadBtn">Удалить пэд</button>
     </div>
   </div>
@@ -676,21 +528,19 @@
   <div class="modal-box">
     <h3>Настройки</h3>
     <div class="choice-card" onclick="resetVolume()">
-      <div ="font-size:24px">🔊</div>
+      <div style="font-size:24px">🔊</div>
       <div>
-        <div ="font-weight:700;font-size:15px">Громкость 100%</div>
-        <div ="font-size:12px;color:var(--text-muted)">Сбросить на максимум</div>
+        <div style="font-weight:700;font-size:15px">Громкость 100%</div>
+        <div style="font-size:12px;color:var(--text-muted)">Сбросить на максимум</div>
       </div>
     </div>
-    
-    <label class="checkbox-row" ="background:var(--bg-pill);padding:14px;border-radius:12px;margin-top:10px;">
-      <input type="checkbox" id="settingCrossfade" onchange="toggleCrossfadeSetting()" ="width:20px;height:20px;accent-color:var(--accent-blue);">
+    <label class="checkbox-row" style="background:var(--bg-pill);padding:14px;border-radius:12px;margin-top:10px;">
+      <input type="checkbox" id="settingCrossfade" onchange="toggleCrossfadeSetting()" style="width:20px;height:20px;accent-color:var(--accent-blue);">
       <div>
-        <div ="font-weight:700;font-size:14px">Плавный переход (Crossfade)</div>
+        <div style="font-weight:700;font-size:14px">Плавный переход (Crossfade)</div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Затухание 2.5 сек при смене трека</div>
       </div>
     </label>
-
     <label class="checkbox-row" style="background:var(--bg-pill);padding:14px;border-radius:12px;margin-top:10px;">
       <input type="checkbox" id="settingSafeMode" onchange="toggleSafeModeSetting()" style="width:20px;height:20px;accent-color:var(--accent-blue);">
       <div>
@@ -698,35 +548,34 @@
         <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Трек не играет сразу, а встаёт в очередь</div>
       </div>
     </label>
-
+    
+    <div class="choice-card" onclick="exportBackup()" style="margin-top:10px; border: 1px solid var(--accent-blue);">
+      <div style="font-size:24px">📤</div>
+      <div>
+        <div style="font-weight:700;font-size:15px; color:#64b5f6;">Экспортировать всё (ZIP)</div>
+        <div style="font-size:12px;color:var(--text-muted)">Скачать треки и сценарии одним архивом</div>
+      </div>
+    </div>
+    <div class="choice-card" onclick="triggerImportBackup()">
+      <div style="font-size:24px">📥</div>
+      <div>
+        <div style="font-weight:700;font-size:15px">Импортировать из архива (ZIP)</div>
+        <div style="font-size:12px;color:var(--text-muted)">Загрузить треки и сценарии из файла</div>
+      </div>
+    </div>
+    <input type="file" id="importFileInput" accept=".zip" style="display:none;" onchange="handleImportFile(event)">
+    
     <div class="choice-card" onclick="forceAppUpdate()" style="margin-top:10px;">
       <div style="font-size:24px">🔄</div>
       <div>
-        <div class="choice-card" onclick="exportBackup()" style="margin-top:10px; border: 1px solid var(--accent-blue);">
-  <div style="font-size:24px">📤</div>
-  <div>
-    <div style="font-weight:700;font-size:15px; color:#64b5f6;">Экспортировать всё (ZIP)</div>
-    <div style="font-size:12px;color:var(--text-muted)">Скачать треки и сценарии одним архивом</div>
-  </div>
-</div>
-<div class="choice-card" onclick="triggerImportBackup()">
-  <div style="font-size:24px">📥</div>
-  <div>
-    <div style="font-weight:700;font-size:15px">Импортировать из архива (ZIP)</div>
-    <div style="font-size:12px;color:var(--text-muted)">Загрузить треки и сценарии из файла</div>
-  </div>
-</div>
-<input type="file" id="importFileInput" accept=".zip" style="display:none;" onchange="handleImportFile(event)">
         <div style="font-weight:700;font-size:15px">Проверить обновления</div>
         <div style="font-size:12px;color:var(--text-muted)">Скачать новую версию с сервера</div>
       </div>
     </div>
-
     <div class="modal-hint" style="margin-top:16px; text-align:center; font-size:11px;">
-      Версия приложения: <strong>v14</strong><br>
+      Версия приложения: <strong>v15</strong><br>
       Ваши треки хранятся в безопасности (IndexedDB v9)
     </div>
-
     <div class="modal-btns" style="margin-top:16px">
       <button class="m-btn" onclick="closeModal('settingsModal')">Закрыть</button>
     </div>
@@ -741,34 +590,30 @@
   let pads = []; 
   let activeSection = "all";
   let openedScenarioId = null;
-
   let currentAudio = null;
   let currentBlobUrl = null;
   let currentTrackId = null;
   let currentPadContext = null;
   let currentQueueIds = [];
   let isSeeking = false;
-
   let editingTrackId = null;
   let editingScenarioId = null;
   let editingPadId = null; 
   let editingPadIsScenario = false;
   let draggedIndex = null;
-
   let isLocked = false;
   let wakeLock = null;
   let currentVolume = 1.0;
-  
   let padEditMode = false;
   let hasUnsavedChanges = false;
-
   let crossfadeEnabled = false;
   let safeModeEnabled = false;
   let pendingSafePlayId = null;
   let pendingSafeScenarioId = null;
-
   let pickerTarget = null; 
   let padTrackChangeMode = false;
+  let showTimerInterval = null;
+  let showTimerRemaining = 0;
   
   const PAD_COLORS = [
     "linear-gradient(135deg,#1565c0,#42a5f5)",
@@ -781,22 +626,15 @@
     "linear-gradient(135deg,#37474f,#607d8b)"
   ];
   let selectedPadColor = PAD_COLORS[0];
-
   const PAD_ICONS = ["😂", "🎵", "🎺", "📦", "💃", "🔮", "🎉", "👏", "⚡", "❄️", "🎅", "🎁", "🐻", "🌟", "🎈", "🚀"];
 
   // ============ DB (v9) ============
   const dbReq = indexedDB.open("KKPlayerDB_v9", 1); 
   dbReq.onupgradeneeded = (e) => {
     const database = e.target.result;
-    if (!database.objectStoreNames.contains("tracks")) {
-      database.createObjectStore("tracks", { keyPath: "id", autoIncrement: true });
-    }
-    if (!database.objectStoreNames.contains("scenarios")) {
-      database.createObjectStore("scenarios", { keyPath: "id", autoIncrement: true });
-    }
-    if (!database.objectStoreNames.contains("pads")) {
-      database.createObjectStore("pads", { keyPath: "id", autoIncrement: true });
-    }
+    if (!database.objectStoreNames.contains("tracks")) database.createObjectStore("tracks", { keyPath: "id", autoIncrement: true });
+    if (!database.objectStoreNames.contains("scenarios")) database.createObjectStore("scenarios", { keyPath: "id", autoIncrement: true });
+    if (!database.objectStoreNames.contains("pads")) database.createObjectStore("pads", { keyPath: "id", autoIncrement: true });
   };
   dbReq.onsuccess = (e) => { db = e.target.result; loadAllData(); };
   dbReq.onerror = () => alert("Не удалось открыть базу данных.");
@@ -804,19 +642,11 @@
   function loadAllData(callback) {
     const tx = db.transaction(["tracks", "scenarios", "pads"], "readonly");
     let loadedTracks = [], loadedScenarios = [], loadedPads = [];
-    tx.objectStore("tracks").getAll().onsuccess = (e) => {
-      loadedTracks = (e.target.result || []).sort((a,b) => (a.order ?? a.id) - (b.order ?? b.id));
-    };
-    tx.objectStore("scenarios").getAll().onsuccess = (e) => {
-      loadedScenarios = (e.target.result || []).sort((a,b) => (a.order ?? a.id) - (b.order ?? b.id));
-    };
-    tx.objectStore("pads").getAll().onsuccess = (e) => {
-      loadedPads = (e.target.result || []).sort((a,b) => (a.order ?? a.id) - (b.order ?? b.id));
-    };
+    tx.objectStore("tracks").getAll().onsuccess = (e) => { loadedTracks = (e.target.result || []).sort((a,b) => (a.order ?? a.id) - (b.order ?? b.id)); };
+    tx.objectStore("scenarios").getAll().onsuccess = (e) => { loadedScenarios = (e.target.result || []).sort((a,b) => (a.order ?? a.id) - (b.order ?? b.id)); };
+    tx.objectStore("pads").getAll().onsuccess = (e) => { loadedPads = (e.target.result || []).sort((a,b) => (a.order ?? a.id) - (b.order ?? b.id)); };
     tx.oncomplete = () => {
-      tracks = loadedTracks; 
-      scenarios = loadedScenarios; 
-      pads = loadedPads;
+      tracks = loadedTracks; scenarios = loadedScenarios; pads = loadedPads;
       renderCurrentView();
       if (callback) callback();
     };
@@ -824,14 +654,143 @@
 
   function formatTime(s) {
     if (!s || isNaN(s) || !isFinite(s)) return "0:00";
-    const m = Math.floor(s / 60);
-    const sec = Math.floor(s % 60);
+    const m = Math.floor(s / 60); const sec = Math.floor(s % 60);
     return m + ":" + (sec < 10 ? "0" : "") + sec;
   }
   function formatMinSec(totalSec) {
-    const m = Math.floor(totalSec / 60);
-    const s = totalSec % 60;
+    const m = Math.floor(totalSec / 60); const s = totalSec % 60;
     return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+  }
+
+  // ============ PROGRESS ============
+  function showProgress(text, percent) {
+    const overlay = document.getElementById("progressOverlay");
+    if (!overlay) return;
+    overlay.classList.add("visible");
+    document.getElementById("progressText").innerText = text;
+    document.getElementById("progressBarFill").style.width = percent + "%";
+  }
+  function hideProgress() {
+    const overlay = document.getElementById("progressOverlay");
+    if (overlay) overlay.classList.remove("visible");
+  }
+  document.getElementById("progressOverlay").style.display = "none";
+
+  // ============ EXPORT / IMPORT ============
+  async function exportBackup() {
+    closeModal('settingsModal');
+    if (typeof JSZip === 'undefined') return alert("Ошибка: библиотека JSZip не загружена.");
+    showProgress("Сборка архива...", 0);
+    try {
+      const zip = new JSZip();
+      const audioFolder = zip.folder("audio");
+      const config = {
+        version: 1,
+        tracks: [],
+        scenarios: scenarios.map(s => ({ 
+          name: s.name, duration: s.duration, order: s.order,
+          pads: (s.pads || []).map(p => ({
+            title: p.title, icon: p.icon, color: p.color,
+            trackFileName: tracks.find(t => t.id === p.trackId)?.fileName || null
+          }))
+        })),
+        globalPads: pads.map(p => ({
+          title: p.title, icon: p.icon, color: p.color,
+          trackFileName: tracks.find(t => t.id === p.trackId)?.fileName || null
+        }))
+      };
+      for (let i = 0; i < tracks.length; i++) {
+        const t = tracks[i];
+        const fileName = `track_${t.id}.mp3`; 
+        const blob = new Blob([t.data], { type: t.mimeType || "audio/mpeg" });
+        audioFolder.file(fileName, blob);
+        config.tracks.push({ fileName: fileName, name: t.name, purpose: t.purpose, tag: t.tag, loop: t.loop });
+        if (i % 2 === 0) {
+          showProgress(`Сборка треков... ${i}/${tracks.length}`, Math.round((i / tracks.length) * 100));
+          await new Promise(r => setTimeout(r, 10));
+        }
+      }
+      zip.file("config.json", JSON.stringify(config, null, 2));
+      showProgress("Финализация...", 99);
+      const content = await zip.generateAsync({ type: "blob" }, (metadata) => {
+        showProgress(`Сжатие... ${Math.round(metadata.percent)}%`, Math.round(metadata.percent));
+      });
+      const url = URL.createObjectURL(content);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `kk_player_backup_${new Date().toISOString().slice(0, 10)}.zip`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      hideProgress();
+    } catch (err) { hideProgress(); alert("Ошибка экспорта: " + err.message); }
+  }
+
+  function triggerImportBackup() {
+    closeModal('settingsModal');
+    document.getElementById("importFileInput").value = "";
+    document.getElementById("importFileInput").click();
+  }
+
+  async function handleImportFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    showProgress("Чтение архива...", 0);
+    try {
+      const zip = await JSZip.loadAsync(file);
+      const configFile = zip.file("config.json");
+      if (!configFile) throw new Error("Не найден файл конфигурации.");
+      const config = JSON.parse(await configFile.async("string"));
+      
+      const txClear = db.transaction(["tracks", "scenarios", "pads"], "readwrite");
+      txClear.objectStore("tracks").clear();
+      txClear.objectStore("scenarios").clear();
+      txClear.objectStore("pads").clear();
+      await new Promise((resolve, reject) => { txClear.oncomplete = resolve; txClear.onerror = reject; });
+
+      const trackIdMap = {}; 
+      const trackEntries = Object.values(zip.files).filter(f => f.name.startsWith("audio/") && !f.dir);
+      for (let i = 0; i < trackEntries.length; i++) {
+        const zipEntry = trackEntries[i];
+        const fileName = zipEntry.name.replace("audio/", "");
+        const arrayBuffer = await zipEntry.async("arraybuffer");
+        const meta = config.tracks.find(t => t.fileName === fileName);
+        const tx = db.transaction("tracks", "readwrite");
+        const addReq = tx.objectStore("tracks").add({
+          name: meta ? meta.name : fileName, purpose: meta ? meta.purpose : "",
+          tag: meta ? meta.tag : "linear-gradient(135deg,#1565c0,#42a5f5)|🎵",
+          loop: meta ? meta.loop : false, order: i, data: arrayBuffer, mimeType: "audio/mpeg"
+        });
+        await new Promise((resolve, reject) => {
+          addReq.onsuccess = (e) => { trackIdMap[fileName] = e.target.result; resolve(); };
+          addReq.onerror = reject;
+        });
+        showProgress(`Загрузка треков... ${i+1}/${trackEntries.length}`, Math.round(((i+1) / trackEntries.length) * 80));
+      }
+
+      showProgress("Восстановление сценариев...", 85);
+      for (const scConfig of config.scenarios) {
+        const newPads = [];
+        for (const pConfig of scConfig.pads) {
+          if (pConfig.trackFileName && trackIdMap[pConfig.trackFileName]) {
+            newPads.push({ id: Date.now() + Math.random(), trackId: trackIdMap[pConfig.trackFileName], title: pConfig.title, icon: pConfig.icon, color: pConfig.color, order: newPads.length });
+          }
+        }
+        const tx = db.transaction("scenarios", "readwrite");
+        tx.objectStore("scenarios").add({ name: scConfig.name, duration: scConfig.duration, order: scConfig.order, trackIds: [], pads: newPads });
+        await new Promise(r => setTimeout(r, 10));
+      }
+      showProgress("Финальный штрих...", 95);
+      const txPads = db.transaction("pads", "readwrite");
+      for (const pConfig of config.globalPads) {
+        if (pConfig.trackFileName && trackIdMap[pConfig.trackFileName]) {
+          txPads.objectStore("pads").add({ trackId: trackIdMap[pConfig.trackFileName], title: pConfig.title, icon: pConfig.icon, color: pConfig.color, order: 0 });
+        }
+      }
+      await new Promise((resolve, reject) => { txPads.oncomplete = resolve; txPads.onerror = reject; });
+      hideProgress();
+      alert("Импорт завершен! Все треки и сценарии загружены.");
+      window.location.reload();
+    } catch (err) { hideProgress(); alert("Ошибка импорта: " + err.message); }
   }
 
   // ============ SETTINGS ============
@@ -847,23 +806,15 @@
       document.getElementById("safePlayBtn").classList.remove("visible");
     }
   }
-  
   function forceAppUpdate() {
     closeModal('settingsModal');
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(registrations => {
-        for (let registration of registrations) {
-          registration.update();
-        }
-        setTimeout(() => {
-          window.location.reload(true);
-        }, 1000);
+        for (let registration of registrations) registration.update();
+        setTimeout(() => window.location.reload(true), 1000);
       });
-    } else {
-      window.location.reload(true);
-    }
+    } else window.location.reload(true);
   }
-
   setTimeout(() => {
     crossfadeEnabled = localStorage.getItem("kk_crossfade") === "true";
     safeModeEnabled = localStorage.getItem("kk_safemode") === "true";
@@ -880,15 +831,11 @@
       if (wakeLock) return;
       wakeLock = await navigator.wakeLock.request('screen');
       wakeLock.addEventListener('release', () => { wakeLock = null; });
-    } catch (e) { console.log('WakeLock:', e); }
+    } catch (e) {}
   }
-  function releaseWakeLock() {
-    if (wakeLock) { wakeLock.release(); wakeLock = null; }
-  }
+  function releaseWakeLock() { if (wakeLock) { wakeLock.release(); wakeLock = null; } }
   document.addEventListener('visibilitychange', async () => {
-    if (document.visibilityState === 'visible' && currentAudio && !currentAudio.paused) {
-      await requestWakeLock();
-    }
+    if (document.visibilityState === 'visible' && currentAudio && !currentAudio.paused) await requestWakeLock();
   });
 
   // ============ LOCK MODE ============
@@ -897,19 +844,11 @@
     const btn = document.getElementById('lockBtn');
     const indicator = document.getElementById('lockIndicator');
     const overlay = document.getElementById('lockedOverlay');
-    
     btn.classList.toggle('active', isLocked);
     indicator.classList.toggle('visible', isLocked);
     overlay.classList.toggle('visible', isLocked);
-    
-    if (isLocked) {
-      btn.style.zIndex = '100';
-      btn.style.color = '#64b5f6';
-    } else {
-      btn.style.zIndex = '';
-      btn.style.color = '';
-    }
-    
+    if (isLocked) { btn.style.zIndex = '100'; btn.style.color = '#64b5f6'; }
+    else { btn.style.zIndex = ''; btn.style.color = ''; }
     renderCurrentView();
   }
 
@@ -919,92 +858,50 @@
     activeSection = section;
     if (section === "all") openedScenarioId = null;
     hasUnsavedChanges = false;
-    
     document.getElementById("tabAllMusic").classList.toggle("active", section === "all");
     document.getElementById("tabScenarios").classList.toggle("active", section === "scenarios");
     document.getElementById("tabSoundbar").classList.toggle("active", section === "soundbar");
-    
     document.getElementById("searchBtn").style.display = (section === "all") ? "flex" : "none";
     renderCurrentView();
   }
-  
-  function openScenario(id) {
-    if (isLocked) return;
-    openedScenarioId = id;
-    hasUnsavedChanges = false;
-    renderCurrentView();
-  }
-  
-  function closeOpenedScenario() {
-    openedScenarioId = null;
-    hasUnsavedChanges = false;
-    renderCurrentView();
-  }
-
-  function getSearchQuery() {
-    return (document.getElementById("searchInput").value || "").trim().toLowerCase();
-  }
+  function openScenario(id) { if (isLocked) return; openedScenarioId = id; hasUnsavedChanges = false; renderCurrentView(); }
+  function closeOpenedScenario() { openedScenarioId = null; hasUnsavedChanges = false; renderCurrentView(); }
+  function getSearchQuery() { return (document.getElementById("searchInput").value || "").trim().toLowerCase(); }
   function toggleSearch() {
     const bar = document.getElementById("searchBar");
     bar.classList.toggle("visible");
     if (bar.classList.contains("visible")) document.getElementById("searchInput").focus();
     else { document.getElementById("searchInput").value = ""; renderCurrentView(); }
   }
-
-  function togglePadEditMode() {
-    padEditMode = !padEditMode;
-    renderCurrentView();
-  }
+  function togglePadEditMode() { padEditMode = !padEditMode; renderCurrentView(); }
 
   // ============ RENDER ============
   function renderCurrentView() {
     const container = document.getElementById("mainContainer");
     const q = getSearchQuery();
-    
     if (isLocked) {
-      container.innerHTML = `<div class="empty-state" style="padding-top:80px">
-        🔒 Экран заблокирован<br><br>
-        <span style="font-size:12px">Управление плеером внизу работает.</span>
-      </div>`;
+      container.innerHTML = `<div class="empty-state" style="padding-top:80px">🔒 Экран заблокирован<br><br><span style="font-size:12px">Управление плеером внизу работает.</span></div>`;
       return;
     }
-
     if (activeSection === "all") {
-      const filtered = tracks.filter(t =>
-        t.name.toLowerCase().includes(q) || (t.purpose || "").toLowerCase().includes(q)
-      );
-      container.innerHTML = `
-        <button class="primary-action-btn" onclick="openTrackModal(null, null)">➕ Добавить треки</button>
-        <div class="items-list" id="itemsList"></div>
-      `;
+      const filtered = tracks.filter(t => t.name.toLowerCase().includes(q) || (t.purpose || "").toLowerCase().includes(q));
+      container.innerHTML = `<button class="primary-action-btn" onclick="openTrackModal(null, null)">➕ Добавить треки</button><div class="items-list" id="itemsList"></div>`;
       const listEl = document.getElementById("itemsList");
-      if (!filtered.length) {
-        listEl.innerHTML = `<div class="empty-state">${q ? "Ничего не найдено." : "Список пуст."}</div>`;
-        return;
-      }
+      if (!filtered.length) { listEl.innerHTML = `<div class="empty-state">${q ? "Ничего не найдено." : "Список пуст."}</div>`; return; }
       filtered.forEach((track, idx) => listEl.appendChild(createTrackRowElement(track, idx, null)));
       return;
     }
-
     if (activeSection === "scenarios" && openedScenarioId === null) {
       let filteredSc = scenarios.filter(s => s.name.toLowerCase().includes(q));
-      container.innerHTML = `
-        <button class="primary-action-btn" onclick="openScenarioModal(null)">➕ Создать сценарий</button>
-        <div class="items-list" id="itemsList"></div>
-      `;
+      container.innerHTML = `<button class="primary-action-btn" onclick="openScenarioModal(null)">➕ Создать сценарий</button><div class="items-list" id="itemsList"></div>`;
       const listEl = document.getElementById("itemsList");
-      if (!filteredSc.length) {
-        listEl.innerHTML = `<div class="empty-state">${q ? "Не найдено." : "Сценариев пока нет."}</div>`;
-        return;
-      }
+      if (!filteredSc.length) { listEl.innerHTML = `<div class="empty-state">${q ? "Не найдено." : "Сценариев пока нет."}</div>`; return; }
       filteredSc.forEach((sc, idx) => listEl.appendChild(createScenarioRowElement(sc, idx)));
       return;
     }
-
     if (activeSection === "scenarios" && openedScenarioId !== null) {
       const scenario = scenarios.find(s => s.id === openedScenarioId);
       if (!scenario) { openedScenarioId = null; renderCurrentView(); return; }
-
       container.innerHTML = `
         <div class="playlist-sub-header">
           <button class="back-btn" onclick="closeOpenedScenario()">← Назад</button>
@@ -1013,250 +910,113 @@
         </div>
         <div class="pads-grid ${padEditMode ? 'edit-mode' : ''}" id="padsGrid"></div>
         <button class="edit-mode-btn ${padEditMode ? 'active' : ''}" id="editModeBtn" onclick="togglePadEditMode()">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="17 1 21 5 17 9"></polyline>
-            <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
-            <polyline points="7 23 3 19 7 15"></polyline>
-            <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
-          </svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
         </button>
         <button class="save-scenario-btn ${hasUnsavedChanges ? 'visible' : ''}" onclick="saveScenarioState()">💾 Сохранить</button>
       `;
-      
       const gridEl = document.getElementById("padsGrid");
       const scPads = scenario.pads || [];
-      
       scPads.forEach((pad, idx) => {
         const track = pad.trackId ? tracks.find(t => t.id === pad.trackId) : null;
         const isPlaying = currentTrackId === pad.trackId && currentAudio && !currentAudio.paused && currentPadContext?.id === pad.id;
-        
         const padEl = document.createElement("div");
         padEl.className = "pad" + (isPlaying ? " playing" : "") + (track ? "" : " empty");
         padEl.dataset.index = idx;
-        
         if (!track) {
           padEl.innerHTML = `<div class="pad-add">+</div>`;
-          if (!padEditMode) {
-            padEl.onclick = () => {
-              if (isLocked) return;
-              editingPadId = null;
-              editingPadIsScenario = true;
-              openAddSourceModal('scenario');
-            };
-          }
+          if (!padEditMode) padEl.onclick = () => { if (isLocked) return; editingPadId = null; editingPadIsScenario = true; openAddSourceModal('scenario'); };
         } else {
           const [bg] = pad.color ? pad.color.split("|") : (track.tag || "#333").split("|");
           padEl.style.background = bg;
-          
-          const handle = `<div class="pad-handle">☰</div>`;
-          
-          padEl.innerHTML = `
-            ${handle}
-            <div class="pad-icon">${pad.icon || "🎵"}</div>
-            <div class="pad-title">${pad.title || track.name}</div>
-            <div class="pad-trackname">${track.name}</div>
-          `;
-          
-          if (!padEditMode) {
-            padEl.onclick = () => {
-              if (isLocked) return;
-              playPad(pad.id, true);
-            };
-          }
-          
+          padEl.innerHTML = `<div class="pad-handle">☰</div><div class="pad-icon">${pad.icon || "🎵"}</div><div class="pad-title">${pad.title || track.name}</div><div class="pad-trackname">${track.name}</div>`;
+          if (!padEditMode) padEl.onclick = () => { if (isLocked) return; playPad(pad.id, true); };
           if (!padEditMode) {
             let holdTimer = null;
-            const startEdit = () => {
-              holdTimer = setTimeout(() => {
-                holdTimer = null;
-                editingPadId = pad.id;
-                editingPadIsScenario = true;
-                openPadEditor();
-              }, 800);
-            };
+            const startEdit = () => { holdTimer = setTimeout(() => { holdTimer = null; editingPadId = pad.id; editingPadIsScenario = true; openPadEditor(); }, 800); };
             const cancelEdit = () => { if (holdTimer) clearTimeout(holdTimer); };
-            padEl.addEventListener('touchstart', startEdit);
-            padEl.addEventListener('touchend', cancelEdit);
-            padEl.addEventListener('touchmove', cancelEdit);
-            padEl.addEventListener('mousedown', startEdit);
-            padEl.addEventListener('mouseup', cancelEdit);
-            padEl.addEventListener('mouseleave', cancelEdit);
+            padEl.addEventListener('touchstart', startEdit); padEl.addEventListener('touchend', cancelEdit); padEl.addEventListener('touchmove', cancelEdit);
+            padEl.addEventListener('mousedown', startEdit); padEl.addEventListener('mouseup', cancelEdit); padEl.addEventListener('mouseleave', cancelEdit);
           }
         }
-        
         gridEl.appendChild(padEl);
       });
-      
       const addPadBtn = document.createElement("div");
-      addPadBtn.className = "pad empty";
-      addPadBtn.innerHTML = `<div class="pad-add">+</div>`;
-      if (!padEditMode) {
-        addPadBtn.onclick = () => {
-          if (isLocked) return;
-          editingPadId = null;
-          editingPadIsScenario = true;
-          openAddSourceModal('scenario');
-        };
-      }
+      addPadBtn.className = "pad empty"; addPadBtn.innerHTML = `<div class="pad-add">+</div>`;
+      if (!padEditMode) addPadBtn.onclick = () => { if (isLocked) return; editingPadId = null; editingPadIsScenario = true; openAddSourceModal('scenario'); };
       gridEl.appendChild(addPadBtn);
-      
-      if (padEditMode) {
-        gridEl.querySelectorAll('.pad[data-index]').forEach(padEl => {
-          attachPadDragEvents(padEl, 'scenario');
-        });
-      }
+      if (padEditMode) gridEl.querySelectorAll('.pad[data-index]').forEach(padEl => attachPadDragEvents(padEl, 'scenario'));
       return;
     }
-
     if (activeSection === "soundbar") {
       let displayPads = [];
-      
-      if (openedScenarioId) {
-        const sc = scenarios.find(s => s.id === openedScenarioId);
-        if (sc) displayPads = sc.pads || [];
-      } else if (scenarios.length > 0) {
-        const lastSc = scenarios[scenarios.length - 1];
-        displayPads = lastSc.pads || [];
-      }
-      
+      if (openedScenarioId) { const sc = scenarios.find(s => s.id === openedScenarioId); if (sc) displayPads = sc.pads || []; }
+      else if (scenarios.length > 0) { const lastSc = scenarios[scenarios.length - 1]; displayPads = lastSc.pads || []; }
       container.innerHTML = `
         <div class="pads-grid ${padEditMode ? 'edit-mode' : ''}" id="padsGrid"></div>
         <button class="edit-mode-btn ${padEditMode ? 'active' : ''}" id="editModeBtn" onclick="togglePadEditMode()">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="17 1 21 5 17 9"></polyline>
-            <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
-            <polyline points="7 23 3 19 7 15"></polyline>
-            <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
-          </svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
         </button>
         <button class="save-scenario-btn ${hasUnsavedChanges ? 'visible' : ''}" onclick="saveSoundbarState()">💾 Сохранить</button>
       `;
-      
       const gridEl = document.getElementById("padsGrid");
-      
       displayPads.forEach((pad, idx) => {
         const track = pad.trackId ? tracks.find(t => t.id === pad.trackId) : null;
         const isPlaying = currentTrackId === pad.trackId && currentAudio && !currentAudio.paused && currentPadContext?.id === pad.id;
-        
         const padEl = document.createElement("div");
         padEl.className = "pad" + (isPlaying ? " playing" : "") + (track ? "" : " empty");
         padEl.dataset.index = idx;
-        
         if (!track) {
           padEl.innerHTML = `<div class="pad-add">+</div>`;
-          if (!padEditMode) {
-            padEl.onclick = () => {
-              if (isLocked) return;
-              editingPadId = null;
-              editingPadIsScenario = false; 
-              openAddSourceModal('pad');
-            };
-          }
+          if (!padEditMode) padEl.onclick = () => { if (isLocked) return; editingPadId = null; editingPadIsScenario = false; openAddSourceModal('pad'); };
         } else {
           const [bg] = pad.color ? pad.color.split("|") : (track.tag || "#333").split("|");
           padEl.style.background = bg;
-          
-          const handle = `<div class="pad-handle">☰</div>`;
-          
-          padEl.innerHTML = `
-            ${handle}
-            <div class="pad-icon">${pad.icon || "🎵"}</div>
-            <div class="pad-title">${pad.title || track.name}</div>
-            <div class="pad-trackname">${track.name}</div>
-          `;
-          
-          if (!padEditMode) {
-            padEl.onclick = () => {
-              if (isLocked) return;
-              playPad(pad.id, false);
-            };
-          }
-          
+          padEl.innerHTML = `<div class="pad-handle">☰</div><div class="pad-icon">${pad.icon || "🎵"}</div><div class="pad-title">${pad.title || track.name}</div><div class="pad-trackname">${track.name}</div>`;
+          if (!padEditMode) padEl.onclick = () => { if (isLocked) return; playPad(pad.id, false); };
           if (!padEditMode) {
             let holdTimer = null;
-            const startEdit = () => {
-              holdTimer = setTimeout(() => {
-                holdTimer = null;
-                editingPadId = pad.id;
-                editingPadIsScenario = false;
-                openPadEditor();
-              }, 800);
-            };
+            const startEdit = () => { holdTimer = setTimeout(() => { holdTimer = null; editingPadId = pad.id; editingPadIsScenario = false; openPadEditor(); }, 800); };
             const cancelEdit = () => { if (holdTimer) clearTimeout(holdTimer); };
-            padEl.addEventListener('touchstart', startEdit);
-            padEl.addEventListener('touchend', cancelEdit);
-            padEl.addEventListener('touchmove', cancelEdit);
-            padEl.addEventListener('mousedown', startEdit);
-            padEl.addEventListener('mouseup', cancelEdit);
-            padEl.addEventListener('mouseleave', cancelEdit);
+            padEl.addEventListener('touchstart', startEdit); padEl.addEventListener('touchend', cancelEdit); padEl.addEventListener('touchmove', cancelEdit);
+            padEl.addEventListener('mousedown', startEdit); padEl.addEventListener('mouseup', cancelEdit); padEl.addEventListener('mouseleave', cancelEdit);
           }
         }
-        
         gridEl.appendChild(padEl);
       });
-      
       const addPadBtn = document.createElement("div");
-      addPadBtn.className = "pad empty";
-      addPadBtn.innerHTML = `<div class="pad-add">+</div>`;
-      if (!padEditMode) {
-        addPadBtn.onclick = () => {
-          if (isLocked) return;
-          editingPadId = null;
-          editingPadIsScenario = false;
-          openAddSourceModal('pad');
-        };
-      }
+      addPadBtn.className = "pad empty"; addPadBtn.innerHTML = `<div class="pad-add">+</div>`;
+      if (!padEditMode) addPadBtn.onclick = () => { if (isLocked) return; editingPadId = null; editingPadIsScenario = false; openAddSourceModal('pad'); };
       gridEl.appendChild(addPadBtn);
-      
-      if (padEditMode) {
-        gridEl.querySelectorAll('.pad[data-index]').forEach(padEl => {
-          attachPadDragEvents(padEl, 'global');
-        });
-      }
+      if (padEditMode) gridEl.querySelectorAll('.pad[data-index]').forEach(padEl => attachPadDragEvents(padEl, 'global'));
       return;
     }
   }
 
-  // ============ DRAG PADS ============
+  // ============ DRAG / REORDER ============
   function attachPadDragEvents(padEl, context) {
     const idx = Number(padEl.dataset.index);
     const handle = padEl.querySelector('.pad-handle');
     if (!handle) return;
-    
     let draggedIdx = null;
-    
-    const startDrag = (e) => {
-      e.preventDefault();
-      draggedIdx = idx;
-      padEl.classList.add('dragging');
-    };
+    const startDrag = (e) => { e.preventDefault(); draggedIdx = idx; padEl.classList.add('dragging'); };
     const moveDrag = (e) => {
       e.preventDefault();
       const t = e.touches ? e.touches[0] : e;
       const target = document.elementFromPoint(t.clientX, t.clientY)?.closest('.pad[data-index]');
       document.querySelectorAll('.pad').forEach(el => el.classList.remove('drag-over'));
-      if (target && Number(target.dataset.index) !== draggedIdx) {
-        target.classList.add('drag-over');
-      }
+      if (target && Number(target.dataset.index) !== draggedIdx) target.classList.add('drag-over');
     };
     const endDrag = (e) => {
       padEl.classList.remove('dragging');
       const t = e.changedTouches ? e.changedTouches[0] : e;
       const target = document.elementFromPoint(t.clientX, t.clientY)?.closest('.pad[data-index]');
       document.querySelectorAll('.pad').forEach(el => el.classList.remove('drag-over'));
-      if (target) {
-        const toIdx = Number(target.dataset.index);
-        if (draggedIdx !== null && draggedIdx !== toIdx) {
-          reorderPads(draggedIdx, toIdx, context);
-        }
-      }
+      if (target) { const toIdx = Number(target.dataset.index); if (draggedIdx !== null && draggedIdx !== toIdx) reorderPads(draggedIdx, toIdx, context); }
       draggedIdx = null;
     };
-    
     handle.addEventListener('touchstart', startDrag, { passive: false });
     handle.addEventListener('touchmove', moveDrag, { passive: false });
     handle.addEventListener('touchend', endDrag);
-    
     handle.addEventListener('mousedown', startDrag);
     document.addEventListener('mousemove', (e) => { if (draggedIdx !== null) moveDrag(e); });
     document.addEventListener('mouseup', (e) => { if (draggedIdx !== null) endDrag(e); });
@@ -1285,28 +1045,20 @@
     const [bg, ico] = (track.tag || "linear-gradient(135deg,#1565c0,#42a5f5)|🎵").split("|");
     const isCurrent = currentTrackId === track.id;
     const isPlaying = isCurrent && currentAudio && !currentAudio.paused;
-
     const row = document.createElement("div");
     row.className = "list-row" + (isPlaying ? " playing" : "");
     row.dataset.index = index;
     row.draggable = !getSearchQuery() && !isLocked;
-
     row.innerHTML = `
       <div class="drag-handle ${isLocked ? 'hidden' : ''}">☰</div>
       <div class="row-cover" style="background:${bg}"><span>${ico}</span></div>
-      <div class="row-info">
-        <div class="row-title">${track.name}</div>
-        <div class="row-subtitle">${(track.purpose || "Аудиозапись")}${track.loop ? " • 🔁" : ""}</div>
-      </div>
+      <div class="row-info"><div class="row-title">${track.name}</div><div class="row-subtitle">${(track.purpose || "Аудиозапись")}${track.loop ? " • 🔁" : ""}</div></div>
       <div class="row-actions">
         ${!isLocked ? `<button class="row-btn" onclick="editTrackAction(event, ${track.id})">✎</button>` : ''}
         ${!isLocked ? `<button class="row-btn delete-btn" data-track-id="${track.id}" data-pl-id="${scenarioContextId || ''}">✕</button>` : ''}
       </div>
     `;
-    row.onclick = (e) => {
-      if (e.target.closest(".row-actions, .drag-handle")) return;
-      requestPlay(track.id, scenarioContextId);
-    };
+    row.onclick = (e) => { if (e.target.closest(".row-actions, .drag-handle")) return; requestPlay(track.id, scenarioContextId); };
     if (!isLocked) {
       attachDragEvents(row, index, (from, to) => {
         if (scenarioContextId) reorderScenarioTracks(scenarioContextId, from, to);
@@ -1322,23 +1074,16 @@
     const row = document.createElement("div");
     row.className = "list-row scenario-card";
     row.dataset.index = index;
-
     row.innerHTML = `
       <div class="drag-handle ${isLocked ? 'hidden' : ''}">☰</div>
       <div class="row-cover" style="background:linear-gradient(135deg,#1a73e8,#00b0ff)"><span>📂</span></div>
-      <div class="row-info">
-        <div class="row-title">${sc.name}</div>
-        <div class="row-subtitle">${sc.duration} мин • Пэдов: ${(sc.pads || []).length}</div>
-      </div>
+      <div class="row-info"><div class="row-title">${sc.name}</div><div class="row-subtitle">${sc.duration} мин • Пэдов: ${(sc.pads || []).length}</div></div>
       <div class="row-actions">
         ${!isLocked ? `<button class="row-btn" onclick="editScenarioAction(event, ${sc.id})">✎</button>` : ''}
         ${!isLocked ? `<button class="row-btn delete-btn" data-sc-id="${sc.id}">✕</button>` : ''}
       </div>
     `;
-    row.onclick = (e) => {
-      if (e.target.closest(".row-actions")) return;
-      openScenario(sc.id);
-    };
+    row.onclick = (e) => { if (e.target.closest(".row-actions")) return; openScenario(sc.id); };
     if (!isLocked) {
       attachDragEvents(row, index, (from, to) => reorderScenarios(from, to));
       attachScenarioDeleteLongPress(row);
@@ -1350,69 +1095,31 @@
     const delBtn = row.querySelector('.delete-btn');
     if (!delBtn) return;
     let holdTimer = null;
-    const start = (e) => {
-      e.preventDefault(); e.stopPropagation();
-      delBtn.classList.add('warn');
-      holdTimer = setTimeout(() => {
-        delBtn.classList.remove('warn');
-        executeDelete(Number(delBtn.dataset.trackId), delBtn.dataset.plId ? Number(delBtn.dataset.plId) : null);
-      }, 600);
-    };
-    const cancel = () => {
-      if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
-      delBtn.classList.remove('warn');
-    };
-    delBtn.addEventListener('touchstart', start, { passive: false });
-    delBtn.addEventListener('touchend', cancel);
-    delBtn.addEventListener('touchcancel', cancel);
-    delBtn.addEventListener('mousedown', start);
-    delBtn.addEventListener('mouseup', cancel);
-    delBtn.addEventListener('mouseleave', cancel);
+    const start = (e) => { e.preventDefault(); e.stopPropagation(); delBtn.classList.add('warn'); holdTimer = setTimeout(() => { delBtn.classList.remove('warn'); executeDelete(Number(delBtn.dataset.trackId), delBtn.dataset.plId ? Number(delBtn.dataset.plId) : null); }, 600); };
+    const cancel = () => { if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; } delBtn.classList.remove('warn'); };
+    delBtn.addEventListener('touchstart', start, { passive: false }); delBtn.addEventListener('touchend', cancel); delBtn.addEventListener('touchcancel', cancel);
+    delBtn.addEventListener('mousedown', start); delBtn.addEventListener('mouseup', cancel); delBtn.addEventListener('mouseleave', cancel);
   }
-  
   function attachScenarioDeleteLongPress(row) {
     const delBtn = row.querySelector('.delete-btn');
     if (!delBtn) return;
     let holdTimer = null;
-    const start = (e) => {
-      e.preventDefault(); e.stopPropagation();
-      delBtn.classList.add('warn');
-      holdTimer = setTimeout(() => {
-        delBtn.classList.remove('warn');
-        executeDeleteScenario(Number(delBtn.dataset.scId));
-      }, 600);
-    };
-    const cancel = () => {
-      if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
-      delBtn.classList.remove('warn');
-    };
-    delBtn.addEventListener('touchstart', start, { passive: false });
-    delBtn.addEventListener('touchend', cancel);
-    delBtn.addEventListener('touchcancel', cancel);
-    delBtn.addEventListener('mousedown', start);
-    delBtn.addEventListener('mouseup', cancel);
-    delBtn.addEventListener('mouseleave', cancel);
+    const start = (e) => { e.preventDefault(); e.stopPropagation(); delBtn.classList.add('warn'); holdTimer = setTimeout(() => { delBtn.classList.remove('warn'); executeDeleteScenario(Number(delBtn.dataset.scId)); }, 600); };
+    const cancel = () => { if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; } delBtn.classList.remove('warn'); };
+    delBtn.addEventListener('touchstart', start, { passive: false }); delBtn.addEventListener('touchend', cancel); delBtn.addEventListener('touchcancel', cancel);
+    delBtn.addEventListener('mousedown', start); delBtn.addEventListener('mouseup', cancel); delBtn.addEventListener('mouseleave', cancel);
   }
 
   function attachDragEvents(row, index, onReorder) {
     if (getSearchQuery() || isLocked) return;
     row.ondragstart = () => { draggedIndex = index; row.classList.add("dragging"); };
-    row.ondragend = () => {
-      row.classList.remove("dragging");
-      document.querySelectorAll(".list-row, .pad").forEach(el => el.classList.remove("drag-over"));
-      draggedIndex = null;
-    };
+    row.ondragend = () => { row.classList.remove("dragging"); document.querySelectorAll(".list-row, .pad").forEach(el => el.classList.remove("drag-over")); draggedIndex = null; };
     row.ondragover = (e) => { e.preventDefault(); if (index !== draggedIndex) row.classList.add("drag-over"); };
     row.ondragleave = () => row.classList.remove("drag-over");
-    row.ondrop = (e) => {
-      e.preventDefault();
-      if (draggedIndex !== null && draggedIndex !== index) onReorder(draggedIndex, index);
-    };
+    row.ondrop = (e) => { e.preventDefault(); if (draggedIndex !== null && draggedIndex !== index) onReorder(draggedIndex, index); };
     const handle = row.querySelector(".drag-handle");
     if (!handle) return;
-    handle.addEventListener("touchstart", (e) => {
-      e.stopPropagation(); draggedIndex = index; row.classList.add("dragging");
-    }, { passive: true });
+    handle.addEventListener("touchstart", (e) => { e.stopPropagation(); draggedIndex = index; row.classList.add("dragging"); }, { passive: true });
     handle.addEventListener("touchmove", (e) => {
       e.preventDefault();
       const t = e.touches[0];
@@ -1425,25 +1132,20 @@
       const t = e.changedTouches[0];
       const target = document.elementFromPoint(t.clientX, t.clientY)?.closest(".list-row");
       document.querySelectorAll(".list-row").forEach(el => el.classList.remove("drag-over"));
-      if (target) {
-        const toIdx = Number(target.dataset.index);
-        if (draggedIndex !== null && draggedIndex !== toIdx) onReorder(draggedIndex, toIdx);
-      }
+      if (target) { const toIdx = Number(target.dataset.index); if (draggedIndex !== null && draggedIndex !== toIdx) onReorder(draggedIndex, toIdx); }
       draggedIndex = null;
     });
   }
 
   function reorderGlobalTracks(from, to) {
     const [moved] = tracks.splice(from, 1); tracks.splice(to, 0, moved);
-    const tx = db.transaction("tracks", "readwrite");
-    const store = tx.objectStore("tracks");
+    const tx = db.transaction("tracks", "readwrite"); const store = tx.objectStore("tracks");
     tracks.forEach((t, i) => { t.order = i; store.put(t); });
     tx.oncomplete = renderCurrentView;
   }
   function reorderScenarios(from, to) {
     const [moved] = scenarios.splice(from, 1); scenarios.splice(to, 0, moved);
-    const tx = db.transaction("scenarios", "readwrite");
-    const store = tx.objectStore("scenarios");
+    const tx = db.transaction("scenarios", "readwrite"); const store = tx.objectStore("scenarios");
     scenarios.forEach((s, i) => { s.order = i; store.put(s); });
     tx.oncomplete = renderCurrentView;
   }
@@ -1452,8 +1154,7 @@
     const validIds = (sc.trackIds || []).filter(id => tracks.some(t => t.id === id));
     const [moved] = validIds.splice(from, 1); validIds.splice(to, 0, moved);
     sc.trackIds = validIds;
-    const tx = db.transaction("scenarios", "readwrite");
-    tx.objectStore("scenarios").put(sc);
+    const tx = db.transaction("scenarios", "readwrite"); tx.objectStore("scenarios").put(sc);
     tx.oncomplete = renderCurrentView;
   }
 
@@ -1468,19 +1169,12 @@
     const heading = document.getElementById("trackModalHeading");
     const saveBtn = document.getElementById("saveTrackBtn");
     if (t) {
-      heading.innerText = "Редактировать трек";
-      addFields.style.display = "none"; editFields.style.display = "block";
-      saveBtn.innerText = "Сохранить";
-      document.getElementById("inputTrackName").value = t.name;
-      document.getElementById("inputTrackPurpose").value = t.purpose || "";
+      heading.innerText = "Редактировать трек"; addFields.style.display = "none"; editFields.style.display = "block"; saveBtn.innerText = "Сохранить";
+      document.getElementById("inputTrackName").value = t.name; document.getElementById("inputTrackPurpose").value = t.purpose || "";
       document.getElementById("inputTrackTag").value = t.tag || "linear-gradient(135deg,#1565c0,#42a5f5)|🎵";
-      document.getElementById("inputTrackLoop").checked = !!t.loop;
-      document.getElementById("inputTrackFileReplace").value = "";
+      document.getElementById("inputTrackLoop").checked = !!t.loop; document.getElementById("inputTrackFileReplace").value = "";
     } else {
-      heading.innerText = "Добавить треки";
-      addFields.style.display = "block"; editFields.style.display = "none";
-      saveBtn.innerText = "Загрузить";
-      document.getElementById("inputTrackFiles").value = "";
+      heading.innerText = "Добавить треки"; addFields.style.display = "block"; editFields.style.display = "none"; saveBtn.innerText = "Загрузить"; document.getElementById("inputTrackFiles").value = "";
     }
     document.getElementById("trackModal").style.display = "flex";
   }
@@ -1500,19 +1194,11 @@
       const commit = (arrayBuffer, mimeType) => {
         const tx = db.transaction("tracks", "readwrite");
         tx.objectStore("tracks").put({ ...t, name, purpose, tag, loop, data: arrayBuffer || t.data, mimeType: mimeType || t.mimeType || "audio/mpeg" });
-        tx.oncomplete = () => {
-          btn.disabled = false; btn.innerText = "Сохранить";
-          closeModal("trackModal");
-          loadAllData(() => { if (currentTrackId === editingTrackId) updatePlayerUI(); });
-        };
+        tx.oncomplete = () => { btn.disabled = false; btn.innerText = "Сохранить"; closeModal("trackModal"); loadAllData(() => { if (currentTrackId === editingTrackId) updatePlayerUI(); }); };
         tx.onerror = () => { btn.disabled = false; btn.innerText = "Сохранить"; alert("Ошибка."); };
       };
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => commit(e.target.result, file.type);
-        reader.onerror = () => { btn.disabled = false; btn.innerText = "Сохранить"; alert("Ошибка чтения."); };
-        reader.readAsArrayBuffer(file);
-      } else commit(null, null);
+      if (file) { const reader = new FileReader(); reader.onload = (e) => commit(e.target.result, file.type); reader.onerror = () => { btn.disabled = false; btn.innerText = "Сохранить"; alert("Ошибка чтения."); }; reader.readAsArrayBuffer(file); }
+      else commit(null, null);
       return;
     }
     const fileInput = document.getElementById("inputTrackFiles");
@@ -1523,23 +1209,16 @@
     const newIds = []; let completed = 0; let failed = 0;
     btn.disabled = true; btn.innerText = `Загрузка 0/${total}...`;
     const finishOne = () => {
-      const done = completed + failed;
-      btn.innerText = `Загрузка ${done}/${total}...`;
+      const done = completed + failed; btn.innerText = `Загрузка ${done}/${total}...`;
       if (done < total) return;
       btn.disabled = false; btn.innerText = "Сохранить";
-      const finalize = () => { closeModal("trackModal"); loadAllData(); };
-      finalize();
+      closeModal("trackModal"); loadAllData();
     };
     files.forEach((file, idx) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const tx = db.transaction("tracks", "readwrite");
-        const addReq = tx.objectStore("tracks").add({
-          name: file.name.replace(/\.[^/.]+$/, ""),
-          purpose: "", tag: "linear-gradient(135deg,#1565c0,#42a5f5)|🎵",
-          loop: false, order: baseOrder + 1 + idx, done: false,
-          data: e.target.result, mimeType: file.type || "audio/mpeg"
-        });
+        const addReq = tx.objectStore("tracks").add({ name: file.name.replace(/\.[^/.]+$/, ""), purpose: "", tag: "linear-gradient(135deg,#1565c0,#42a5f5)|🎵", loop: false, order: baseOrder + 1 + idx, done: false, data: e.target.result, mimeType: file.type || "audio/mpeg" });
         addReq.onsuccess = (ev) => newIds.push(ev.target.result);
         tx.oncomplete = () => { completed++; finishOne(); };
         tx.onerror = () => { failed++; finishOne(); };
@@ -1555,9 +1234,7 @@
     if (scenarioContextId) {
       const sc = scenarios.find(s => s.id === scenarioContextId); if (!sc) return;
       sc.trackIds = (sc.trackIds || []).filter(id => id !== trackId);
-      const tx = db.transaction("scenarios", "readwrite");
-      tx.objectStore("scenarios").put(sc);
-      tx.oncomplete = renderCurrentView;
+      const tx = db.transaction("scenarios", "readwrite"); tx.objectStore("scenarios").put(sc); tx.oncomplete = renderCurrentView;
       return;
     }
     if (!confirm("Удалить этот трек полностью?")) return;
@@ -1565,12 +1242,7 @@
     const tx = db.transaction(["tracks", "scenarios"], "readwrite");
     tx.objectStore("tracks").delete(trackId);
     const scStore = tx.objectStore("scenarios");
-    scenarios.forEach(sc => {
-      if (sc.trackIds && sc.trackIds.includes(trackId)) {
-        sc.trackIds = sc.trackIds.filter(id => id !== trackId);
-        scStore.put(sc);
-      }
-    });
+    scenarios.forEach(sc => { if (sc.trackIds && sc.trackIds.includes(trackId)) { sc.trackIds = sc.trackIds.filter(id => id !== trackId); scStore.put(sc); } });
     tx.oncomplete = () => loadAllData();
   }
 
@@ -1588,59 +1260,35 @@
     const name = document.getElementById("inputScName").value.trim();
     if (!name) return alert("Введите название!");
     const duration = document.getElementById("inputScDur").value;
-    const tx = db.transaction("scenarios", "readwrite");
-    const store = tx.objectStore("scenarios");
-    
+    const tx = db.transaction("scenarios", "readwrite"); const store = tx.objectStore("scenarios");
     if (editingScenarioId) {
       const old = scenarios.find(x => x.id === editingScenarioId);
       store.put({ ...old, name, duration });
-      tx.oncomplete = () => { 
-        closeModal("scenarioModal"); 
-        loadAllData(); 
-      };
+      tx.oncomplete = () => { closeModal("scenarioModal"); loadAllData(); };
     } else {
       const req = store.add({ name, duration, order: scenarios.length, trackIds: [], pads: [] });
       req.onsuccess = (e) => {
         const newId = e.target.result;
-        tx.oncomplete = () => { 
-          closeModal("scenarioModal"); 
-          openedScenarioId = newId;
-          hasUnsavedChanges = false;
-          loadAllData(() => renderCurrentView()); 
-        };
+        tx.oncomplete = () => { closeModal("scenarioModal"); openedScenarioId = newId; hasUnsavedChanges = false; loadAllData(() => renderCurrentView()); };
       };
     }
   }
 
   function saveScenarioState() {
-    const sc = scenarios.find(s => s.id === openedScenarioId);
-    if (!sc) return;
-    const tx = db.transaction("scenarios", "readwrite");
-    tx.objectStore("scenarios").put(sc);
-    tx.oncomplete = () => {
-      hasUnsavedChanges = false;
-      renderCurrentView();
-    };
+    const sc = scenarios.find(s => s.id === openedScenarioId); if (!sc) return;
+    const tx = db.transaction("scenarios", "readwrite"); tx.objectStore("scenarios").put(sc);
+    tx.oncomplete = () => { hasUnsavedChanges = false; renderCurrentView(); };
   }
-
   function saveSoundbarState() {
     let sc = scenarios.find(s => s.id === openedScenarioId) || (scenarios.length > 0 ? scenarios[scenarios.length - 1] : null);
     if (!sc) return;
-    const tx = db.transaction("scenarios", "readwrite");
-    tx.objectStore("scenarios").put(sc);
-    tx.oncomplete = () => {
-      hasUnsavedChanges = false;
-      renderCurrentView();
-    };
+    const tx = db.transaction("scenarios", "readwrite"); tx.objectStore("scenarios").put(sc);
+    tx.oncomplete = () => { hasUnsavedChanges = false; renderCurrentView(); };
   }
-
   function editScenarioAction(e, id) { e.stopPropagation(); if (!isLocked) openScenarioModal(id); }
-
   function executeDeleteScenario(id) {
     if (!confirm("Удалить этот сценарий?")) return;
-    const tx = db.transaction("scenarios", "readwrite");
-    tx.objectStore("scenarios").delete(id);
-    tx.oncomplete = () => loadAllData();
+    const tx = db.transaction("scenarios", "readwrite"); tx.objectStore("scenarios").delete(id); tx.oncomplete = () => loadAllData();
   }
 
   function openAddSourceModal(target = 'scenario') {
@@ -1648,100 +1296,43 @@
     pickerTarget = target;
     document.getElementById("addSourceModal").style.display = "flex";
   }
-  
-  function addFromDeviceToPad() {
-    closeModal("addSourceModal");
-    openTrackModalForPad();
-  }
-  
+  function addFromDeviceToPad() { closeModal("addSourceModal"); openTrackModalForPad(); }
   function openTrackModalForPad() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'audio/*';
+    const input = document.createElement('input'); input.type = 'file'; input.accept = 'audio/*';
     input.onchange = (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+      const file = e.target.files[0]; if (!file) return;
       const reader = new FileReader();
       reader.onload = (ev) => {
         const tx = db.transaction("tracks", "readwrite");
         const baseOrder = tracks.reduce((m, t) => Math.max(m, t.order ?? t.id ?? 0), 0);
-        const addReq = tx.objectStore("tracks").add({
-          name: file.name.replace(/\.[^/.]+$/, ""),
-          purpose: "", tag: "linear-gradient(135deg,#1565c0,#42a5f5)|🎵",
-          loop: false, order: baseOrder + 1, done: false,
-          data: ev.target.result, mimeType: file.type || "audio/mpeg"
-        });
-        addReq.onsuccess = (res) => {
-          const newTrackId = res.target.result;
-          loadAllData(() => {
-            editingPadId = null;
-            openPadEditor(newTrackId);
-          });
-        };
+        const addReq = tx.objectStore("tracks").add({ name: file.name.replace(/\.[^/.]+$/, ""), purpose: "", tag: "linear-gradient(135deg,#1565c0,#42a5f5)|🎵", loop: false, order: baseOrder + 1, done: false, data: ev.target.result, mimeType: file.type || "audio/mpeg" });
+        addReq.onsuccess = (res) => { const newTrackId = res.target.result; loadAllData(() => { editingPadId = null; openPadEditor(newTrackId); }); };
       };
       reader.readAsArrayBuffer(file);
     };
     input.click();
   }
-
   function openLibraryPicker(target) {
-    closeModal("addSourceModal");
-    pickerTarget = target;
-    const searchInput = document.getElementById("pickerSearch");
-    if (searchInput) searchInput.value = "";
-    
-    renderPickerList("");
-    document.getElementById("libraryPickerModal").style.display = "flex";
+    closeModal("addSourceModal"); pickerTarget = target;
+    const searchInput = document.getElementById("pickerSearch"); if (searchInput) searchInput.value = "";
+    renderPickerList(""); document.getElementById("libraryPickerModal").style.display = "flex";
   }
-  
-  function filterPickerList() {
-    const q = (document.getElementById("pickerSearch").value || "").toLowerCase();
-    renderPickerList(q);
-  }
-  
+  function filterPickerList() { const q = (document.getElementById("pickerSearch").value || "").toLowerCase(); renderPickerList(q); }
   function renderPickerList(query) {
-    const listEl = document.getElementById("libraryPickList");
-    listEl.innerHTML = "";
-    if (!tracks.length) {
-      listEl.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:20px;font-size:13px">Нет треков.</div>`;
-      return;
-    }
-    const filtered = tracks.filter(t => 
-      t.name.toLowerCase().includes(query) || (t.purpose || "").toLowerCase().includes(query)
-    );
+    const listEl = document.getElementById("libraryPickList"); listEl.innerHTML = "";
+    if (!tracks.length) { listEl.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:20px;font-size:13px">Нет треков.</div>`; return; }
+    const filtered = tracks.filter(t => t.name.toLowerCase().includes(query) || (t.purpose || "").toLowerCase().includes(query));
     filtered.forEach(t => {
-      const item = document.createElement("div");
-      item.className = "pick-item";
-      item.innerHTML = `
-        <div style="flex:1;min-width:0">
-          <div style="font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.name}</div>
-          <div style="font-size:12px;color:var(--text-muted)">${t.purpose || "Аудиозапись"}</div>
-        </div>
-      `;
+      const item = document.createElement("div"); item.className = "pick-item";
+      item.innerHTML = `<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.name}</div><div style="font-size:12px;color:var(--text-muted)">${t.purpose || "Аудиозапись"}</div></div>`;
       item.onclick = () => {
         closeModal("libraryPickerModal");
         if (pickerTarget === 'pad' || pickerTarget === 'scenario') {
           if (padTrackChangeMode) {
-            const pad = editingPadIsScenario 
-              ? scenarios.find(s => s.id === openedScenarioId)?.pads?.find(p => p.id === editingPadId)
-              : pads.find(p => p.id === editingPadId);
-              
-            if (pad) {
-              pad.trackId = t.id;
-              if (editingPadIsScenario) {
-                hasUnsavedChanges = true;
-              } else {
-                const tx = db.transaction("pads", "readwrite");
-                tx.objectStore("pads").put(pad);
-                tx.oncomplete = () => loadAllData();
-              }
-            }
-            padTrackChangeMode = false;
-            openPadEditor();
-          } else {
-            editingPadId = null;
-            openPadEditor(t.id);
-          }
+            const pad = editingPadIsScenario ? scenarios.find(s => s.id === openedScenarioId)?.pads?.find(p => p.id === editingPadId) : pads.find(p => p.id === editingPadId);
+            if (pad) { pad.trackId = t.id; if (editingPadIsScenario) hasUnsavedChanges = true; else { const tx = db.transaction("pads", "readwrite"); tx.objectStore("pads").put(pad); tx.oncomplete = () => loadAllData(); } }
+            padTrackChangeMode = false; openPadEditor();
+          } else { editingPadId = null; openPadEditor(t.id); }
         }
       };
       listEl.appendChild(item);
@@ -1753,374 +1344,191 @@
     const deleteBtn = document.getElementById("deletePadBtn");
     const trackInput = document.getElementById("inputPadTrackId");
     const currentTrackNameEl = document.getElementById("padCurrentTrackName");
-    
-    const paletteEl = document.getElementById("padColorPalette");
-    paletteEl.innerHTML = "";
+    const paletteEl = document.getElementById("padColorPalette"); paletteEl.innerHTML = "";
     PAD_COLORS.forEach((color) => {
       const swatch = document.createElement("div");
       swatch.className = "color-swatch" + (selectedPadColor === color ? " selected" : "");
       swatch.style.background = color;
-      swatch.onclick = () => {
-        selectedPadColor = color;
-        document.querySelectorAll("#padColorPalette .color-swatch").forEach(el => el.classList.remove("selected"));
-        swatch.classList.add("selected");
-      };
+      swatch.onclick = () => { selectedPadColor = color; document.querySelectorAll("#padColorPalette .color-swatch").forEach(el => el.classList.remove("selected")); swatch.classList.add("selected"); };
       paletteEl.appendChild(swatch);
     });
-    
-    const iconGrid = document.getElementById("padIconGrid");
-    iconGrid.innerHTML = "";
+    const iconGrid = document.getElementById("padIconGrid"); iconGrid.innerHTML = "";
     const currentIcon = document.getElementById("inputPadIcon").value || "🎵";
     PAD_ICONS.forEach(ico => {
       const opt = document.createElement("div");
       opt.className = "icon-option" + (currentIcon === ico ? " selected" : "");
       opt.textContent = ico;
-      opt.onclick = () => {
-        document.getElementById("inputPadIcon").value = ico;
-        document.querySelectorAll("#padIconGrid .icon-option").forEach(el => el.classList.remove("selected"));
-        opt.classList.add("selected");
-      };
+      opt.onclick = () => { document.getElementById("inputPadIcon").value = ico; document.querySelectorAll("#padIconGrid .icon-option").forEach(el => el.classList.remove("selected")); opt.classList.add("selected"); };
       iconGrid.appendChild(opt);
     });
-    
     let existingPad = null;
-    if (editingPadId) {
-      existingPad = editingPadIsScenario
-        ? scenarios.find(s => s.id === openedScenarioId)?.pads?.find(p => p.id === editingPadId)
-        : pads.find(p => p.id === editingPadId);
-    }
-    
+    if (editingPadId) existingPad = editingPadIsScenario ? scenarios.find(s => s.id === openedScenarioId)?.pads?.find(p => p.id === editingPadId) : pads.find(p => p.id === editingPadId);
     if (existingPad) {
       document.getElementById("padModalHeading").innerText = "Настроить пэд";
-      titleInput.value = existingPad.title || "";
-      document.getElementById("inputPadIcon").value = existingPad.icon || "🎵";
-      trackInput.value = existingPad.trackId || "";
-      selectedPadColor = existingPad.color || PAD_COLORS[0];
-      deleteBtn.style.display = "block";
-      
-      const tr = tracks.find(t => t.id === existingPad.trackId);
-      currentTrackNameEl.textContent = tr ? tr.name : "—";
-      
-      document.querySelectorAll("#padColorPalette .color-swatch").forEach((el, i) => {
-        el.classList.toggle("selected", PAD_COLORS[i] === selectedPadColor);
-      });
-      document.querySelectorAll("#padIconGrid .icon-option").forEach(el => {
-        el.classList.toggle("selected", el.textContent === (existingPad.icon || "🎵"));
-      });
+      titleInput.value = existingPad.title || ""; document.getElementById("inputPadIcon").value = existingPad.icon || "🎵";
+      trackInput.value = existingPad.trackId || ""; selectedPadColor = existingPad.color || PAD_COLORS[0]; deleteBtn.style.display = "block";
+      const tr = tracks.find(t => t.id === existingPad.trackId); currentTrackNameEl.textContent = tr ? tr.name : "—";
+      document.querySelectorAll("#padColorPalette .color-swatch").forEach((el, i) => el.classList.toggle("selected", PAD_COLORS[i] === selectedPadColor));
+      document.querySelectorAll("#padIconGrid .icon-option").forEach(el => el.classList.toggle("selected", el.textContent === (existingPad.icon || "🎵")));
     } else {
       document.getElementById("padModalHeading").innerText = "Настроить пэд";
-      titleInput.value = "";
-      document.getElementById("inputPadIcon").value = "🎵";
-      trackInput.value = trackId || "";
-      selectedPadColor = PAD_COLORS[0];
-      deleteBtn.style.display = "none";
-      
-      const tr = trackId ? tracks.find(t => t.id === trackId) : null;
-      currentTrackNameEl.textContent = tr ? tr.name : "Не выбран";
+      titleInput.value = ""; document.getElementById("inputPadIcon").value = "🎵"; trackInput.value = trackId || ""; selectedPadColor = PAD_COLORS[0]; deleteBtn.style.display = "none";
+      const tr = trackId ? tracks.find(t => t.id === trackId) : null; currentTrackNameEl.textContent = tr ? tr.name : "Не выбран";
     }
-    
     document.getElementById("padModal").style.display = "flex";
   }
-  
-  function changePadTrack() {
-    padTrackChangeMode = true;
-    closeModal('padModal');
-    openAddSourceModal(editingPadIsScenario ? 'scenario' : 'pad');
-  }
-
+  function changePadTrack() { padTrackChangeMode = true; closeModal('padModal'); openAddSourceModal(editingPadIsScenario ? 'scenario' : 'pad'); }
   function savePad() {
     const trackId = document.getElementById("inputPadTrackId").value;
     const title = document.getElementById("inputPadTitle").value.trim();
     const icon = document.getElementById("inputPadIcon").value.trim() || "🎵";
-    
     if (!trackId) return alert("Ошибка: не выбран трек");
-    
     if (editingPadIsScenario) {
-      const sc = scenarios.find(s => s.id === openedScenarioId);
-      if (!sc) return;
+      const sc = scenarios.find(s => s.id === openedScenarioId); if (!sc) return;
       if (!sc.pads) sc.pads = [];
-      
       if (editingPadId) {
         const pad = sc.pads.find(p => p.id === editingPadId);
-        if (pad) {
-          pad.trackId = Number(trackId);
-          pad.title = title;
-          pad.icon = icon;
-          pad.color = selectedPadColor;
-        }
-      } else {
-        const newId = Date.now();
-        sc.pads.push({
-          id: newId,
-          trackId: Number(trackId),
-          title,
-          icon,
-          color: selectedPadColor,
-          order: sc.pads.length
-        });
-      }
-      hasUnsavedChanges = true;
-      closeModal("padModal");
-      renderCurrentView();
+        if (pad) { pad.trackId = Number(trackId); pad.title = title; pad.icon = icon; pad.color = selectedPadColor; }
+      } else { const newId = Date.now(); sc.pads.push({ id: newId, trackId: Number(trackId), title, icon, color: selectedPadColor, order: sc.pads.length }); }
+      hasUnsavedChanges = true; closeModal("padModal"); renderCurrentView();
     } else {
       let sc = scenarios.find(s => s.id === openedScenarioId) || (scenarios.length > 0 ? scenarios[scenarios.length - 1] : null);
       if (!sc) return;
       if (!sc.pads) sc.pads = [];
-      
       if (editingPadId) {
         const pad = sc.pads.find(p => p.id === editingPadId);
-        if (pad) {
-          pad.trackId = Number(trackId);
-          pad.title = title;
-          pad.icon = icon;
-          pad.color = selectedPadColor;
-        }
-      } else {
-        const newId = Date.now();
-        sc.pads.push({
-          id: newId,
-          trackId: Number(trackId),
-          title,
-          icon,
-          color: selectedPadColor,
-          order: sc.pads.length
-        });
-      }
-      hasUnsavedChanges = true;
-      closeModal("padModal");
-      renderCurrentView();
+        if (pad) { pad.trackId = Number(trackId); pad.title = title; pad.icon = icon; pad.color = selectedPadColor; }
+      } else { const newId = Date.now(); sc.pads.push({ id: newId, trackId: Number(trackId), title, icon, color: selectedPadColor, order: sc.pads.length }); }
+      hasUnsavedChanges = true; closeModal("padModal"); renderCurrentView();
     }
   }
-
   function deletePad() {
     if (!editingPadId) return;
     if (!confirm("Удалить этот пэд?")) return;
-    
     if (editingPadIsScenario) {
       const sc = scenarios.find(s => s.id === openedScenarioId);
-      if (sc && sc.pads) {
-        sc.pads = sc.pads.filter(p => p.id !== editingPadId);
-        hasUnsavedChanges = true;
-      }
-      closeModal("padModal");
-      renderCurrentView();
+      if (sc && sc.pads) { sc.pads = sc.pads.filter(p => p.id !== editingPadId); hasUnsavedChanges = true; }
+      closeModal("padModal"); renderCurrentView();
     } else {
       let sc = scenarios.find(s => s.id === openedScenarioId) || (scenarios.length > 0 ? scenarios[scenarios.length - 1] : null);
-      if (sc && sc.pads) {
-        sc.pads = sc.pads.filter(p => p.id !== editingPadId);
-        hasUnsavedChanges = true;
-      }
-      closeModal("padModal");
-      renderCurrentView();
+      if (sc && sc.pads) { sc.pads = sc.pads.filter(p => p.id !== editingPadId); hasUnsavedChanges = true; }
+      closeModal("padModal"); renderCurrentView();
     }
   }
 
   function buildQueue(scenarioContextId) {
-    if (scenarioContextId) {
-      const sc = scenarios.find(s => s.id === scenarioContextId);
-      if (sc) return (sc.trackIds || []).filter(id => tracks.some(t => t.id === id));
-    }
+    if (scenarioContextId) { const sc = scenarios.find(s => s.id === scenarioContextId); if (sc) return (sc.trackIds || []).filter(id => tracks.some(t => t.id === id)); }
     return tracks.map(t => t.id);
   }
-  
   function playPad(padId, isScenario) {
     let pad;
-    if (isScenario) {
-      const sc = scenarios.find(s => s.id === openedScenarioId);
-      if (sc) pad = sc.pads?.find(p => p.id === padId);
-    } else {
-      let sc = scenarios.find(s => s.id === openedScenarioId) || (scenarios.length > 0 ? scenarios[scenarios.length - 1] : null);
-      if (sc) pad = sc.pads?.find(p => p.id === padId);
-    }
-    
+    if (isScenario) { const sc = scenarios.find(s => s.id === openedScenarioId); if (sc) pad = sc.pads?.find(p => p.id === padId); }
+    else { let sc = scenarios.find(s => s.id === openedScenarioId) || (scenarios.length > 0 ? scenarios[scenarios.length - 1] : null); if (sc) pad = sc.pads?.find(p => p.id === padId); }
     if (!pad) return;
     currentPadContext = pad;
     playTrack(pad.trackId, null);
   }
-
   function requestPlay(trackId, scenarioContextId = null) {
     if (safeModeEnabled) {
-      pendingSafePlayId = trackId;
-      pendingSafeScenarioId = scenarioContextId;
-      document.getElementById("safePlayBtn").classList.add("visible");
-      renderCurrentView();
+      pendingSafePlayId = trackId; pendingSafeScenarioId = scenarioContextId;
+      document.getElementById("safePlayBtn").classList.add("visible"); renderCurrentView();
       if (!currentTrackId) {
         const track = tracks.find(t => t.id === trackId);
         if (track) {
           const [bg, ico] = (track.tag || "linear-gradient(135deg,#1565c0,#42a5f5)|🎵").split("|");
-          document.getElementById("playerCover").style.background = bg;
-          document.getElementById("playerCover").innerText = ico;
-          document.getElementById("playerTitle").innerText = track.name;
-          document.getElementById("playerSub").innerText = track.purpose || "Готов к запуску";
+          document.getElementById("playerCover").style.background = bg; document.getElementById("playerCover").innerText = ico;
+          document.getElementById("playerTitle").innerText = track.name; document.getElementById("playerSub").innerText = track.purpose || "Готов к запуску";
           document.getElementById("playerBar").classList.add("visible");
         }
       }
-    } else {
-      playTrack(trackId, scenarioContextId);
-    }
+    } else playTrack(trackId, scenarioContextId);
   }
-
   function executeSafePlay() {
     if (pendingSafePlayId) {
-      const id = pendingSafePlayId;
-      const scId = pendingSafeScenarioId;
-      pendingSafePlayId = null;
-      pendingSafeScenarioId = null;
+      const id = pendingSafePlayId; const scId = pendingSafeScenarioId;
+      pendingSafePlayId = null; pendingSafeScenarioId = null;
       document.getElementById("safePlayBtn").classList.remove("visible");
       playTrack(id, scId);
     }
   }
-
   function playTrack(trackId, scenarioContextId = null) {
     const track = tracks.find(t => t.id === trackId); if (!track) return;
-    
-    if (crossfadeEnabled && currentAudio && !currentAudio.paused) {
-      fadeOutAndPlay(track, scenarioContextId);
-      return;
-    }
-
+    if (crossfadeEnabled && currentAudio && !currentAudio.paused) { fadeOutAndPlay(track, scenarioContextId); return; }
     if (currentTrackId === trackId && currentAudio) { togglePauseCurrent(); return; }
     if (currentAudio) { currentAudio.pause(); currentAudio.src = ""; currentAudio = null; }
     if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
-
-    currentQueueIds = buildQueue(scenarioContextId);
-    if (!currentQueueIds.includes(trackId)) currentQueueIds.push(trackId);
-
+    currentQueueIds = buildQueue(scenarioContextId); if (!currentQueueIds.includes(trackId)) currentQueueIds.push(trackId);
     currentBlobUrl = URL.createObjectURL(new Blob([track.data], { type: track.mimeType || "audio/mpeg" }));
     currentAudio = new Audio(currentBlobUrl);
-    currentAudio.loop = !!track.loop;
-    currentAudio.volume = currentVolume;
-    currentTrackId = trackId;
-
+    currentAudio.loop = !!track.loop; currentAudio.volume = currentVolume; currentTrackId = trackId;
     startShowTimer();
-
     currentAudio.onloadedmetadata = () => updatePlayerUI();
     currentAudio.ontimeupdate = () => { if (!isSeeking) updatePlayerUI(); };
     currentAudio.onended = () => { if (!track.loop) playNextTrack(true); };
-
-    currentAudio.play().then(() => {
-      requestWakeLock();
-      updateMediaSession(track);
-    }).catch(err => alert("Не удалось воспроизвести: " + err.message));
-    updatePlayerUI();
-    renderCurrentView();
+    currentAudio.play().then(() => { requestWakeLock(); updateMediaSession(track); }).catch(err => alert("Не удалось воспроизвести: " + err.message));
+    updatePlayerUI(); renderCurrentView();
   }
-
   function fadeOutAndPlay(newTrack, scenarioContextId) {
     if (!currentAudio) return;
-    const oldAudio = currentAudio;
-    const targetVol = currentVolume;
-    const steps = 25;
-    const stepTime = 100;
-    let currentStep = 0;
+    const oldAudio = currentAudio; const targetVol = currentVolume; const steps = 25; const stepTime = 100; let currentStep = 0;
     const fadeInterval = setInterval(() => {
-      currentStep++;
-      const ratio = 1 - (currentStep / steps);
-      oldAudio.volume = Math.max(0, targetVol * ratio);
-      if (currentStep >= steps) {
-        clearInterval(fadeInterval);
-        oldAudio.pause();
-        oldAudio.src = "";
-        doPlayTrack(newTrack, scenarioContextId);
-      }
+      currentStep++; const ratio = 1 - (currentStep / steps); oldAudio.volume = Math.max(0, targetVol * ratio);
+      if (currentStep >= steps) { clearInterval(fadeInterval); oldAudio.pause(); oldAudio.src = ""; doPlayTrack(newTrack, scenarioContextId); }
     }, stepTime);
   }
-
   function doPlayTrack(track, scenarioContextId = null) {
     if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
-    currentQueueIds = buildQueue(scenarioContextId);
-    if (!currentQueueIds.includes(track.id)) currentQueueIds.push(track.id);
-
+    currentQueueIds = buildQueue(scenarioContextId); if (!currentQueueIds.includes(track.id)) currentQueueIds.push(track.id);
     currentBlobUrl = URL.createObjectURL(new Blob([track.data], { type: track.mimeType || "audio/mpeg" }));
     currentAudio = new Audio(currentBlobUrl);
-    currentAudio.loop = !!track.loop;
-    currentAudio.volume = currentVolume;
-    currentTrackId = track.id;
-
+    currentAudio.loop = !!track.loop; currentAudio.volume = currentVolume; currentTrackId = track.id;
     currentAudio.onloadedmetadata = () => updatePlayerUI();
     currentAudio.ontimeupdate = () => { if (!isSeeking) updatePlayerUI(); };
     currentAudio.onended = () => { if (!track.loop) playNextTrack(true); };
-
-    currentAudio.play().then(() => {
-      requestWakeLock();
-      updateMediaSession(track);
-    }).catch(err => alert("Ошибка: " + err.message));
-    updatePlayerUI();
-    renderCurrentView();
+    currentAudio.play().then(() => { requestWakeLock(); updateMediaSession(track); }).catch(err => alert("Ошибка: " + err.message));
+    updatePlayerUI(); renderCurrentView();
   }
-
   function togglePauseCurrent() {
     if (!currentAudio) return;
-    if (currentAudio.paused) {
-      currentAudio.play();
-      requestWakeLock();
-      if (navigator.mediaSession) navigator.mediaSession.playbackState = "playing";
-    } else {
-      currentAudio.pause();
-      if (navigator.mediaSession) navigator.mediaSession.playbackState = "paused";
-    }
-    updatePlayerUI();
-    renderCurrentView();
+    if (currentAudio.paused) { currentAudio.play(); requestWakeLock(); if (navigator.mediaSession) navigator.mediaSession.playbackState = "playing"; }
+    else { currentAudio.pause(); if (navigator.mediaSession) navigator.mediaSession.playbackState = "paused"; }
+    updatePlayerUI(); renderCurrentView();
   }
-
   function stopAndReset() {
     if (!currentAudio) return;
-    currentAudio.pause();
-    currentAudio.currentTime = 0;
-    stopShowTimer();
-    updatePlayerUI();
-    renderCurrentView();
-    if (navigator.mediaSession) navigator.mediaSession.playbackState = "paused";
+    currentAudio.pause(); currentAudio.currentTime = 0; stopShowTimer();
+    updatePlayerUI(); renderCurrentView(); if (navigator.mediaSession) navigator.mediaSession.playbackState = "paused";
   }
-
   function restartCurrent() {
     if (!currentAudio) return;
     currentAudio.currentTime = 0;
     if (currentAudio.paused) { currentAudio.play(); requestWakeLock(); }
     updatePlayerUI();
   }
-
   function playNextTrack(autoEnded = false) {
-    if (!currentQueueIds.length) {
-      if (tracks.length) currentQueueIds = tracks.map(t => t.id);
-      else return;
-    }
-    const idx = currentQueueIds.indexOf(currentTrackId);
-    const nextIdx = idx + 1;
+    if (!currentQueueIds.length) { if (tracks.length) currentQueueIds = tracks.map(t => t.id); else return; }
+    const idx = currentQueueIds.indexOf(currentTrackId); const nextIdx = idx + 1;
     if (nextIdx < currentQueueIds.length) {
-      const nextId = currentQueueIds[nextIdx];
-      const ctxSc = activeSection === "scenarios" ? openedScenarioId : null;
+      const nextId = currentQueueIds[nextIdx]; const ctxSc = activeSection === "scenarios" ? openedScenarioId : null;
       requestPlay(nextId, ctxSc);
     } else if (!autoEnded && currentQueueIds.length > 0) {
       const ctxSc = activeSection === "scenarios" ? openedScenarioId : null;
       requestPlay(currentQueueIds[0], ctxSc);
-    } else {
-      stopPlayback();
-    }
+    } else stopPlayback();
   }
-
   function playPrevTrack() {
-    if (!currentQueueIds.length) {
-      if (tracks.length) currentQueueIds = tracks.map(t => t.id);
-      else return;
-    }
-    const idx = currentQueueIds.indexOf(currentTrackId);
-    const prevIdx = idx - 1;
+    if (!currentQueueIds.length) { if (tracks.length) currentQueueIds = tracks.map(t => t.id); else return; }
+    const idx = currentQueueIds.indexOf(currentTrackId); const prevIdx = idx - 1;
     const ctxSc = activeSection === "scenarios" ? openedScenarioId : null;
     if (prevIdx >= 0) requestPlay(currentQueueIds[prevIdx], ctxSc);
     else requestPlay(currentQueueIds[currentQueueIds.length - 1], ctxSc);
   }
-
   function stopPlayback() {
     if (currentAudio) { currentAudio.pause(); currentAudio.src = ""; currentAudio = null; }
     if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
-    currentTrackId = null;
-    currentPadContext = null;
-    releaseWakeLock();
-    stopShowTimer();
+    currentTrackId = null; currentPadContext = null; releaseWakeLock(); stopShowTimer();
     if (navigator.mediaSession) { navigator.mediaSession.metadata = null; navigator.mediaSession.playbackState = "none"; }
-    updatePlayerUI();
-    renderCurrentView();
+    updatePlayerUI(); renderCurrentView();
   }
 
   function startShowTimer() {
@@ -2128,23 +1536,17 @@
     const sc = activeSection === "scenarios" ? scenarios.find(s => s.id === openedScenarioId) : null;
     if (!sc) return;
     showTimerRemaining = parseInt(sc.duration) * 60;
-    document.getElementById("showTimer").classList.add("visible");
-    updateTimerDisplay();
+    document.getElementById("showTimer").classList.add("visible"); updateTimerDisplay();
     showTimerInterval = setInterval(() => {
-      showTimerRemaining--;
-      updateTimerDisplay();
+      showTimerRemaining--; updateTimerDisplay();
       if (showTimerRemaining <= 0) stopShowTimer();
     }, 1000);
   }
-
   function stopShowTimer() {
     if (showTimerInterval) { clearInterval(showTimerInterval); showTimerInterval = null; }
     const el = document.getElementById("showTimer");
-    el.classList.remove("visible");
-    el.classList.remove("warning");
-    el.classList.remove("danger");
+    el.classList.remove("visible"); el.classList.remove("warning"); el.classList.remove("danger");
   }
-
   function updateTimerDisplay() {
     const el = document.getElementById("showTimer");
     el.innerText = formatMinSec(Math.max(0, showTimerRemaining));
@@ -2155,11 +1557,7 @@
 
   function updateMediaSession(track) {
     if (!('mediaSession' in navigator)) return;
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: track.name,
-      artist: track.purpose || 'ʞk Player',
-      album: 'ʞk'
-    });
+    navigator.mediaSession.metadata = new MediaMetadata({ title: track.name, artist: track.purpose || 'ʞk Player', album: 'ʞk' });
     navigator.mediaSession.setActionHandler('play', () => togglePauseCurrent());
     navigator.mediaSession.setActionHandler('pause', () => togglePauseCurrent());
     navigator.mediaSession.setActionHandler('previoustrack', () => playPrevTrack());
@@ -2173,13 +1571,8 @@
   function updatePlayerUI() {
     const bar = document.getElementById("playerBar");
     const playBtn = document.getElementById("playPauseBtn");
-    if (!currentTrackId || !currentAudio) {
-      bar.classList.remove("visible");
-      playBtn.innerHTML = SVG_PLAY;
-      return;
-    }
+    if (!currentTrackId || !currentAudio) { bar.classList.remove("visible"); playBtn.innerHTML = SVG_PLAY; return; }
     const track = tracks.find(t => t.id === currentTrackId); if (!track) return;
-    
     if (currentPadContext) {
       const pad = currentPadContext;
       const [bg] = pad.color ? pad.color.split("|") : (track.tag || "#333").split("|");
@@ -2194,9 +1587,7 @@
       document.getElementById("playerTitle").innerText = track.name;
       document.getElementById("playerSub").innerText = track.note || track.purpose || "ʞk Player";
     }
-    
     playBtn.innerHTML = currentAudio.paused ? SVG_PLAY : SVG_PAUSE;
-
     const cur = currentAudio.currentTime || 0;
     const dur = currentAudio.duration || 0;
     document.getElementById("timeCurrent").innerText = formatTime(cur);
@@ -2215,32 +1606,15 @@
     }
   });
   seekSlider.addEventListener("change", () => {
-    if (currentAudio && currentAudio.duration) {
-      currentAudio.currentTime = (Number(seekSlider.value) / 1000) * currentAudio.duration;
-    }
+    if (currentAudio && currentAudio.duration) { currentAudio.currentTime = (Number(seekSlider.value) / 1000) * currentAudio.duration; }
     isSeeking = false;
   });
-
-  function toggleVolume() {
-    document.getElementById("volContainer").classList.toggle("visible");
-  }
-  document.getElementById("volSlider").addEventListener("input", (e) => {
-    currentVolume = Number(e.target.value) / 100;
-    if (currentAudio) currentAudio.volume = currentVolume;
-  });
-
-  function resetVolume() {
-    closeModal('settingsModal');
-    currentVolume = 1.0;
-    document.getElementById("volSlider").value = 100;
-    if (currentAudio) currentAudio.volume = currentVolume;
-  }
+  function toggleVolume() { document.getElementById("volContainer").classList.toggle("visible"); }
+  document.getElementById("volSlider").addEventListener("input", (e) => { currentVolume = Number(e.target.value) / 100; if (currentAudio) currentAudio.volume = currentVolume; });
+  function resetVolume() { closeModal('settingsModal'); currentVolume = 1.0; document.getElementById("volSlider").value = 100; if (currentAudio) currentAudio.volume = currentVolume; }
 
   document.getElementById("playPauseBtn").innerHTML = SVG_PLAY;
-
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
-  }
+  if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(() => {}); }
 </script>
 </body>
 </html>
