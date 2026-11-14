@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#09090b">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
-<title>ʞk</title>
+<title>ʞk Player</title>
 
 <style>
   :root {
@@ -21,6 +21,8 @@
     --text-muted: #8e8e98;
     --border-subtle: rgba(255, 255, 255, 0.08);
     --danger: #e53935;
+    --success: #43a047;
+    --warning: #ff9800;
   }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -57,22 +59,24 @@
   .icon-btn:active { transform: scale(0.92); background: rgba(255,255,255,0.1); }
   .icon-btn.active { background: rgba(26,115,232,0.3); color: #64b5f6; }
 
-  .main-tabs { display: flex; align-items: center; gap: 10px; }
+  .main-tabs { display: flex; align-items: center; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
+  .main-tabs::-webkit-scrollbar { display: none; }
   .tab-pill {
-    padding: 8px 18px; border-radius: 99px; border: none; background: var(--bg-pill);
-    color: var(--text-muted); font-size: 14px; font-weight: 600; cursor: pointer;
-    transition: background 0.2s, color 0.2s, transform 0.1s;
+    padding: 8px 16px; border-radius: 99px; border: none; background: var(--bg-pill);
+    color: var(--text-muted); font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: background 0.2s, color 0.2s, transform 0.1s; white-space: nowrap;
   }
   .tab-pill:active { transform: scale(0.96); }
   .tab-pill.active { background: var(--accent-blue); color: #fff; box-shadow: 0 3px 12px rgba(26,115,232,0.4); }
 
-  .search-bar { display: none; margin-top: 12px; }
-  .search-bar.visible { display: block; }
-  .search-input {
-    width: 100%; padding: 10px 14px; border-radius: 12px;
-    border: 1px solid var(--border-subtle); background: var(--bg-pill);
-    color: #fff; font-size: 14px; outline: none;
+  .filter-row { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; padding-bottom: 4px; }
+  .filter-row::-webkit-scrollbar { display: none; }
+  .filter-btn {
+    padding: 6px 12px; border-radius: 99px; border: 1px solid var(--border-subtle);
+    background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 600;
+    cursor: pointer; white-space: nowrap;
   }
+  .filter-btn.active { background: rgba(26,115,232,0.2); border-color: var(--accent-blue); color: #64b5f6; }
 
   .content-container { max-width: 720px; margin: 0 auto; padding: 14px 16px; }
 
@@ -143,6 +147,51 @@
   }
   .row-btn:active { background: rgba(255,255,255,0.1); color: #fff; }
 
+  /* ===== SCENARIO CARDS (BIG) ===== */
+  .scenario-card {
+    background: var(--bg-pill);
+    border: 1px solid var(--border-subtle);
+    border-radius: 18px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: transform 0.1s, background 0.15s, border-color 0.15s;
+    position: relative;
+  }
+  .scenario-card:active { transform: scale(0.98); background: rgba(255,255,255,0.06); }
+  .scenario-card.playing { border-color: var(--accent-blue); background: rgba(26,115,232,0.15); }
+  .scenario-card.done { opacity: 0.5; }
+  .scenario-card.selected { border-color: var(--warning); background: rgba(255,152,0,0.15); }
+  
+  .scenario-card .row-cover { width: 64px; height: 64px; font-size: 28px; }
+  .scenario-card .row-title { font-size: 18px; margin-bottom: 6px; }
+  .scenario-card .row-subtitle { font-size: 14px; }
+  
+  .done-badge {
+    position: absolute; top: 12px; right: 12px;
+    background: var(--success); color: white;
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: bold;
+  }
+
+  /* ===== SHOW TIMER ===== */
+  .show-timer {
+    position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.85); color: white;
+    padding: 8px 18px; border-radius: 99px;
+    font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums;
+    z-index: 25; display: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    border: 1px solid var(--border-subtle);
+  }
+  .show-timer.visible { display: block; }
+  .show-timer.warning { background: var(--warning); color: #000; animation: pulse 1s infinite; }
+  .show-timer.danger { background: var(--danger); color: #fff; animation: pulse 0.5s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+
   /* ===== PLAYER BAR ===== */
   .player-bar {
     position: fixed; left: 10px; right: 10px; bottom: 10px;
@@ -187,7 +236,7 @@
   .p-ctrl-stop { color: #ffcdd2; }
   .p-ctrl-stop:active { background: rgba(229,57,53,0.3); }
 
-  .seek-container { display: flex; align-items: center; gap: 8px; }
+  .seek-container { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
   .time-txt { font-size: 11px; color: rgba(255,255,255,0.85); font-variant-numeric: tabular-nums; min-width: 34px; }
 
   .seek-slider {
@@ -198,42 +247,20 @@
     -webkit-appearance: none; appearance: none; width: 15px; height: 15px;
     border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.45); cursor: pointer;
   }
-  .seek-slider::-moz-range-thumb {
-    width: 15px; height: 15px; border-radius: 50%; border: none;
-    background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.45); cursor: pointer;
-  }
 
-  .vol-container {
-    position: fixed; right: 14px; bottom: 110px; z-index: 31;
-    width: 44px; height: 140px;
-    background: rgba(0,0,0,0.7);
-    border-radius: 22px;
-    display: none;
-    align-items: center; justify-content: center;
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  /* Safe mode button */
+  .safe-play-btn {
+    position: absolute; right: 14px; top: 10px;
+    padding: 8px 16px; border-radius: 99px;
+    background: var(--success); color: white; font-weight: 700; font-size: 13px;
+    border: none; cursor: pointer; display: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   }
-  .vol-container.visible { display: flex; }
-  .vol-slider {
-    -webkit-appearance: none; appearance: none;
-    width: 120px; height: 5px; transform: rotate(-90deg);
-    background: rgba(255,255,255,0.3); border-radius: 99px; outline: none;
+  .safe-play-btn.visible { display: block; animation: pulseGreen 1.5s infinite; }
+  @keyframes pulseGreen {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(67,160,71,0.7); }
+    50% { box-shadow: 0 0 0 10px rgba(67,160,71,0); }
   }
-  .vol-slider::-webkit-slider-thumb {
-    -webkit-appearance: none; appearance: none;
-    width: 20px; height: 20px; border-radius: 50%;
-    background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-  }
-  .vol-slider::-moz-range-thumb {
-    width: 20px; height: 20px; border-radius: 50%; border: none; background: #fff;
-  }
-
-  .lock-indicator {
-    position: fixed; top: 8px; left: 50%; transform: translateX(-50%);
-    background: var(--danger); color: #fff; padding: 4px 14px;
-    border-radius: 99px; font-size: 11px; font-weight: 700;
-    z-index: 60; display: none; letter-spacing: 0.5px;
-  }
-  .lock-indicator.visible { display: block; }
 
   /* ===== MODALS ===== */
   .modal-overlay {
@@ -243,16 +270,17 @@
   }
   .modal-box {
     background: #16161c; border: 1px solid var(--border-subtle); border-radius: 20px;
-    padding: 20px; width: 100%; max-width: 400px; max-height: 85vh;
+    padding: 20px; width: 100%; max-width: 450px; max-height: 85vh;
     overflow-y: auto; box-shadow: 0 14px 36px rgba(0,0,0,0.7);
   }
   .modal-box h3 { margin: 0 0 14px; font-size: 18px; }
   .field-label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
-  .modal-input, .modal-select {
+  .modal-input, .modal-select, .modal-textarea {
     width: 100%; padding: 11px 12px; margin-bottom: 14px; border-radius: 12px;
     border: 1px solid var(--border-subtle); background: #0d0d11;
     color: #fff; font-size: 14px; font-family: inherit;
   }
+  .modal-textarea { resize: vertical; min-height: 80px; }
   .checkbox-row { display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 16px; cursor: pointer; }
   .modal-btns { display: flex; gap: 10px; }
   .m-btn {
@@ -260,6 +288,7 @@
     background: var(--bg-pill); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;
   }
   .m-btn-primary { background: var(--accent-blue); border: none; }
+  .m-btn-danger { background: var(--danger); border: none; }
   .modal-hint { font-size: 12px; color: var(--text-muted); margin: -6px 0 14px; line-height: 1.45; }
 
   .choice-card {
@@ -279,12 +308,52 @@
     cursor: pointer;
   }
   .pick-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent-blue); }
+
   .row-btn.warn { color: var(--danger); }
+
+  /* Volume */
+  .vol-container {
+    position: fixed; right: 14px; bottom: 130px; z-index: 31;
+    width: 44px; height: 140px;
+    background: rgba(0,0,0,0.7); border-radius: 22px;
+    display: none; align-items: center; justify-content: center;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  }
+  .vol-container.visible { display: flex; }
+  .vol-slider {
+    -webkit-appearance: none; appearance: none;
+    width: 120px; height: 5px; transform: rotate(-90deg);
+    background: rgba(255,255,255,0.3); border-radius: 99px; outline: none;
+  }
+  .vol-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  }
+
+  .lock-indicator {
+    position: fixed; top: 8px; left: 50%; transform: translateX(-50%);
+    background: var(--danger); color: #fff; padding: 4px 14px;
+    border-radius: 99px; font-size: 11px; font-weight: 700;
+    z-index: 60; display: none; letter-spacing: 0.5px;
+  }
+  .lock-indicator.visible { display: block; }
+
+  /* Mute Button */
+  .mute-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2);
+    color: white; font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .mute-btn.active { background: var(--danger); }
 </style>
 </head>
 <body>
 
 <div class="lock-indicator" id="lockIndicator">🔒 ЗАБЛОКИРОВАНО</div>
+<div class="show-timer" id="showTimer">00:00</div>
 
 <header id="mainHeader">
   <div class="header-top">
@@ -309,7 +378,20 @@
 
   <div class="main-tabs">
     <button class="tab-pill active" id="tabAllMusic" onclick="switchSection('all')">Вся музыка</button>
-    <button class="tab-pill" id="tabPlaylists" onclick="switchSection('playlists')">Плейлисты</button>
+    <button class="tab-pill" id="tabScenarios" onclick="switchSection('scenarios')">Сценарии</button>
+  </div>
+
+  <div class="filter-row" id="ageFilter" style="display:none">
+    <button class="filter-btn active" onclick="setFilter('age', 'all')">Все возрасты</button>
+    <button class="filter-btn" onclick="setFilter('age', '2-4')">2-4 года</button>
+    <button class="filter-btn" onclick="setFilter('age', '4-8')">4-8 лет</button>
+    <button class="filter-btn" onclick="setFilter('age', '8-13')">8-13 лет</button>
+  </div>
+  <div class="filter-row" id="durFilter" style="display:none">
+    <button class="filter-btn active" onclick="setFilter('dur', 'all')">Все длительности</button>
+    <button class="filter-btn" onclick="setFilter('dur', '15')">15 мин</button>
+    <button class="filter-btn" onclick="setFilter('dur', '30')">30 мин</button>
+    <button class="filter-btn" onclick="setFilter('dur', '60')">60 мин</button>
   </div>
 
   <div class="search-bar" id="searchBar">
@@ -319,24 +401,21 @@
 
 <div class="content-container" id="mainContainer"></div>
 
+<!-- Volume Slider -->
 <div class="vol-container" id="volContainer">
   <input type="range" class="vol-slider" id="volSlider" min="0" max="100" value="100">
 </div>
 
+<!-- ===== PLAYER BAR ===== -->
 <div class="player-bar" id="playerBar">
+  <button class="safe-play-btn" id="safePlayBtn" onclick="executeSafePlay()">▶️ ИГРАТЬ</button>
   <div class="player-top">
     <div class="player-cover" id="playerCover">🎵</div>
     <div class="player-meta">
       <div class="player-title" id="playerTitle">Название трека</div>
       <div class="player-sub" id="playerSub">Назначение</div>
     </div>
-    <button class="icon-btn" id="volBtn" onclick="toggleVolume()" title="Громкость" style="width:40px;height:40px;">
-      <svg id="volIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-      </svg>
-    </button>
+    <button class="mute-btn" id="muteBtn" onclick="toggleMute()">🔊</button>
   </div>
   <div class="seek-container">
     <span class="time-txt" id="timeCurrent">0:00</span>
@@ -350,7 +429,7 @@
     <button class="p-ctrl p-ctrl-stop" onclick="stopAndReset()" title="Стоп (сброс)">
       <svg width="22" height="22" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>
     </button>
-    <button class="p-ctrl p-ctrl-main" id="playPauseBtn" onclick="togglePauseCurrent()" title="Плей/пауза"></button>
+    <button class="p-ctrl p-ctrl-main" id="playPauseBtn" onclick="togglePauseCurrent()"></button>
     <button class="p-ctrl" onclick="restartCurrent()" title="Заново">
       <svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
     </button>
@@ -360,23 +439,23 @@
   </div>
 </div>
 
+<!-- ===== MODALS ===== -->
 <div class="modal-overlay" id="trackModal" onclick="if(event.target === this) closeModal('trackModal')">
   <div class="modal-box">
-    <h3 id="trackModalHeading">Добавить треки</h3>
+    <h3 id="trackModalHeading">Добавить трек</h3>
     <div id="addTrackFields">
-      <label class="field-label">Аудиофайлы (можно выбрать несколько):</label>
+      <label class="field-label">Аудиофайлы (можно несколько):</label>
       <input type="file" class="modal-input" id="inputTrackFiles" accept="audio/*" multiple>
-      <div class="modal-hint">Название, назначение и обложку настроите позже через ✎.</div>
     </div>
     <div id="editTrackFields" style="display:none">
       <label class="field-label">Название трека:</label>
-      <input type="text" class="modal-input" id="inputTrackName" placeholder="Например: Выход аниматоров">
+      <input type="text" class="modal-input" id="inputTrackName" placeholder="Например: Выход Снегурочки">
       <label class="field-label">Назначение / Исполнитель:</label>
-      <input type="text" class="modal-input" id="inputTrackPurpose" placeholder="Например: Фанфары / Выход">
+      <input type="text" class="modal-input" id="inputTrackPurpose" placeholder="Например: Фанфары">
       <label class="field-label">Обложка и цвет:</label>
       <select class="modal-select" id="inputTrackTag">
         <option value="linear-gradient(135deg,#1565c0,#42a5f5)|🎵">Синий — Музыка</option>
-        <option value="linear-gradient(135deg,#2e7d32,#66bb6a)|🎺">Зелёный — Выход / Фанфары</option>
+        <option value="linear-gradient(135deg,#2e7d32,#66bb6a)|🎺">Зелёный — Фанфары</option>
         <option value="linear-gradient(135deg,#ef6c00,#ffa726)|📦">Оранжевый — Эффект</option>
         <option value="linear-gradient(135deg,#ad1457,#ec407a)|💃">Розовый — Танцы</option>
         <option value="linear-gradient(135deg,#4527a0,#7e57c2)|🔮">Фиолетовый — Тайна</option>
@@ -385,7 +464,7 @@
         <input type="checkbox" id="inputTrackLoop">
         Повторять трек по кругу
       </label>
-      <label class="field-label">Заменить аудиофайл (необязательно):</label>
+      <label class="field-label">Заменить аудиофайл:</label>
       <input type="file" class="modal-input" id="inputTrackFileReplace" accept="audio/*">
     </div>
     <div class="modal-btns">
@@ -395,39 +474,44 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="playlistModal" onclick="if(event.target === this) closeModal('playlistModal')">
+<div class="modal-overlay" id="scenarioModal" onclick="if(event.target === this) closeModal('scenarioModal')">
   <div class="modal-box">
-    <h3 id="playlistModalHeading">Создать плейлист</h3>
-    <label class="field-label">Название плейлиста:</label>
-    <input type="text" class="modal-input" id="inputPlName" placeholder="Например: Детский праздник">
-    <label class="field-label">Назначение плейлиста:</label>
-    <input type="text" class="modal-input" id="inputPlPurpose" placeholder="Например: Основная программа">
-    <label class="field-label">Иконка и цвет:</label>
-    <select class="modal-select" id="inputPlTag">
-      <option value="linear-gradient(135deg,#1a73e8,#00b0ff)|📂">Синий — Основной</option>
-      <option value="linear-gradient(135deg,#2e7d32,#43a047)|🎉">Зелёный — Праздник</option>
-      <option value="linear-gradient(135deg,#ef6c00,#fb8c00)|🔥">Оранжевый — Динамика</option>
-      <option value="linear-gradient(135deg,#ad1457,#d81b60)|🎧">Розовый — Дискотека</option>
-      <option value="linear-gradient(135deg,#4527a0,#5e35b1)|✨">Фиолетовый — Атмосфера</option>
+    <h3 id="scenarioModalHeading">Создать сценарий</h3>
+    <label class="field-label">Название сценария:</label>
+    <input type="text" class="modal-input" id="inputScName" placeholder="Например: Новогодний утренник">
+    
+    <label class="field-label">Возрастная группа:</label>
+    <select class="modal-select" id="inputScAge">
+      <option value="2-4">2-4 года</option>
+      <option value="4-8">4-8 лет</option>
+      <option value="8-13">8-13 лет</option>
     </select>
+
+    <label class="field-label">Длительность:</label>
+    <select class="modal-select" id="inputScDur">
+      <option value="15">15 минут</option>
+      <option value="30">30 минут</option>
+      <option value="60">60 минут</option>
+    </select>
+
     <div class="modal-btns">
-      <button class="m-btn" onclick="closeModal('playlistModal')">Отмена</button>
-      <button class="m-btn m-btn-primary" onclick="savePlaylist()">Сохранить</button>
+      <button class="m-btn" onclick="closeModal('scenarioModal')">Отмена</button>
+      <button class="m-btn m-btn-primary" onclick="saveScenario()">Сохранить</button>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="addSourceModal" onclick="if(event.target === this) closeModal('addSourceModal')">
   <div class="modal-box">
-    <h3>Добавить трек в плейлист</h3>
+    <h3>Добавить трек в сценарий</h3>
     <div class="choice-card" onclick="openLibraryPicker()">
       <div style="font-size:24px">🎵</div>
       <div>
         <div style="font-weight:700;font-size:15px">Из списка плеера</div>
-        <div style="font-size:12px;color:var(--text-muted)">Выбрать из раздела «Вся музыка»</div>
+        <div style="font-size:12px;color:var(--text-muted)">Выбрать из «Вся музыка»</div>
       </div>
     </div>
-    <div class="choice-card" onclick="addFromDeviceToPlaylist()">
+    <div class="choice-card" onclick="addFromDeviceToScenario()">
       <div style="font-size:24px">📱</div>
       <div>
         <div style="font-weight:700;font-size:15px">Из памяти телефона</div>
@@ -446,7 +530,20 @@
     <div class="library-pick-list" id="libraryPickList"></div>
     <div class="modal-btns">
       <button class="m-btn" onclick="closeModal('libraryPickerModal')">Отмена</button>
-      <button class="m-btn m-btn-primary" onclick="confirmLibraryPick()">Добавить выбранные</button>
+      <button class="m-btn m-btn-primary" onclick="confirmLibraryPick()">Добавить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Реплика (Заметка) -->
+<div class="modal-overlay" id="noteModal" onclick="if(event.target === this) closeModal('noteModal')">
+  <div class="modal-box">
+    <h3>Заметка / Реплика</h3>
+    <label class="field-label">Что делать или говорить:</label>
+    <textarea class="modal-textarea" id="inputNote" placeholder="Например: Взять мешок, сказать 'Здравствуйте, ребята!', включить музыку"></textarea>
+    <div class="modal-btns">
+      <button class="m-btn" onclick="closeModal('noteModal')">Отмена</button>
+      <button class="m-btn m-btn-primary" onclick="saveNote()">Сохранить</button>
     </div>
   </div>
 </div>
@@ -458,7 +555,7 @@
       <div style="font-size:24px">🔍</div>
       <div>
         <div style="font-weight:700;font-size:15px">Поиск по трекам</div>
-        <div style="font-size:12px;color:var(--text-muted)">Показать/скрыть строку поиска</div>
+        <div style="font-size:12px;color:var(--text-muted)">Показать строку поиска</div>
       </div>
     </div>
     <div class="choice-card" onclick="resetVolume()">
@@ -468,17 +565,24 @@
         <div style="font-size:12px;color:var(--text-muted)">Сбросить на максимум</div>
       </div>
     </div>
-    <div class="choice-card" onclick="exportDatabase()">
-      <div style="font-size:24px">💾</div>
+    
+    <label class="checkbox-row" style="background:var(--bg-pill);padding:14px;border-radius:12px;margin-top:10px;">
+      <input type="checkbox" id="settingCrossfade" onchange="toggleCrossfadeSetting()" style="width:20px;height:20px;accent-color:var(--accent-blue);">
       <div>
-        <div style="font-weight:700;font-size:15px">Экспорт плейлистов</div>
-        <div style="font-size:12px;color:var(--text-muted)">Скачать JSON-файл</div>
+        <div style="font-weight:700;font-size:14px">Плавный переход (Crossfade)</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Затухание 2.5 сек при смене трека</div>
       </div>
-    </div>
-    <div class="modal-hint" style="margin-top:12px">
-      Совет: не очищайте данные Chrome (Настройки → Приложения → Chrome → Хранилище → Очистить), иначе все треки и плейлисты пропадут.
-    </div>
-    <div class="modal-btns" style="margin-top:8px">
+    </label>
+
+    <label class="checkbox-row" style="background:var(--bg-pill);padding:14px;border-radius:12px;margin-top:10px;">
+      <input type="checkbox" id="settingSafeMode" onchange="toggleSafeModeSetting()" style="width:20px;height:20px;accent-color:var(--accent-blue);">
+      <div>
+        <div style="font-weight:700;font-size:14px">Безопасный выбор (Safe Mode)</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Трек не играет сразу, а встаёт в очередь (защита от случайных тапов)</div>
+      </div>
+    </label>
+
+    <div class="modal-btns" style="margin-top:16px">
       <button class="m-btn" onclick="closeModal('settingsModal')">Закрыть</button>
     </div>
   </div>
@@ -488,9 +592,9 @@
   // ============ STATE ============
   let db = null;
   let tracks = [];
-  let playlists = [];
-  let activeSection = "all";
-  let openedPlaylistId = null;
+  let scenarios = []; // было playlists
+  let activeSection = "all"; // all | scenarios
+  let openedScenarioId = null;
 
   let currentAudio = null;
   let currentBlobUrl = null;
@@ -499,39 +603,60 @@
   let isSeeking = false;
 
   let editingTrackId = null;
-  let editingPlaylistId = null;
-  let addTargetPlaylistId = null;
+  let editingScenarioId = null;
+  let addTargetScenarioId = null;
+  let editingNoteTrackId = null;
   let draggedIndex = null;
 
   let isLocked = false;
   let wakeLock = null;
   let currentVolume = 1.0;
+  let isMuted = false;
+  let previousVolume = 1.0;
+
+  // Фильтры
+  let filterAge = "all";
+  let filterDur = "all";
+
+  // Настройки
+  let crossfadeEnabled = false;
+  let safeModeEnabled = false;
+  let pendingSafePlayId = null;
+  let pendingSafeScenarioId = null;
+
+  // Таймер шоу
+  let showTimerInterval = null;
+  let showTimerRemaining = 0;
 
   // ============ DB ============
-  const dbReq = indexedDB.open("KKPlayerDB_v2", 1);
+  const dbReq = indexedDB.open("KKPlayerDB_v3", 1); // Повысил версию БД (сценарии)
   dbReq.onupgradeneeded = (e) => {
     const database = e.target.result;
     if (!database.objectStoreNames.contains("tracks")) {
       database.createObjectStore("tracks", { keyPath: "id", autoIncrement: true });
     }
-    if (!database.objectStoreNames.contains("playlists")) {
-      database.createObjectStore("playlists", { keyPath: "id", autoIncrement: true });
+    if (!database.objectStoreNames.contains("scenarios")) {
+      database.createObjectStore("scenarios", { keyPath: "id", autoIncrement: true });
+    }
+    // Миграция старых плейлистов, если были
+    if (database.objectStoreNames.contains("playlists") && !database.objectStoreNames.contains("scenarios")) {
+      // В реальности миграция сложна, оставим только новые сценарии
     }
   };
   dbReq.onsuccess = (e) => { db = e.target.result; loadAllData(); };
   dbReq.onerror = () => alert("Не удалось открыть базу данных.");
 
   function loadAllData(callback) {
-    const tx = db.transaction(["tracks", "playlists"], "readonly");
-    let loadedTracks = [], loadedPlaylists = [];
+    const tx = db.transaction(["tracks", "scenarios"], "readonly");
+    let loadedTracks = [], loadedScenarios = [];
     tx.objectStore("tracks").getAll().onsuccess = (e) => {
       loadedTracks = (e.target.result || []).sort((a,b) => (a.order ?? a.id) - (b.order ?? b.id));
     };
-    tx.objectStore("playlists").getAll().onsuccess = (e) => {
-      loadedPlaylists = (e.target.result || []).sort((a,b) => (a.order ?? a.id) - (b.order ?? b.id));
+    tx.objectStore("scenarios").getAll().onsuccess = (e) => {
+      loadedScenarios = (e.target.result || []).sort((a,b) => (a.order ?? a.id) - (b.order ?? b.id));
     };
     tx.oncomplete = () => {
-      tracks = loadedTracks; playlists = loadedPlaylists;
+      tracks = loadedTracks; scenarios = loadedScenarios;
       renderCurrentView();
       if (callback) callback();
     };
@@ -543,8 +668,36 @@
     const sec = Math.floor(s % 60);
     return m + ":" + (sec < 10 ? "0" : "") + sec;
   }
+  function formatMinSec(totalSec) {
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+  }
 
-  // ============ WAKE LOCK (Android Chrome надёжен) ============
+  // ============ SETTINGS ============
+  function toggleCrossfadeSetting() {
+    crossfadeEnabled = document.getElementById("settingCrossfade").checked;
+    localStorage.setItem("kk_crossfade", crossfadeEnabled);
+  }
+  function toggleSafeModeSetting() {
+    safeModeEnabled = document.getElementById("settingSafeMode").checked;
+    localStorage.setItem("kk_safemode", safeModeEnabled);
+    if (!safeModeEnabled) {
+      pendingSafePlayId = null;
+      document.getElementById("safePlayBtn").classList.remove("visible");
+    }
+  }
+  // Load settings on start
+  setTimeout(() => {
+    crossfadeEnabled = localStorage.getItem("kk_crossfade") === "true";
+    safeModeEnabled = localStorage.getItem("kk_safemode") === "true";
+    const cf = document.getElementById("settingCrossfade");
+    const sm = document.getElementById("settingSafeMode");
+    if (cf) cf.checked = crossfadeEnabled;
+    if (sm) sm.checked = safeModeEnabled;
+  }, 100);
+
+  // ============ WAKE LOCK ============
   async function requestWakeLock() {
     if (!('wakeLock' in navigator)) return;
     try {
@@ -575,22 +728,50 @@
     renderCurrentView();
   }
 
+  // ============ FILTERS ============
+  function setFilter(type, value) {
+    if (type === 'age') {
+      filterAge = value;
+      document.querySelectorAll('#ageFilter .filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.includes(value === 'all' ? 'Все' : value));
+      });
+      if (value === '2-4') document.querySelectorAll('#ageFilter .filter-btn')[1].classList.add('active');
+      else if (value === '4-8') document.querySelectorAll('#ageFilter .filter-btn')[2].classList.add('active');
+      else if (value === '8-13') document.querySelectorAll('#ageFilter .filter-btn')[3].classList.add('active');
+      else document.querySelectorAll('#ageFilter .filter-btn')[0].classList.add('active');
+    } else {
+      filterDur = value;
+      document.querySelectorAll('#durFilter .filter-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', (value === 'all' && i === 0) || (value !== 'all' && btn.textContent.startsWith(value)));
+      });
+    }
+    // Очистить активные у других
+    document.querySelectorAll(`#${type === 'age' ? 'ageFilter' : 'durFilter'} .filter-btn`).forEach(btn => {
+      const match = (type === 'age' && ((value === 'all' && btn.textContent === 'Все возрасты') || btn.textContent.includes(value))) ||
+                    (type === 'dur' && ((value === 'all' && btn.textContent === 'Все длительности') || btn.textContent.startsWith(value)));
+      btn.classList.toggle('active', match);
+    });
+    renderCurrentView();
+  }
+
   // ============ NAV ============
   function switchSection(section) {
     if (isLocked) return;
     activeSection = section;
-    if (section === "all") openedPlaylistId = null;
+    if (section === "all") openedScenarioId = null;
     document.getElementById("tabAllMusic").classList.toggle("active", section === "all");
-    document.getElementById("tabPlaylists").classList.toggle("active", section === "playlists");
+    document.getElementById("tabScenarios").classList.toggle("active", section === "scenarios");
+    document.getElementById("ageFilter").style.display = section === "scenarios" ? "flex" : "none";
+    document.getElementById("durFilter").style.display = section === "scenarios" ? "flex" : "none";
     renderCurrentView();
   }
-  function openPlaylist(id) {
+  function openScenario(id) {
     if (isLocked) return;
-    openedPlaylistId = id;
+    openedScenarioId = id;
     renderCurrentView();
   }
-  function closeOpenedPlaylist() {
-    openedPlaylistId = null;
+  function closeOpenedScenario() {
+    openedScenarioId = null;
     renderCurrentView();
   }
   function getSearchQuery() {
@@ -611,7 +792,7 @@
     if (isLocked) {
       container.innerHTML = `<div class="empty-state" style="padding-top:80px">
         🔒 Экран заблокирован<br><br>
-        <span style="font-size:12px">Управление плеером внизу работает.<br>Разблокируйте кнопкой 🔒 сверху.</span>
+        <span style="font-size:12px">Управление плеером внизу работает.</span>
       </div>`;
       return;
     }
@@ -626,127 +807,66 @@
       `;
       const listEl = document.getElementById("itemsList");
       if (!filtered.length) {
-        listEl.innerHTML = `<div class="empty-state">${q ? "Ничего не найдено." : "Список пуст. Нажмите «Добавить треки»."}</div>`;
+        listEl.innerHTML = `<div class="empty-state">${q ? "Ничего не найдено." : "Список пуст."}</div>`;
         return;
       }
       filtered.forEach((track, idx) => listEl.appendChild(createTrackRowElement(track, idx, null)));
       return;
     }
 
-    if (activeSection === "playlists" && openedPlaylistId === null) {
-      const filteredPl = playlists.filter(p =>
-        p.name.toLowerCase().includes(q) || (p.purpose || "").toLowerCase().includes(q)
-      );
+    if (activeSection === "scenarios" && openedScenarioId === null) {
+      let filteredSc = scenarios.filter(s => {
+        const matchAge = filterAge === 'all' || s.age === filterAge;
+        const matchDur = filterDur === 'all' || s.duration === filterDur;
+        const matchQ = s.name.toLowerCase().includes(q);
+        return matchAge && matchDur && matchQ;
+      });
       container.innerHTML = `
-        <button class="primary-action-btn" onclick="openPlaylistModal(null)">➕ Создать плейлист</button>
+        <button class="primary-action-btn" onclick="openScenarioModal(null)">➕ Создать сценарий</button>
         <div class="items-list" id="itemsList"></div>
       `;
       const listEl = document.getElementById("itemsList");
-      if (!filteredPl.length) {
-        listEl.innerHTML = `<div class="empty-state">${q ? "Плейлисты не найдены." : "Плейлистов пока нет."}</div>`;
+      if (!filteredSc.length) {
+        listEl.innerHTML = `<div class="empty-state">${q ? "Не найдено." : "Сценариев пока нет."}</div>`;
         return;
       }
-      filteredPl.forEach((pl, idx) => listEl.appendChild(createPlaylistRowElement(pl, idx)));
+      filteredSc.forEach((sc, idx) => listEl.appendChild(createScenarioRowElement(sc, idx)));
       return;
     }
 
-    const playlist = playlists.find(p => p.id === openedPlaylistId);
-    if (!playlist) { openedPlaylistId = null; renderCurrentView(); return; }
+    // Открыт сценарий -> огромные карточки
+    const scenario = scenarios.find(s => s.id === openedScenarioId);
+    if (!scenario) { openedScenarioId = null; renderCurrentView(); return; }
 
-    const plTracks = (playlist.trackIds || [])
+    const scTracks = (scenario.trackIds || [])
       .map(id => tracks.find(t => t.id === id)).filter(Boolean)
       .filter(t => t.name.toLowerCase().includes(q) || (t.purpose || "").toLowerCase().includes(q));
 
     container.innerHTML = `
       <div class="playlist-sub-header">
-        <button class="back-btn" onclick="closeOpenedPlaylist()">← Назад</button>
-        <div class="sub-header-title">${playlist.name}</div>
-        <button class="row-btn" onclick="openPlaylistModal(${playlist.id})" title="Редактировать">✎</button>
+        <button class="back-btn" onclick="closeOpenedScenario()">← Назад</button>
+        <div class="sub-header-title">${scenario.name} <span style="font-size:12px;color:var(--text-muted)">(${scenario.age} • ${scenario.duration}м)</span></div>
+        <button class="row-btn" onclick="openScenarioModal(${scenario.id})" title="Редактировать">✎</button>
       </div>
-      <button class="primary-action-btn" onclick="openAddSourceModal(${playlist.id})">➕ Добавить треки</button>
+      <button class="primary-action-btn" onclick="openAddSourceModal(${scenario.id})">➕ Добавить треки</button>
       <div class="items-list" id="itemsList"></div>
     `;
     const listEl = document.getElementById("itemsList");
-    if (!plTracks.length) {
-      listEl.innerHTML = `<div class="empty-state">${q ? "Треки не найдены." : "В плейлисте нет треков."}</div>`;
+    if (!scTracks.length) {
+      listEl.innerHTML = `<div class="empty-state">В сценарии пока нет треков.</div>`;
       return;
     }
-    plTracks.forEach((track, idx) => listEl.appendChild(createTrackRowElement(track, idx, playlist.id)));
+    scTracks.forEach((track, idx) => listEl.appendChild(createScenarioTrackCard(track, idx, scenario.id)));
   }
 
-  function createTrackRowElement(track, index, playlistContextId) {
+  // Обычный трек (маленький)
+  function createTrackRowElement(track, index, scenarioContextId) {
     const [bg, ico] = (track.tag || "linear-gradient(135deg,#1565c0,#42a5f5)|🎵").split("|");
     const isCurrent = currentTrackId === track.id;
     const isPlaying = isCurrent && currentAudio && !currentAudio.paused;
-    const isPaused = isCurrent && currentAudio && currentAudio.paused;
 
     const row = document.createElement("div");
-    row.className = "list-row" + (isPlaying ? " playing" : "") + (isPaused ? " paused" : "");
-    row.dataset.index = index;
-    row.draggable = !getSearchQuery() && !isLocked;
-    const subText = (track.purpose ? track.purpose : "Аудиозапись") + (track.loop ? " • 🔁" : "");
-
-    row.innerHTML = `
-      <div class="drag-handle ${isLocked ? 'hidden' : ''}">☰</div>
-      <div class="row-cover" style="background:${bg}">
-        <span>${ico}</span>
-        <div class="eq-overlay">
-          <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
-        </div>
-      </div>
-      <div class="row-info">
-        <div class="row-title">${track.name}</div>
-        <div class="row-subtitle">${subText}</div>
-      </div>
-      <div class="row-actions">
-        ${!isLocked ? `<button class="row-btn" onclick="editTrackAction(event, ${track.id})" title="Редактировать">✎</button>` : ''}
-        ${!isLocked ? `<button class="row-btn delete-btn" data-track-id="${track.id}" data-pl-id="${playlistContextId || ''}" title="Долгое нажатие — удалить">✕</button>` : ''}
-      </div>
-    `;
-
-    row.onclick = (e) => {
-      if (e.target.closest(".row-actions, .drag-handle")) return;
-      playTrack(track.id, playlistContextId);
-    };
-
-    if (!isLocked) {
-      attachDragEvents(row, index, (from, to) => {
-        if (playlistContextId) reorderPlaylistTracks(playlistContextId, from, to);
-        else reorderGlobalTracks(from, to);
-      });
-      const delBtn = row.querySelector('.delete-btn');
-      if (delBtn) {
-        let holdTimer = null;
-        const startHold = (e) => {
-          e.preventDefault(); e.stopPropagation();
-          delBtn.classList.add('warn');
-          holdTimer = setTimeout(() => {
-            delBtn.classList.remove('warn');
-            executeDelete(Number(delBtn.dataset.trackId), delBtn.dataset.plId ? Number(delBtn.dataset.plId) : null);
-          }, 600);
-        };
-        const cancelHold = () => {
-          if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
-          delBtn.classList.remove('warn');
-        };
-        delBtn.addEventListener('touchstart', startHold, { passive: false });
-        delBtn.addEventListener('touchend', cancelHold);
-        delBtn.addEventListener('touchcancel', cancelHold);
-        delBtn.addEventListener('mousedown', startHold);
-        delBtn.addEventListener('mouseup', cancelHold);
-        delBtn.addEventListener('mouseleave', cancelHold);
-      }
-    }
-    return row;
-  }
-
-  function createPlaylistRowElement(pl, index) {
-    const [bg, ico] = (pl.tag || "linear-gradient(135deg,#1a73e8,#00b0ff)|📂").split("|");
-    const validCount = (pl.trackIds || []).filter(id => tracks.some(t => t.id === id)).length;
-    const subText = (pl.purpose ? pl.purpose + " • " : "") + `Треков: ${validCount}`;
-
-    const row = document.createElement("div");
-    row.className = "list-row";
+    row.className = "list-row" + (isPlaying ? " playing" : "");
     row.dataset.index = index;
     row.draggable = !getSearchQuery() && !isLocked;
 
@@ -754,44 +874,138 @@
       <div class="drag-handle ${isLocked ? 'hidden' : ''}">☰</div>
       <div class="row-cover" style="background:${bg}"><span>${ico}</span></div>
       <div class="row-info">
-        <div class="row-title">${pl.name}</div>
-        <div class="row-subtitle">${subText}</div>
+        <div class="row-title">${track.name}</div>
+        <div class="row-subtitle">${(track.purpose || "Аудиозапись")}${track.loop ? " • 🔁" : ""}</div>
       </div>
       <div class="row-actions">
-        ${!isLocked ? `<button class="row-btn" onclick="editPlaylistAction(event, ${pl.id})" title="Редактировать">✎</button>` : ''}
-        ${!isLocked ? `<button class="row-btn delete-btn" data-pl-only-id="${pl.id}" title="Долгое нажатие — удалить">✕</button>` : ''}
+        ${!isLocked ? `<button class="row-btn" onclick="editTrackAction(event, ${track.id})">✎</button>` : ''}
+        ${!isLocked ? `<button class="row-btn delete-btn" data-track-id="${track.id}" data-pl-id="${scenarioContextId || ''}">✕</button>` : ''}
       </div>
     `;
     row.onclick = (e) => {
       if (e.target.closest(".row-actions, .drag-handle")) return;
-      openPlaylist(pl.id);
+      requestPlay(track.id, scenarioContextId);
     };
     if (!isLocked) {
-      attachDragEvents(row, index, (from, to) => reorderPlaylists(from, to));
-      const delBtn = row.querySelector('.delete-btn');
-      if (delBtn) {
-        let holdTimer = null;
-        const startHold = (e) => {
-          e.preventDefault(); e.stopPropagation();
-          delBtn.classList.add('warn');
-          holdTimer = setTimeout(() => {
-            delBtn.classList.remove('warn');
-            executeDeletePlaylist(Number(delBtn.dataset.plOnlyId));
-          }, 600);
-        };
-        const cancelHold = () => {
-          if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
-          delBtn.classList.remove('warn');
-        };
-        delBtn.addEventListener('touchstart', startHold, { passive: false });
-        delBtn.addEventListener('touchend', cancelHold);
-        delBtn.addEventListener('touchcancel', cancelHold);
-        delBtn.addEventListener('mousedown', startHold);
-        delBtn.addEventListener('mouseup', cancelHold);
-        delBtn.addEventListener('mouseleave', cancelHold);
-      }
+      attachDragEvents(row, index, (from, to) => {
+        if (scenarioContextId) reorderScenarioTracks(scenarioContextId, from, to);
+        else reorderGlobalTracks(from, to);
+      });
+      attachDeleteLongPress(row);
     }
     return row;
+  }
+
+  // Огромная карточка в сценарии
+  function createScenarioTrackCard(track, index, scenarioId) {
+    const [bg, ico] = (track.tag || "linear-gradient(135deg,#1565c0,#42a5f5)|🎵").split("|");
+    const isCurrent = currentTrackId === track.id;
+    const isPlaying = isCurrent && currentAudio && !currentAudio.paused;
+    const isPending = pendingSafePlayId === track.id;
+    const isDone = track.done; // флаг проиграно
+
+    const card = document.createElement("div");
+    card.className = "scenario-card" + (isPlaying ? " playing" : "") + (isDone ? " done" : "") + (isPending ? " selected" : "");
+    card.dataset.index = index;
+
+    card.innerHTML = `
+      ${isDone ? '<div class="done-badge">✓</div>' : ''}
+      <div class="row-cover" style="background:${bg}"><span>${ico}</span></div>
+      <div class="row-info">
+        <div class="row-title">${track.name}</div>
+        <div class="row-subtitle">${track.note || (track.purpose || "Нет заметки")}</div>
+      </div>
+      <div class="row-actions">
+        <button class="row-btn" onclick="openNoteModal(event, ${track.id}, ${scenarioId})" title="Заметка">📝</button>
+      </div>
+    `;
+
+    card.onclick = (e) => {
+      if (e.target.closest(".row-actions")) return;
+      requestPlay(track.id, scenarioId);
+    };
+
+    if (!isLocked) {
+      attachDragEvents(card, index, (from, to) => reorderScenarioTracks(scenarioId, from, to));
+    }
+    return card;
+  }
+
+  function createScenarioRowElement(sc, index) {
+    const trackCount = (sc.trackIds || []).filter(id => tracks.some(t => t.id === id)).length;
+    const row = document.createElement("div");
+    row.className = "list-row";
+    row.dataset.index = index;
+
+    row.innerHTML = `
+      <div class="drag-handle ${isLocked ? 'hidden' : ''}">☰</div>
+      <div class="row-cover" style="background:linear-gradient(135deg,#1a73e8,#00b0ff)"><span>📂</span></div>
+      <div class="row-info">
+        <div class="row-title">${sc.name}</div>
+        <div class="row-subtitle">${sc.age} лет • ${sc.duration} мин • Треков: ${trackCount}</div>
+      </div>
+      <div class="row-actions">
+        ${!isLocked ? `<button class="row-btn" onclick="editScenarioAction(event, ${sc.id})">✎</button>` : ''}
+        ${!isLocked ? `<button class="row-btn delete-btn" data-sc-id="${sc.id}">✕</button>` : ''}
+      </div>
+    `;
+    row.onclick = (e) => {
+      if (e.target.closest(".row-actions")) return;
+      openScenario(sc.id);
+    };
+    if (!isLocked) {
+      attachDragEvents(row, index, (from, to) => reorderScenarios(from, to));
+      attachScenarioDeleteLongPress(row);
+    }
+    return row;
+  }
+
+  function attachDeleteLongPress(row) {
+    const delBtn = row.querySelector('.delete-btn');
+    if (!delBtn) return;
+    let holdTimer = null;
+    const start = (e) => {
+      e.preventDefault(); e.stopPropagation();
+      delBtn.classList.add('warn');
+      holdTimer = setTimeout(() => {
+        delBtn.classList.remove('warn');
+        executeDelete(Number(delBtn.dataset.trackId), delBtn.dataset.plId ? Number(delBtn.dataset.plId) : null);
+      }, 600);
+    };
+    const cancel = () => {
+      if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+      delBtn.classList.remove('warn');
+    };
+    delBtn.addEventListener('touchstart', start, { passive: false });
+    delBtn.addEventListener('touchend', cancel);
+    delBtn.addEventListener('touchcancel', cancel);
+    delBtn.addEventListener('mousedown', start);
+    delBtn.addEventListener('mouseup', cancel);
+    delBtn.addEventListener('mouseleave', cancel);
+  }
+
+  function attachScenarioDeleteLongPress(row) {
+    const delBtn = row.querySelector('.delete-btn');
+    if (!delBtn) return;
+    let holdTimer = null;
+    const start = (e) => {
+      e.preventDefault(); e.stopPropagation();
+      delBtn.classList.add('warn');
+      holdTimer = setTimeout(() => {
+        delBtn.classList.remove('warn');
+        executeDeleteScenario(Number(delBtn.dataset.scId));
+      }, 600);
+    };
+    const cancel = () => {
+      if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+      delBtn.classList.remove('warn');
+    };
+    delBtn.addEventListener('touchstart', start, { passive: false });
+    delBtn.addEventListener('touchend', cancel);
+    delBtn.addEventListener('touchcancel', cancel);
+    delBtn.addEventListener('mousedown', start);
+    delBtn.addEventListener('mouseup', cancel);
+    delBtn.addEventListener('mouseleave', cancel);
   }
 
   function attachDragEvents(row, index, onReorder) {
@@ -799,7 +1013,7 @@
     row.ondragstart = () => { draggedIndex = index; row.classList.add("dragging"); };
     row.ondragend = () => {
       row.classList.remove("dragging");
-      document.querySelectorAll(".list-row").forEach(el => el.classList.remove("drag-over"));
+      document.querySelectorAll(".list-row, .scenario-card").forEach(el => el.classList.remove("drag-over"));
       draggedIndex = null;
     };
     row.ondragover = (e) => { e.preventDefault(); if (index !== draggedIndex) row.classList.add("drag-over"); };
@@ -816,15 +1030,15 @@
     handle.addEventListener("touchmove", (e) => {
       e.preventDefault();
       const t = e.touches[0];
-      const target = document.elementFromPoint(t.clientX, t.clientY)?.closest(".list-row");
-      document.querySelectorAll(".list-row").forEach(el => el.classList.remove("drag-over"));
+      const target = document.elementFromPoint(t.clientX, t.clientY)?.closest(".list-row, .scenario-card");
+      document.querySelectorAll(".list-row, .scenario-card").forEach(el => el.classList.remove("drag-over"));
       if (target && Number(target.dataset.index) !== draggedIndex) target.classList.add("drag-over");
     }, { passive: false });
     handle.addEventListener("touchend", (e) => {
       row.classList.remove("dragging");
       const t = e.changedTouches[0];
-      const target = document.elementFromPoint(t.clientX, t.clientY)?.closest(".list-row");
-      document.querySelectorAll(".list-row").forEach(el => el.classList.remove("drag-over"));
+      const target = document.elementFromPoint(t.clientX, t.clientY)?.closest(".list-row, .scenario-card");
+      document.querySelectorAll(".list-row, .scenario-card").forEach(el => el.classList.remove("drag-over"));
       if (target) {
         const toIdx = Number(target.dataset.index);
         if (draggedIndex !== null && draggedIndex !== toIdx) onReorder(draggedIndex, toIdx);
@@ -840,28 +1054,29 @@
     tracks.forEach((t, i) => { t.order = i; store.put(t); });
     tx.oncomplete = renderCurrentView;
   }
-  function reorderPlaylists(from, to) {
-    const [moved] = playlists.splice(from, 1); playlists.splice(to, 0, moved);
-    const tx = db.transaction("playlists", "readwrite");
-    const store = tx.objectStore("playlists");
-    playlists.forEach((p, i) => { p.order = i; store.put(p); });
+  function reorderScenarios(from, to) {
+    const [moved] = scenarios.splice(from, 1); scenarios.splice(to, 0, moved);
+    const tx = db.transaction("scenarios", "readwrite");
+    const store = tx.objectStore("scenarios");
+    scenarios.forEach((s, i) => { s.order = i; store.put(s); });
     tx.oncomplete = renderCurrentView;
   }
-  function reorderPlaylistTracks(playlistId, from, to) {
-    const pl = playlists.find(p => p.id === playlistId); if (!pl) return;
-    const validIds = (pl.trackIds || []).filter(id => tracks.some(t => t.id === id));
+  function reorderScenarioTracks(scenarioId, from, to) {
+    const sc = scenarios.find(s => s.id === scenarioId); if (!sc) return;
+    const validIds = (sc.trackIds || []).filter(id => tracks.some(t => t.id === id));
     const [moved] = validIds.splice(from, 1); validIds.splice(to, 0, moved);
-    pl.trackIds = validIds;
-    const tx = db.transaction("playlists", "readwrite");
-    tx.objectStore("playlists").put(pl);
+    sc.trackIds = validIds;
+    const tx = db.transaction("scenarios", "readwrite");
+    tx.objectStore("scenarios").put(sc);
     tx.oncomplete = renderCurrentView;
   }
 
   function closeModal(id) { document.getElementById(id).style.display = "none"; }
   function openSettings() { document.getElementById("settingsModal").style.display = "flex"; }
 
-  function openTrackModal(trackId = null, targetPlaylistId = null) {
-    editingTrackId = trackId; addTargetPlaylistId = targetPlaylistId;
+  // ============ TRACK CRUD ============
+  function openTrackModal(trackId = null, targetScId = null) {
+    editingTrackId = trackId; addTargetScenarioId = targetScId;
     const t = trackId ? tracks.find(x => x.id === trackId) : null;
     const addFields = document.getElementById("addTrackFields");
     const editFields = document.getElementById("editTrackFields");
@@ -928,12 +1143,12 @@
       if (done < total) return;
       btn.disabled = false; btn.innerText = "Сохранить";
       const finalize = () => { closeModal("trackModal"); loadAllData(); };
-      if (addTargetPlaylistId && newIds.length) {
-        const pl = playlists.find(p => p.id === addTargetPlaylistId);
-        if (pl) {
-          pl.trackIds = [...(pl.trackIds || []), ...newIds];
-          const tx = db.transaction("playlists", "readwrite");
-          tx.objectStore("playlists").put(pl);
+      if (addTargetScenarioId && newIds.length) {
+        const sc = scenarios.find(s => s.id === addTargetScenarioId);
+        if (sc) {
+          sc.trackIds = [...(sc.trackIds || []), ...newIds];
+          const tx = db.transaction("scenarios", "readwrite");
+          tx.objectStore("scenarios").put(sc);
           tx.oncomplete = finalize; return;
         }
       }
@@ -946,7 +1161,7 @@
         const addReq = tx.objectStore("tracks").add({
           name: file.name.replace(/\.[^/.]+$/, ""),
           purpose: "", tag: "linear-gradient(135deg,#1565c0,#42a5f5)|🎵",
-          loop: false, order: baseOrder + 1 + idx,
+          loop: false, order: baseOrder + 1 + idx, done: false,
           data: e.target.result, mimeType: file.type || "audio/mpeg"
         });
         addReq.onsuccess = (ev) => newIds.push(ev.target.result);
@@ -960,83 +1175,106 @@
 
   function editTrackAction(e, id) { e.stopPropagation(); if (!isLocked) openTrackModal(id, null); }
 
-  function executeDelete(trackId, playlistContextId) {
-    if (playlistContextId) {
-      const pl = playlists.find(p => p.id === playlistContextId); if (!pl) return;
-      pl.trackIds = (pl.trackIds || []).filter(id => id !== trackId);
-      const tx = db.transaction("playlists", "readwrite");
-      tx.objectStore("playlists").put(pl);
+  function executeDelete(trackId, scenarioContextId) {
+    if (scenarioContextId) {
+      const sc = scenarios.find(s => s.id === scenarioContextId); if (!sc) return;
+      sc.trackIds = (sc.trackIds || []).filter(id => id !== trackId);
+      const tx = db.transaction("scenarios", "readwrite");
+      tx.objectStore("scenarios").put(sc);
       tx.oncomplete = renderCurrentView;
       return;
     }
-    if (!confirm("Удалить этот трек из плеера и всех плейлистов?")) return;
+    if (!confirm("Удалить этот трек полностью?")) return;
     if (currentTrackId === trackId) stopPlayback();
-    const tx = db.transaction(["tracks", "playlists"], "readwrite");
+    const tx = db.transaction(["tracks", "scenarios"], "readwrite");
     tx.objectStore("tracks").delete(trackId);
-    const plStore = tx.objectStore("playlists");
-    playlists.forEach(pl => {
-      if (pl.trackIds && pl.trackIds.includes(trackId)) {
-        pl.trackIds = pl.trackIds.filter(id => id !== trackId);
-        plStore.put(pl);
+    const scStore = tx.objectStore("scenarios");
+    scenarios.forEach(sc => {
+      if (sc.trackIds && sc.trackIds.includes(trackId)) {
+        sc.trackIds = sc.trackIds.filter(id => id !== trackId);
+        scStore.put(sc);
       }
     });
     tx.oncomplete = () => loadAllData();
   }
 
-  function openPlaylistModal(id = null) {
+  // ============ SCENARIO CRUD ============
+  function openScenarioModal(id = null) {
     if (isLocked) return;
-    editingPlaylistId = id;
-    const pl = id ? playlists.find(x => x.id === id) : null;
-    document.getElementById("playlistModalHeading").innerText = pl ? "Редактировать плейлист" : "Создать плейлист";
-    document.getElementById("inputPlName").value = pl ? pl.name : "";
-    document.getElementById("inputPlPurpose").value = pl ? (pl.purpose || "") : "";
-    document.getElementById("inputPlTag").value = pl ? pl.tag : "linear-gradient(135deg,#1a73e8,#00b0ff)|📂";
-    document.getElementById("playlistModal").style.display = "flex";
+    editingScenarioId = id;
+    const sc = id ? scenarios.find(x => x.id === id) : null;
+    document.getElementById("scenarioModalHeading").innerText = sc ? "Редактировать сценарий" : "Создать сценарий";
+    document.getElementById("inputScName").value = sc ? sc.name : "";
+    document.getElementById("inputScAge").value = sc ? sc.age : "4-8";
+    document.getElementById("inputScDur").value = sc ? sc.duration : "30";
+    document.getElementById("scenarioModal").style.display = "flex";
   }
 
-  function savePlaylist() {
-    const name = document.getElementById("inputPlName").value.trim();
-    if (!name) return alert("Введите название плейлиста!");
-    const purpose = document.getElementById("inputPlPurpose").value.trim();
-    const tag = document.getElementById("inputPlTag").value;
-    const tx = db.transaction("playlists", "readwrite");
-    const store = tx.objectStore("playlists");
-    if (editingPlaylistId) {
-      const old = playlists.find(x => x.id === editingPlaylistId);
-      store.put({ ...old, name, purpose, tag });
+  function saveScenario() {
+    const name = document.getElementById("inputScName").value.trim();
+    if (!name) return alert("Введите название!");
+    const age = document.getElementById("inputScAge").value;
+    const duration = document.getElementById("inputScDur").value;
+    const tx = db.transaction("scenarios", "readwrite");
+    const store = tx.objectStore("scenarios");
+    if (editingScenarioId) {
+      const old = scenarios.find(x => x.id === editingScenarioId);
+      store.put({ ...old, name, age, duration });
     } else {
-      store.add({ name, purpose, tag, order: playlists.length, trackIds: [] });
+      store.add({ name, age, duration, order: scenarios.length, trackIds: [] });
     }
-    tx.oncomplete = () => { closeModal("playlistModal"); loadAllData(); };
+    tx.oncomplete = () => { closeModal("scenarioModal"); loadAllData(); };
   }
 
-  function editPlaylistAction(e, id) { e.stopPropagation(); if (!isLocked) openPlaylistModal(id); }
+  function editScenarioAction(e, id) { e.stopPropagation(); if (!isLocked) openScenarioModal(id); }
 
-  function executeDeletePlaylist(id) {
-    if (!confirm("Удалить этот плейлист? (Сами треки останутся в разделе «Вся музыка»)")) return;
-    const tx = db.transaction("playlists", "readwrite");
-    tx.objectStore("playlists").delete(id);
+  function executeDeleteScenario(id) {
+    if (!confirm("Удалить этот сценарий? (Сами треки останутся в разделе «Вся музыка»)")) return;
+    const tx = db.transaction("scenarios", "readwrite");
+    tx.objectStore("scenarios").delete(id);
     tx.oncomplete = () => loadAllData();
   }
 
-  function openAddSourceModal(playlistId) {
+  // ============ NOTES ============
+  function openNoteModal(e, trackId, scenarioId) {
+    e.stopPropagation(); e.preventDefault();
     if (isLocked) return;
-    addTargetPlaylistId = playlistId;
+    editingNoteTrackId = trackId;
+    const t = tracks.find(x => x.id === trackId);
+    document.getElementById("inputNote").value = t.note || "";
+    document.getElementById("noteModal").dataset.scenarioId = scenarioId;
+    document.getElementById("noteModal").style.display = "flex";
+  }
+  function saveNote() {
+    const note = document.getElementById("inputNote").value.trim();
+    const t = tracks.find(x => x.id === editingNoteTrackId);
+    if (t) {
+      t.note = note;
+      const tx = db.transaction("tracks", "readwrite");
+      tx.objectStore("tracks").put(t);
+      tx.oncomplete = () => { closeModal("noteModal"); loadAllData(); };
+    }
+  }
+
+  // ============ ADD SOURCE ============
+  function openAddSourceModal(scenarioId) {
+    if (isLocked) return;
+    addTargetScenarioId = scenarioId;
     document.getElementById("addSourceModal").style.display = "flex";
   }
-  function addFromDeviceToPlaylist() {
+  function addFromDeviceToScenario() {
     closeModal("addSourceModal");
-    openTrackModal(null, addTargetPlaylistId);
+    openTrackModal(null, addTargetScenarioId);
   }
   function openLibraryPicker() {
     closeModal("addSourceModal");
-    const pl = playlists.find(p => p.id === addTargetPlaylistId); if (!pl) return;
+    const sc = scenarios.find(s => s.id === addTargetScenarioId); if (!sc) return;
     const listEl = document.getElementById("libraryPickList");
     listEl.innerHTML = "";
     if (!tracks.length) {
       listEl.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:20px;font-size:13px">В разделе «Вся музыка» пока нет треков.</div>`;
     } else {
-      const existing = new Set(pl.trackIds || []);
+      const existing = new Set(sc.trackIds || []);
       tracks.forEach(t => {
         const item = document.createElement("label");
         item.className = "pick-item";
@@ -1053,36 +1291,100 @@
     document.getElementById("libraryPickerModal").style.display = "flex";
   }
   function confirmLibraryPick() {
-    const pl = playlists.find(p => p.id === addTargetPlaylistId); if (!pl) return;
+    const sc = scenarios.find(s => s.id === addTargetScenarioId); if (!sc) return;
     const checkedBoxes = document.querySelectorAll("#libraryPickList input[type='checkbox']:checked");
-    pl.trackIds = Array.from(checkedBoxes).map(cb => Number(cb.value));
-    const tx = db.transaction("playlists", "readwrite");
-    tx.objectStore("playlists").put(pl);
+    sc.trackIds = Array.from(checkedBoxes).map(cb => Number(cb.value));
+    const tx = db.transaction("scenarios", "readwrite");
+    tx.objectStore("scenarios").put(sc);
     tx.oncomplete = () => { closeModal("libraryPickerModal"); renderCurrentView(); };
   }
 
-  function buildQueue(playlistContextId) {
-    if (playlistContextId) {
-      const pl = playlists.find(p => p.id === playlistContextId);
-      if (pl) return (pl.trackIds || []).filter(id => tracks.some(t => t.id === id));
+  // ============ PLAYBACK ============
+  function buildQueue(scenarioContextId) {
+    if (scenarioContextId) {
+      const sc = scenarios.find(s => s.id === scenarioContextId);
+      if (sc) return (sc.trackIds || []).filter(id => tracks.some(t => t.id === id));
     }
     return tracks.map(t => t.id);
   }
 
-  function playTrack(trackId, playlistContextId = null) {
+  // "Запрос на воспроизведение" — учитывает Safe Mode
+  function requestPlay(trackId, scenarioContextId = null) {
+    if (safeModeEnabled) {
+      // Не играем сразу, а подсвечиваем
+      pendingSafePlayId = trackId;
+      pendingSafeScenarioId = scenarioContextId;
+      // Показываем кнопку "ИГРАТЬ"
+      document.getElementById("safePlayBtn").classList.add("visible");
+      // Обновляем UI, чтобы подсветить карточку
+      renderCurrentView();
+      // Прокручиваем кнопку (она в плеере, но плеер может быть скрыт)
+      // Если плеер не виден — показываем "заглушку" трека
+      if (!currentTrackId) {
+        // Показываем данные о выбранном треке в плеере
+        const track = tracks.find(t => t.id === trackId);
+        if (track) {
+          const [bg, ico] = (track.tag || "linear-gradient(135deg,#1565c0,#42a5f5)|🎵").split("|");
+          document.getElementById("playerCover").style.background = bg;
+          document.getElementById("playerCover").innerText = ico;
+          document.getElementById("playerTitle").innerText = track.name;
+          document.getElementById("playerSub").innerText = track.purpose || "Готов к запуску";
+          document.getElementById("playerBar").classList.add("visible");
+        }
+      }
+    } else {
+      playTrack(trackId, scenarioContextId);
+    }
+  }
+
+  function executeSafePlay() {
+    if (pendingSafePlayId) {
+      const id = pendingSafePlayId;
+      const scId = pendingSafeScenarioId;
+      pendingSafePlayId = null;
+      pendingSafeScenarioId = null;
+      document.getElementById("safePlayBtn").classList.remove("visible");
+      playTrack(id, scId);
+    }
+  }
+
+  function playTrack(trackId, scenarioContextId = null) {
     const track = tracks.find(t => t.id === trackId); if (!track) return;
+    
+    // Crossfade
+    if (crossfadeEnabled && currentAudio && !currentAudio.paused) {
+      fadeOutAndPlay(track, scenarioContextId);
+      return;
+    }
+
     if (currentTrackId === trackId && currentAudio) { togglePauseCurrent(); return; }
     if (currentAudio) { currentAudio.pause(); currentAudio.src = ""; currentAudio = null; }
     if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
 
-    currentQueueIds = buildQueue(playlistContextId);
+    currentQueueIds = buildQueue(scenarioContextId);
     if (!currentQueueIds.includes(trackId)) currentQueueIds.push(trackId);
 
     currentBlobUrl = URL.createObjectURL(new Blob([track.data], { type: track.mimeType || "audio/mpeg" }));
     currentAudio = new Audio(currentBlobUrl);
     currentAudio.loop = !!track.loop;
-    currentAudio.volume = currentVolume;
+    currentAudio.volume = isMuted ? 0 : currentVolume;
     currentTrackId = trackId;
+
+    // Отметить как проигранный (done)
+    if (scenarioContextId) {
+      const sc = scenarios.find(s => s.id === scenarioContextId);
+      if (sc && sc.trackIds) {
+        const t = tracks.find(x => x.id === trackId);
+        if (t) {
+          t.done = true;
+          const tx = db.transaction("tracks", "readwrite");
+          tx.objectStore("tracks").put(t);
+        }
+      }
+    }
+
+    // Таймер шоу
+    startShowTimer();
 
     currentAudio.onloadedmetadata = () => updatePlayerUI();
     currentAudio.ontimeupdate = () => { if (!isSeeking) updatePlayerUI(); };
@@ -1092,6 +1394,51 @@
       requestWakeLock();
       updateMediaSession(track);
     }).catch(err => alert("Не удалось воспроизвести: " + err.message));
+    updatePlayerUI();
+    renderCurrentView();
+  }
+
+  // Crossfade
+  function fadeOutAndPlay(newTrack, scenarioContextId) {
+    if (!currentAudio) return;
+    const oldAudio = currentAudio;
+    const targetVol = isMuted ? 0 : currentVolume;
+    const steps = 25;
+    const stepTime = 100; // 2.5 сек
+    let currentStep = 0;
+    const fadeInterval = setInterval(() => {
+      currentStep++;
+      const ratio = 1 - (currentStep / steps);
+      oldAudio.volume = Math.max(0, targetVol * ratio);
+      if (currentStep >= steps) {
+        clearInterval(fadeInterval);
+        oldAudio.pause();
+        oldAudio.src = "";
+        // Запускаем новый
+        doPlayTrack(newTrack, scenarioContextId);
+      }
+    }, stepTime);
+  }
+
+  function doPlayTrack(track, scenarioContextId = null) {
+    if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
+    currentQueueIds = buildQueue(scenarioContextId);
+    if (!currentQueueIds.includes(track.id)) currentQueueIds.push(track.id);
+
+    currentBlobUrl = URL.createObjectURL(new Blob([track.data], { type: track.mimeType || "audio/mpeg" }));
+    currentAudio = new Audio(currentBlobUrl);
+    currentAudio.loop = !!track.loop;
+    currentAudio.volume = isMuted ? 0 : currentVolume;
+    currentTrackId = track.id;
+
+    currentAudio.onloadedmetadata = () => updatePlayerUI();
+    currentAudio.ontimeupdate = () => { if (!isSeeking) updatePlayerUI(); };
+    currentAudio.onended = () => { if (!track.loop) playNextTrack(true); };
+
+    currentAudio.play().then(() => {
+      requestWakeLock();
+      updateMediaSession(track);
+    }).catch(err => alert("Ошибка: " + err.message));
     updatePlayerUI();
     renderCurrentView();
   }
@@ -1114,6 +1461,7 @@
     if (!currentAudio) return;
     currentAudio.pause();
     currentAudio.currentTime = 0;
+    stopShowTimer();
     updatePlayerUI();
     renderCurrentView();
     if (navigator.mediaSession) navigator.mediaSession.playbackState = "paused";
@@ -1135,11 +1483,11 @@
     const nextIdx = idx + 1;
     if (nextIdx < currentQueueIds.length) {
       const nextId = currentQueueIds[nextIdx];
-      const ctxPl = activeSection === "playlists" ? openedPlaylistId : null;
-      playTrack(nextId, ctxPl);
+      const ctxSc = activeSection === "scenarios" ? openedScenarioId : null;
+      requestPlay(nextId, ctxSc);
     } else if (!autoEnded && currentQueueIds.length > 0) {
-      const ctxPl = activeSection === "playlists" ? openedPlaylistId : null;
-      playTrack(currentQueueIds[0], ctxPl);
+      const ctxSc = activeSection === "scenarios" ? openedScenarioId : null;
+      requestPlay(currentQueueIds[0], ctxSc);
     } else {
       stopPlayback();
     }
@@ -1152,9 +1500,9 @@
     }
     const idx = currentQueueIds.indexOf(currentTrackId);
     const prevIdx = idx - 1;
-    const ctxPl = activeSection === "playlists" ? openedPlaylistId : null;
-    if (prevIdx >= 0) playTrack(currentQueueIds[prevIdx], ctxPl);
-    else playTrack(currentQueueIds[currentQueueIds.length - 1], ctxPl);
+    const ctxSc = activeSection === "scenarios" ? openedScenarioId : null;
+    if (prevIdx >= 0) requestPlay(currentQueueIds[prevIdx], ctxSc);
+    else requestPlay(currentQueueIds[currentQueueIds.length - 1], ctxSc);
   }
 
   function stopPlayback() {
@@ -1162,9 +1510,46 @@
     if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
     currentTrackId = null;
     releaseWakeLock();
+    stopShowTimer();
     if (navigator.mediaSession) { navigator.mediaSession.metadata = null; navigator.mediaSession.playbackState = "none"; }
     updatePlayerUI();
     renderCurrentView();
+  }
+
+  // ============ SHOW TIMER ============
+  function startShowTimer() {
+    if (showTimerInterval) return;
+    const sc = activeSection === "scenarios" ? scenarios.find(s => s.id === openedScenarioId) : null;
+    if (!sc) return;
+    showTimerRemaining = parseInt(sc.duration) * 60;
+    document.getElementById("showTimer").classList.add("visible");
+    updateTimerDisplay();
+    showTimerInterval = setInterval(() => {
+      showTimerRemaining--;
+      updateTimerDisplay();
+      if (showTimerRemaining <= 0) {
+        stopShowTimer();
+      }
+    }, 1000);
+  }
+
+  function stopShowTimer() {
+    if (showTimerInterval) {
+      clearInterval(showTimerInterval);
+      showTimerInterval = null;
+    }
+    const el = document.getElementById("showTimer");
+    el.classList.remove("visible");
+    el.classList.remove("warning");
+    el.classList.remove("danger");
+  }
+
+  function updateTimerDisplay() {
+    const el = document.getElementById("showTimer");
+    el.innerText = formatMinSec(Math.max(0, showTimerRemaining));
+    if (showTimerRemaining <= 60) { el.classList.add("danger"); el.classList.remove("warning"); }
+    else if (showTimerRemaining <= 300) { el.classList.add("warning"); el.classList.remove("danger"); }
+    else { el.classList.remove("warning"); el.classList.remove("danger"); }
   }
 
   function updateMediaSession(track) {
@@ -1197,7 +1582,7 @@
     const coverEl = document.getElementById("playerCover");
     coverEl.style.background = bg; coverEl.innerText = ico;
     document.getElementById("playerTitle").innerText = track.name;
-    document.getElementById("playerSub").innerText = track.purpose || "ʞk Player";
+    document.getElementById("playerSub").innerText = track.note || track.purpose || "ʞk Player";
     playBtn.innerHTML = currentAudio.paused ? SVG_PLAY : SVG_PAUSE;
 
     const cur = currentAudio.currentTime || 0;
@@ -1207,6 +1592,12 @@
     const slider = document.getElementById("seekSlider");
     if (!isSeeking) slider.value = dur > 0 ? Math.round((cur / dur) * 1000) : 0;
     bar.classList.add("visible");
+
+    // Обновим Mute кнопку
+    const muteBtn = document.getElementById("muteBtn");
+    if (isMuted) muteBtn.classList.add("active");
+    else muteBtn.classList.remove("active");
+    muteBtn.innerText = isMuted ? "🔇" : "🔊";
   }
 
   const seekSlider = document.getElementById("seekSlider");
@@ -1229,50 +1620,33 @@
   }
   document.getElementById("volSlider").addEventListener("input", (e) => {
     currentVolume = Number(e.target.value) / 100;
-    if (currentAudio) currentAudio.volume = currentVolume;
-    updateVolumeIcon();
+    if (currentAudio) currentAudio.volume = isMuted ? 0 : currentVolume;
   });
-  function updateVolumeIcon() {
-    const icon = document.getElementById("volIcon");
-    if (!icon) return;
-    if (currentVolume === 0) {
-      icon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>`;
-    } else if (currentVolume < 0.5) {
-      icon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>`;
+
+  function toggleMute() {
+    if (!currentAudio) return;
+    isMuted = !isMuted;
+    if (isMuted) {
+      previousVolume = currentVolume;
+      currentAudio.volume = 0;
     } else {
-      icon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>`;
+      currentAudio.volume = currentVolume;
     }
+    updatePlayerUI();
   }
+
   function resetVolume() {
     closeModal('settingsModal');
     currentVolume = 1.0;
     document.getElementById("volSlider").value = 100;
-    if (currentAudio) currentAudio.volume = 1.0;
-    updateVolumeIcon();
-  }
-
-  function exportDatabase() {
-    closeModal('settingsModal');
-    const exportData = {
-      version: 2,
-      exportedAt: new Date().toISOString(),
-      playlists: playlists.map(p => ({ ...p })),
-      tracksCount: tracks.length
-    };
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `kk-player-playlists-${Date.now()}.json`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    alert("Экспортированы только плейлисты (без аудио). Аудио хранится в Chrome → Информация о сайте → Данные.");
+    if (currentAudio) currentAudio.volume = isMuted ? 0 : currentVolume;
+    isMuted = false;
+    updatePlayerUI();
   }
 
   document.getElementById("playPauseBtn").innerHTML = SVG_PLAY;
-  updateVolumeIcon();
 
-  // ============ SERVICE WORKER (Android Chrome — надёжный офлайн) ============
+  // ============ SERVICE WORKER ============
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }
