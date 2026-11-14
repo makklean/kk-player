@@ -146,7 +146,7 @@
   }
   .row-btn:active { background: rgba(255,255,255,0.1); color: #fff; }
 
-  /* ===== SCENARIO CARDS (BIG) ===== */
+  /* ===== SCENARIO LIST ROW ===== */
   .scenario-card {
     background: var(--bg-pill);
     border: 1px solid var(--border-subtle);
@@ -160,21 +160,8 @@
     position: relative;
   }
   .scenario-card:active { transform: scale(0.98); background: rgba(255,255,255,0.06); }
-  .scenario-card.playing { border-color: var(--accent-blue); background: rgba(26,115,232,0.15); }
-  .scenario-card.done { opacity: 0.5; }
-  .scenario-card.selected { border-color: var(--warning); background: rgba(255,152,0,0.15); }
-  
-  .scenario-card .row-cover { width: 64px; height: 64px; font-size: 28px; }
   .scenario-card .row-title { font-size: 18px; margin-bottom: 6px; }
   .scenario-card .row-subtitle { font-size: 14px; }
-  
-  .done-badge {
-    position: absolute; top: 12px; right: 12px;
-    background: var(--success); color: white;
-    width: 24px; height: 24px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; font-weight: bold;
-  }
 
   /* ===== SOUNDBAR (PADS) ===== */
   .pads-grid {
@@ -221,10 +208,10 @@
   .pads-grid.edit-mode .pad { cursor: grab; }
   
   .pad-icon {
-    font-size: 42px; margin-bottom: 4px; line-height: 1;
+    font-size: 44px; margin-bottom: 2px; line-height: 1;
   }
   .pad-title {
-    font-size: 16px; font-weight: 800; text-align: center;
+    font-size: 20px; font-weight: 900; text-align: center;
     line-height: 1.1;
     word-break: break-word;
     color: #fff;
@@ -232,7 +219,7 @@
     margin-bottom: 2px;
   }
   .pad-trackname {
-    font-size: 10px; font-weight: 500; text-align: center;
+    font-size: 11px; font-weight: 500; text-align: center;
     color: rgba(255,255,255,0.7);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     width: 100%; padding: 0 4px;
@@ -242,23 +229,35 @@
     font-weight: 200; line-height: 1;
   }
   
-  /* Кнопка перестановки (переехала выше, стала круглой) */
+  /* Кнопка перестановки */
   .edit-mode-btn {
-    position: fixed; right: 16px; bottom: 220px; z-index: 25;
+    display: none;
     width: 52px; height: 52px; border-radius: 50%;
     background: rgba(28,28,34,0.95); color: #fff;
     font-size: 22px;
     border: 1px solid rgba(255,255,255,0.15);
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    display: none;
     align-items: center; justify-content: center;
     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     transition: transform 0.1s, background 0.15s;
+    margin: 10px auto 0 auto;
   }
   .edit-mode-btn:active { transform: scale(0.9); }
   .edit-mode-btn.visible { display: flex; }
   .edit-mode-btn.active { background: var(--danger); border-color: var(--danger); }
+
+  /* Кнопка сохранения */
+  .save-scenario-btn {
+    display: none;
+    width: 100%; padding: 14px; border-radius: 14px;
+    background: var(--success); color: #fff;
+    font-size: 16px; font-weight: 700;
+    border: none; cursor: pointer;
+    margin-top: 20px;
+    box-shadow: 0 4px 12px rgba(67,160,71,0.4);
+  }
+  .save-scenario-btn.visible { display: block; }
 
   /* ===== SHOW TIMER ===== */
   .show-timer {
@@ -420,7 +419,6 @@
   }
   .lock-indicator.visible { display: block; }
   
-  /* Оверлей для блокировки: затемняет всё, но пропускает клики к замку */
   .locked-overlay {
     display: none;
     position: fixed;
@@ -430,7 +428,6 @@
   }
   .locked-overlay.visible { display: block; }
 
-  /* Цветовая палитра */
   .color-palette {
     display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;
   }
@@ -441,7 +438,6 @@
   }
   .color-swatch.selected { border-color: #fff; transform: scale(1.1); }
 
-  /* Иконки для пэдов */
   .icon-grid {
     display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;
   }
@@ -500,16 +496,6 @@
 </header>
 
 <div class="content-container" id="mainContainer"></div>
-
-<!-- Кнопка перестановки (круглая, со стрелками) -->
-<button class="edit-mode-btn" id="editModeBtn" onclick="togglePadEditMode()">
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <polyline points="17 1 21 5 17 9"></polyline>
-    <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
-    <polyline points="7 23 3 19 7 15"></polyline>
-    <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
-  </svg>
-</button>
 
 <div class="vol-container" id="volContainer">
   <input type="range" class="vol-slider" id="volSlider" min="0" max="100" value="100">
@@ -677,18 +663,6 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="noteModal" onclick="if(event.target === this) closeModal('noteModal')">
-  <div class="modal-box">
-    <h3>Заметка / Реплика</h3>
-    <label class="field-label">Что делать или говорить:</label>
-    <textarea class="modal-textarea" id="inputNote" placeholder="Например: Взять мешок, сказать 'Здравствуйте, ребята!'"></textarea>
-    <div class="modal-btns">
-      <button class="m-btn" onclick="closeModal('noteModal')">Отмена</button>
-      <button class="m-btn m-btn-primary" onclick="saveNote()">Сохранить</button>
-    </div>
-  </div>
-</div>
-
 <div class="modal-overlay" id="settingsModal" onclick="if(event.target === this) closeModal('settingsModal')">
   <div class="modal-box">
     <h3>Настройки</h3>
@@ -727,22 +701,21 @@
   let db = null;
   let tracks = [];
   let scenarios = [];
-  let pads = [];
+  let pads = []; // Глобальные пэды
   let activeSection = "all";
   let openedScenarioId = null;
 
   let currentAudio = null;
   let currentBlobUrl = null;
   let currentTrackId = null;
-  let currentPadContext = null; // Если играет пэд, храним ссылку на него для UI
+  let currentPadContext = null;
   let currentQueueIds = [];
   let isSeeking = false;
 
   let editingTrackId = null;
   let editingScenarioId = null;
-  let addTargetScenarioId = null;
-  let editingNoteTrackId = null;
-  let editingPadId = null;
+  let editingPadId = null; 
+  let editingPadIsScenario = false;
   let draggedIndex = null;
 
   let isLocked = false;
@@ -750,19 +723,16 @@
   let currentVolume = 1.0;
   
   let padEditMode = false;
+  let hasUnsavedChanges = false; // Общий флаг для сохранения
 
   let crossfadeEnabled = false;
   let safeModeEnabled = false;
   let pendingSafePlayId = null;
   let pendingSafeScenarioId = null;
 
-  let showTimerInterval = null;
-  let showTimerRemaining = 0;
+  let pickerTarget = null; 
+  let padTrackChangeMode = false;
   
-  let pickerTarget = null; // 'pad' или 'scenario'
-  let padTrackChangeMode = false; // флаг, что мы меняем трек у существующего пэда
-  
-  // Палитра для пэдов
   const PAD_COLORS = [
     "linear-gradient(135deg,#1565c0,#42a5f5)",
     "linear-gradient(135deg,#2e7d32,#66bb6a)",
@@ -775,11 +745,10 @@
   ];
   let selectedPadColor = PAD_COLORS[0];
 
-  // Иконки для пэдов
   const PAD_ICONS = ["😂", "🎵", "🎺", "📦", "💃", "🔮", "🎉", "👏", "⚡", "❄️", "🎅", "🎁", "🐻", "🌟", "🎈", "🚀"];
 
   // ============ DB ============
-  const dbReq = indexedDB.open("KKPlayerDB_v5", 1); 
+  const dbReq = indexedDB.open("KKPlayerDB_v7", 1); // Обновили версию
   dbReq.onupgradeneeded = (e) => {
     const database = e.target.result;
     if (!database.objectStoreNames.contains("tracks")) {
@@ -808,7 +777,9 @@
       loadedPads = (e.target.result || []).sort((a,b) => (a.order ?? a.id) - (b.order ?? b.id));
     };
     tx.oncomplete = () => {
-      tracks = loadedTracks; scenarios = loadedScenarios; pads = loadedPads;
+      tracks = loadedTracks; 
+      scenarios = loadedScenarios; 
+      pads = loadedPads;
       renderCurrentView();
       if (callback) callback();
     };
@@ -877,10 +848,9 @@
     indicator.classList.toggle('visible', isLocked);
     overlay.classList.toggle('visible', isLocked);
     
-    // Чтобы замок был всегда ярким, поднимаем его z-index поверх оверлея
     if (isLocked) {
       btn.style.zIndex = '100';
-      btn.style.color = '#64b5f6'; // яркий цвет
+      btn.style.color = '#64b5f6';
     } else {
       btn.style.zIndex = '';
       btn.style.color = '';
@@ -894,30 +864,29 @@
     if (isLocked) return;
     activeSection = section;
     if (section === "all") openedScenarioId = null;
+    hasUnsavedChanges = false;
     
     document.getElementById("tabAllMusic").classList.toggle("active", section === "all");
     document.getElementById("tabScenarios").classList.toggle("active", section === "scenarios");
     document.getElementById("tabSoundbar").classList.toggle("active", section === "soundbar");
     
     document.getElementById("searchBtn").style.display = (section === "all") ? "flex" : "none";
-    
-    document.getElementById("editModeBtn").classList.toggle("visible", section === "soundbar");
-    if (section !== "soundbar") {
-      padEditMode = false;
-      document.getElementById("editModeBtn").classList.remove("active");
-    }
-    
     renderCurrentView();
   }
+  
   function openScenario(id) {
     if (isLocked) return;
     openedScenarioId = id;
+    hasUnsavedChanges = false;
     renderCurrentView();
   }
+  
   function closeOpenedScenario() {
     openedScenarioId = null;
+    hasUnsavedChanges = false;
     renderCurrentView();
   }
+
   function getSearchQuery() {
     return (document.getElementById("searchInput").value || "").trim().toLowerCase();
   }
@@ -931,12 +900,6 @@
   // ============ PAD EDIT MODE ============
   function togglePadEditMode() {
     padEditMode = !padEditMode;
-    const btn = document.getElementById("editModeBtn");
-    if (padEditMode) {
-      btn.classList.add("active");
-    } else {
-      btn.classList.remove("active");
-    }
     renderCurrentView();
   }
 
@@ -971,7 +934,7 @@
       return;
     }
 
-    // === СЦЕНАРИИ ===
+    // === СЦЕНАРИИ (СПИСОК) ===
     if (activeSection === "scenarios" && openedScenarioId === null) {
       let filteredSc = scenarios.filter(s => s.name.toLowerCase().includes(q));
       container.innerHTML = `
@@ -987,42 +950,35 @@
       return;
     }
 
+    // === СЦЕНАРИЙ ОТКРЫТ (САУНДБАР) ===
     if (activeSection === "scenarios" && openedScenarioId !== null) {
       const scenario = scenarios.find(s => s.id === openedScenarioId);
       if (!scenario) { openedScenarioId = null; renderCurrentView(); return; }
 
-      const scTracks = (scenario.trackIds || [])
-        .map(id => tracks.find(t => t.id === id)).filter(Boolean)
-        .filter(t => t.name.toLowerCase().includes(q) || (t.purpose || "").toLowerCase().includes(q));
-
       container.innerHTML = `
         <div class="playlist-sub-header">
           <button class="back-btn" onclick="closeOpenedScenario()">← Назад</button>
-          <div class="sub-header-title">${scenario.name} <span style="font-size:12px;color:var(--text-muted)">(${scenario.duration}м)</span></div>
+          <div class="sub-header-title">${scenario.name}</div>
           <button class="row-btn" onclick="openScenarioModal(${scenario.id})" title="Редактировать">✎</button>
         </div>
-        <button class="primary-action-btn" onclick="openAddSourceModal(${scenario.id})">➕ Добавить треки</button>
-        <div class="items-list" id="itemsList"></div>
-      `;
-      const listEl = document.getElementById("itemsList");
-      if (!scTracks.length) {
-        listEl.innerHTML = `<div class="empty-state">В сценарии пока нет треков.</div>`;
-        return;
-      }
-      scTracks.forEach((track, idx) => listEl.appendChild(createScenarioTrackCard(track, idx, scenario.id)));
-      return;
-    }
-
-    // === САУНДБАР ===
-    if (activeSection === "soundbar") {
-      container.innerHTML = `
         <div class="pads-grid ${padEditMode ? 'edit-mode' : ''}" id="padsGrid"></div>
+        <button class="edit-mode-btn ${padEditMode ? 'active' : ''}" id="editModeBtn" onclick="togglePadEditMode()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="17 1 21 5 17 9"></polyline>
+            <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+            <polyline points="7 23 3 19 7 15"></polyline>
+            <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+          </svg>
+        </button>
+        <button class="save-scenario-btn ${hasUnsavedChanges ? 'visible' : ''}" onclick="saveScenarioState()">💾 Сохранить</button>
       `;
-      const gridEl = document.getElementById("padsGrid");
       
-      pads.forEach((pad, idx) => {
+      const gridEl = document.getElementById("padsGrid");
+      const scPads = scenario.pads || [];
+      
+      scPads.forEach((pad, idx) => {
         const track = pad.trackId ? tracks.find(t => t.id === pad.trackId) : null;
-        const isPlaying = currentTrackId === pad.trackId && currentAudio && !currentAudio.paused;
+        const isPlaying = currentTrackId === pad.trackId && currentAudio && !currentAudio.paused && currentPadContext?.id === pad.id;
         
         const padEl = document.createElement("div");
         padEl.className = "pad" + (isPlaying ? " playing" : "") + (track ? "" : " empty");
@@ -1034,7 +990,8 @@
             padEl.onclick = () => {
               if (isLocked) return;
               editingPadId = null;
-              openAddSourceModal(null, 'pad');
+              editingPadIsScenario = true;
+              openAddSourceModal('scenario');
             };
           }
         } else {
@@ -1053,7 +1010,7 @@
           if (!padEditMode) {
             padEl.onclick = () => {
               if (isLocked) return;
-              playPad(pad.id);
+              playPad(pad.id, true);
             };
           }
           
@@ -1063,6 +1020,7 @@
               holdTimer = setTimeout(() => {
                 holdTimer = null;
                 editingPadId = pad.id;
+                editingPadIsScenario = true;
                 openPadEditor();
               }, 800);
             };
@@ -1086,23 +1044,137 @@
         addPadBtn.onclick = () => {
           if (isLocked) return;
           editingPadId = null;
-          openAddSourceModal(null, 'pad');
+          editingPadIsScenario = true;
+          openAddSourceModal('scenario');
         };
       }
       gridEl.appendChild(addPadBtn);
       
       if (padEditMode) {
         gridEl.querySelectorAll('.pad[data-index]').forEach(padEl => {
-          attachPadDragEvents(padEl);
+          attachPadDragEvents(padEl, 'scenario');
         });
       }
+      return;
+    }
+
+    // === САУНДБАР (ГЛОБАЛЬНЫЙ / ПО УМОЛЧАНИЮ) ===
+    if (activeSection === "soundbar") {
+      // Определяем, какой сценарий показывать
+      let displayPads = [];
+      let isDefaultScenario = false;
       
+      // Если есть последний открытый сценарий, показываем его пэды
+      if (openedScenarioId) {
+        const sc = scenarios.find(s => s.id === openedScenarioId);
+        if (sc) displayPads = sc.pads || [];
+      } else if (scenarios.length > 0) {
+        // Если нет открытого, берем последний из списка (или можно первый)
+        const lastSc = scenarios[scenarios.length - 1];
+        displayPads = lastSc.pads || [];
+        isDefaultScenario = true;
+      }
+      
+      container.innerHTML = `
+        <div class="pads-grid ${padEditMode ? 'edit-mode' : ''}" id="padsGrid"></div>
+        <button class="edit-mode-btn ${padEditMode ? 'active' : ''}" id="editModeBtn" onclick="togglePadEditMode()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="17 1 21 5 17 9"></polyline>
+            <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+            <polyline points="7 23 3 19 7 15"></polyline>
+            <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+          </svg>
+        </button>
+        <button class="save-scenario-btn ${hasUnsavedChanges ? 'visible' : ''}" onclick="saveSoundbarState()">💾 Сохранить</button>
+      `;
+      
+      const gridEl = document.getElementById("padsGrid");
+      
+      displayPads.forEach((pad, idx) => {
+        const track = pad.trackId ? tracks.find(t => t.id === pad.trackId) : null;
+        const isPlaying = currentTrackId === pad.trackId && currentAudio && !currentAudio.paused && currentPadContext?.id === pad.id;
+        
+        const padEl = document.createElement("div");
+        padEl.className = "pad" + (isPlaying ? " playing" : "") + (track ? "" : " empty");
+        padEl.dataset.index = idx;
+        
+        if (!track) {
+          padEl.innerHTML = `<div class="pad-add">+</div>`;
+          if (!padEditMode) {
+            padEl.onclick = () => {
+              if (isLocked) return;
+              editingPadId = null;
+              editingPadIsScenario = false; // Глобальный
+              openAddSourceModal('pad');
+            };
+          }
+        } else {
+          const [bg] = pad.color ? pad.color.split("|") : (track.tag || "#333").split("|");
+          padEl.style.background = bg;
+          
+          const handle = `<div class="pad-handle">☰</div>`;
+          
+          padEl.innerHTML = `
+            ${handle}
+            <div class="pad-icon">${pad.icon || "🎵"}</div>
+            <div class="pad-title">${pad.title || track.name}</div>
+            <div class="pad-trackname">${track.name}</div>
+          `;
+          
+          if (!padEditMode) {
+            padEl.onclick = () => {
+              if (isLocked) return;
+              playPad(pad.id, false);
+            };
+          }
+          
+          if (!padEditMode) {
+            let holdTimer = null;
+            const startEdit = () => {
+              holdTimer = setTimeout(() => {
+                holdTimer = null;
+                editingPadId = pad.id;
+                editingPadIsScenario = false;
+                openPadEditor();
+              }, 800);
+            };
+            const cancelEdit = () => { if (holdTimer) clearTimeout(holdTimer); };
+            padEl.addEventListener('touchstart', startEdit);
+            padEl.addEventListener('touchend', cancelEdit);
+            padEl.addEventListener('touchmove', cancelEdit);
+            padEl.addEventListener('mousedown', startEdit);
+            padEl.addEventListener('mouseup', cancelEdit);
+            padEl.addEventListener('mouseleave', cancelEdit);
+          }
+        }
+        
+        gridEl.appendChild(padEl);
+      });
+      
+      const addPadBtn = document.createElement("div");
+      addPadBtn.className = "pad empty";
+      addPadBtn.innerHTML = `<div class="pad-add">+</div>`;
+      if (!padEditMode) {
+        addPadBtn.onclick = () => {
+          if (isLocked) return;
+          editingPadId = null;
+          editingPadIsScenario = false;
+          openAddSourceModal('pad');
+        };
+      }
+      gridEl.appendChild(addPadBtn);
+      
+      if (padEditMode) {
+        gridEl.querySelectorAll('.pad[data-index]').forEach(padEl => {
+          attachPadDragEvents(padEl, 'global');
+        });
+      }
       return;
     }
   }
 
   // ============ DRAG PADS ============
-  function attachPadDragEvents(padEl) {
+  function attachPadDragEvents(padEl, context) {
     const idx = Number(padEl.dataset.index);
     const handle = padEl.querySelector('.pad-handle');
     if (!handle) return;
@@ -1131,7 +1203,7 @@
       if (target) {
         const toIdx = Number(target.dataset.index);
         if (draggedIdx !== null && draggedIdx !== toIdx) {
-          reorderPads(draggedIdx, toIdx);
+          reorderPads(draggedIdx, toIdx, context);
         }
       }
       draggedIdx = null;
@@ -1146,12 +1218,24 @@
     document.addEventListener('mouseup', (e) => { if (draggedIdx !== null) endDrag(e); });
   }
 
-  function reorderPads(from, to) {
-    const [moved] = pads.splice(from, 1); pads.splice(to, 0, moved);
-    const tx = db.transaction("pads", "readwrite");
-    const store = tx.objectStore("pads");
-    pads.forEach((p, i) => { p.order = i; store.put(p); });
-    tx.oncomplete = renderCurrentView;
+  function reorderPads(from, to, context) {
+    if (context === 'scenario') {
+      const sc = scenarios.find(s => s.id === openedScenarioId);
+      if (!sc || !sc.pads) return;
+      const [moved] = sc.pads.splice(from, 1); sc.pads.splice(to, 0, moved);
+      sc.pads.forEach((p, i) => p.order = i);
+      hasUnsavedChanges = true;
+      renderCurrentView();
+    } else {
+      // Если в глобальном режиме, переставляем пэды сценария (который по умолчанию)
+      let sc = scenarios.find(s => s.id === openedScenarioId) || (scenarios.length > 0 ? scenarios[scenarios.length - 1] : null);
+      if (sc && sc.pads) {
+        const [moved] = sc.pads.splice(from, 1); sc.pads.splice(to, 0, moved);
+        sc.pads.forEach((p, i) => p.order = i);
+        hasUnsavedChanges = true;
+        renderCurrentView();
+      }
+    }
   }
 
   // Вспомогательные элементы
@@ -1191,44 +1275,10 @@
     return row;
   }
 
-  function createScenarioTrackCard(track, index, scenarioId) {
-    const [bg, ico] = (track.tag || "linear-gradient(135deg,#1565c0,#42a5f5)|🎵").split("|");
-    const isCurrent = currentTrackId === track.id;
-    const isPlaying = isCurrent && currentAudio && !currentAudio.paused;
-    const isPending = pendingSafePlayId === track.id;
-    const isDone = track.done;
-
-    const card = document.createElement("div");
-    card.className = "scenario-card" + (isPlaying ? " playing" : "") + (isDone ? " done" : "") + (isPending ? " selected" : "");
-    card.dataset.index = index;
-
-    card.innerHTML = `
-      ${isDone ? '<div class="done-badge">✓</div>' : ''}
-      <div class="row-cover" style="background:${bg}"><span>${ico}</span></div>
-      <div class="row-info">
-        <div class="row-title">${track.name}</div>
-        <div class="row-subtitle">${track.note || (track.purpose || "Нет заметки")}</div>
-      </div>
-      <div class="row-actions">
-        <button class="row-btn" onclick="openNoteModal(event, ${track.id}, ${scenarioId})" title="Заметка">📝</button>
-      </div>
-    `;
-
-    card.onclick = (e) => {
-      if (e.target.closest(".row-actions")) return;
-      requestPlay(track.id, scenarioId);
-    };
-
-    if (!isLocked) {
-      attachDragEvents(card, index, (from, to) => reorderScenarioTracks(scenarioId, from, to));
-    }
-    return card;
-  }
-
   function createScenarioRowElement(sc, index) {
     const trackCount = (sc.trackIds || []).filter(id => tracks.some(t => t.id === id)).length;
     const row = document.createElement("div");
-    row.className = "list-row";
+    row.className = "list-row scenario-card";
     row.dataset.index = index;
 
     row.innerHTML = `
@@ -1236,7 +1286,7 @@
       <div class="row-cover" style="background:linear-gradient(135deg,#1a73e8,#00b0ff)"><span>📂</span></div>
       <div class="row-info">
         <div class="row-title">${sc.name}</div>
-        <div class="row-subtitle">${sc.duration} мин • Треков: ${trackCount}</div>
+        <div class="row-subtitle">${sc.duration} мин • Пэдов: ${(sc.pads || []).length}</div>
       </div>
       <div class="row-actions">
         ${!isLocked ? `<button class="row-btn" onclick="editScenarioAction(event, ${sc.id})">✎</button>` : ''}
@@ -1307,7 +1357,7 @@
     row.ondragstart = () => { draggedIndex = index; row.classList.add("dragging"); };
     row.ondragend = () => {
       row.classList.remove("dragging");
-      document.querySelectorAll(".list-row, .scenario-card, .pad").forEach(el => el.classList.remove("drag-over"));
+      document.querySelectorAll(".list-row, .pad").forEach(el => el.classList.remove("drag-over"));
       draggedIndex = null;
     };
     row.ondragover = (e) => { e.preventDefault(); if (index !== draggedIndex) row.classList.add("drag-over"); };
@@ -1324,15 +1374,15 @@
     handle.addEventListener("touchmove", (e) => {
       e.preventDefault();
       const t = e.touches[0];
-      const target = document.elementFromPoint(t.clientX, t.clientY)?.closest(".list-row, .scenario-card");
-      document.querySelectorAll(".list-row, .scenario-card").forEach(el => el.classList.remove("drag-over"));
+      const target = document.elementFromPoint(t.clientX, t.clientY)?.closest(".list-row");
+      document.querySelectorAll(".list-row").forEach(el => el.classList.remove("drag-over"));
       if (target && Number(target.dataset.index) !== draggedIndex) target.classList.add("drag-over");
     }, { passive: false });
     handle.addEventListener("touchend", (e) => {
       row.classList.remove("dragging");
       const t = e.changedTouches[0];
-      const target = document.elementFromPoint(t.clientX, t.clientY)?.closest(".list-row, .scenario-card");
-      document.querySelectorAll(".list-row, .scenario-card").forEach(el => el.classList.remove("drag-over"));
+      const target = document.elementFromPoint(t.clientX, t.clientY)?.closest(".list-row");
+      document.querySelectorAll(".list-row").forEach(el => el.classList.remove("drag-over"));
       if (target) {
         const toIdx = Number(target.dataset.index);
         if (draggedIndex !== null && draggedIndex !== toIdx) onReorder(draggedIndex, toIdx);
@@ -1370,7 +1420,7 @@
 
   // ============ TRACK CRUD ============
   function openTrackModal(trackId = null, targetScId = null) {
-    editingTrackId = trackId; addTargetScenarioId = targetScId;
+    editingTrackId = trackId; 
     const t = trackId ? tracks.find(x => x.id === trackId) : null;
     const addFields = document.getElementById("addTrackFields");
     const editFields = document.getElementById("editTrackFields");
@@ -1437,15 +1487,6 @@
       if (done < total) return;
       btn.disabled = false; btn.innerText = "Сохранить";
       const finalize = () => { closeModal("trackModal"); loadAllData(); };
-      if (addTargetScenarioId && newIds.length) {
-        const sc = scenarios.find(s => s.id === addTargetScenarioId);
-        if (sc) {
-          sc.trackIds = [...(sc.trackIds || []), ...newIds];
-          const tx = db.transaction("scenarios", "readwrite");
-          tx.objectStore("scenarios").put(sc);
-          tx.oncomplete = finalize; return;
-        }
-      }
       finalize();
     };
     files.forEach((file, idx) => {
@@ -1509,54 +1550,66 @@
     const duration = document.getElementById("inputScDur").value;
     const tx = db.transaction("scenarios", "readwrite");
     const store = tx.objectStore("scenarios");
+    
     if (editingScenarioId) {
       const old = scenarios.find(x => x.id === editingScenarioId);
       store.put({ ...old, name, duration });
+      tx.oncomplete = () => { 
+        closeModal("scenarioModal"); 
+        loadAllData(); 
+      };
     } else {
-      store.add({ name, duration, order: scenarios.length, trackIds: [] });
+      // Создаем новый сценарий с пустым массивом пэдов
+      const req = store.add({ name, duration, order: scenarios.length, trackIds: [], pads: [] });
+      req.onsuccess = (e) => {
+        const newId = e.target.result;
+        tx.oncomplete = () => { 
+          closeModal("scenarioModal"); 
+          // Открываем только что созданный сценарий
+          openedScenarioId = newId;
+          hasUnsavedChanges = false;
+          loadAllData(() => renderCurrentView()); 
+        };
+      };
     }
-    tx.oncomplete = () => { closeModal("scenarioModal"); loadAllData(); };
+  }
+
+  function saveScenarioState() {
+    const sc = scenarios.find(s => s.id === openedScenarioId);
+    if (!sc) return;
+    const tx = db.transaction("scenarios", "readwrite");
+    tx.objectStore("scenarios").put(sc);
+    tx.oncomplete = () => {
+      hasUnsavedChanges = false;
+      renderCurrentView();
+    };
+  }
+
+  function saveSoundbarState() {
+    // Сохраняем пэды того сценария, который открыт по умолчанию
+    let sc = scenarios.find(s => s.id === openedScenarioId) || (scenarios.length > 0 ? scenarios[scenarios.length - 1] : null);
+    if (!sc) return;
+    const tx = db.transaction("scenarios", "readwrite");
+    tx.objectStore("scenarios").put(sc);
+    tx.oncomplete = () => {
+      hasUnsavedChanges = false;
+      renderCurrentView();
+    };
   }
 
   function editScenarioAction(e, id) { e.stopPropagation(); if (!isLocked) openScenarioModal(id); }
 
   function executeDeleteScenario(id) {
-    if (!confirm("Удалить этот сценарий? (Треки останутся в «Вся музыка»)")) return;
+    if (!confirm("Удалить этот сценарий?")) return;
     const tx = db.transaction("scenarios", "readwrite");
     tx.objectStore("scenarios").delete(id);
     tx.oncomplete = () => loadAllData();
   }
 
-  // ============ NOTES ============
-  function openNoteModal(e, trackId, scenarioId) {
-    e.stopPropagation(); e.preventDefault();
-    if (isLocked) return;
-    editingNoteTrackId = trackId;
-    const t = tracks.find(x => x.id === trackId);
-    document.getElementById("inputNote").value = t.note || "";
-    document.getElementById("noteModal").dataset.scenarioId = scenarioId;
-    document.getElementById("noteModal").style.display = "flex";
-  }
-  function saveNote() {
-    const note = document.getElementById("inputNote").value.trim();
-    const t = tracks.find(x => x.id === editingNoteTrackId);
-    if (t) {
-      t.note = note;
-      const tx = db.transaction("tracks", "readwrite");
-      tx.objectStore("tracks").put(t);
-      tx.oncomplete = () => { closeModal("noteModal"); loadAllData(); };
-    }
-  }
-
   // ============ ADD SOURCE ============
-  function openAddSourceModal(scenarioId, target = 'scenario') {
+  function openAddSourceModal(target = 'scenario') {
     if (isLocked) return;
-    if (target === 'scenario') {
-      addTargetScenarioId = scenarioId;
-      pickerTarget = 'scenario';
-    } else {
-      pickerTarget = 'pad';
-    }
+    pickerTarget = target;
     document.getElementById("addSourceModal").style.display = "flex";
   }
   
@@ -1631,32 +1684,28 @@
       `;
       item.onclick = () => {
         closeModal("libraryPickerModal");
-        if (pickerTarget === 'pad') {
+        if (pickerTarget === 'pad' || pickerTarget === 'scenario') {
           if (padTrackChangeMode) {
             // Меняем трек у существующего пэда
-            const pad = pads.find(p => p.id === editingPadId);
+            const pad = editingPadIsScenario 
+              ? scenarios.find(s => s.id === openedScenarioId)?.pads?.find(p => p.id === editingPadId)
+              : pads.find(p => p.id === editingPadId);
+              
             if (pad) {
               pad.trackId = t.id;
-              const tx = db.transaction("pads", "readwrite");
-              tx.objectStore("pads").put(pad);
-              tx.oncomplete = () => {
-                loadAllData(() => {
-                  padTrackChangeMode = false;
-                  openPadEditor();
-                });
-              };
+              if (editingPadIsScenario) {
+                hasUnsavedChanges = true;
+              } else {
+                const tx = db.transaction("pads", "readwrite");
+                tx.objectStore("pads").put(pad);
+                tx.oncomplete = () => loadAllData();
+              }
             }
+            padTrackChangeMode = false;
+            openPadEditor();
           } else {
             editingPadId = null;
             openPadEditor(t.id);
-          }
-        } else {
-          const sc = scenarios.find(s => s.id === addTargetScenarioId);
-          if (sc && !(sc.trackIds || []).includes(t.id)) {
-            sc.trackIds = [...(sc.trackIds || []), t.id];
-            const tx = db.transaction("scenarios", "readwrite");
-            tx.objectStore("scenarios").put(sc);
-            tx.oncomplete = () => loadAllData();
           }
         }
       };
@@ -1702,26 +1751,30 @@
       iconGrid.appendChild(opt);
     });
     
+    let existingPad = null;
     if (editingPadId) {
-      const pad = pads.find(p => p.id === editingPadId);
-      if (pad) {
-        document.getElementById("padModalHeading").innerText = "Настроить пэд";
-        titleInput.value = pad.title || "";
-        document.getElementById("inputPadIcon").value = pad.icon || "🎵";
-        trackInput.value = pad.trackId || "";
-        selectedPadColor = pad.color || PAD_COLORS[0];
-        deleteBtn.style.display = "block";
-        
-        const tr = tracks.find(t => t.id === pad.trackId);
-        currentTrackNameEl.textContent = tr ? tr.name : "—";
-        
-        document.querySelectorAll("#padColorPalette .color-swatch").forEach((el, i) => {
-          el.classList.toggle("selected", PAD_COLORS[i] === selectedPadColor);
-        });
-        document.querySelectorAll("#padIconGrid .icon-option").forEach(el => {
-          el.classList.toggle("selected", el.textContent === (pad.icon || "🎵"));
-        });
-      }
+      existingPad = editingPadIsScenario
+        ? scenarios.find(s => s.id === openedScenarioId)?.pads?.find(p => p.id === editingPadId)
+        : pads.find(p => p.id === editingPadId);
+    }
+    
+    if (existingPad) {
+      document.getElementById("padModalHeading").innerText = "Настроить пэд";
+      titleInput.value = existingPad.title || "";
+      document.getElementById("inputPadIcon").value = existingPad.icon || "🎵";
+      trackInput.value = existingPad.trackId || "";
+      selectedPadColor = existingPad.color || PAD_COLORS[0];
+      deleteBtn.style.display = "block";
+      
+      const tr = tracks.find(t => t.id === existingPad.trackId);
+      currentTrackNameEl.textContent = tr ? tr.name : "—";
+      
+      document.querySelectorAll("#padColorPalette .color-swatch").forEach((el, i) => {
+        el.classList.toggle("selected", PAD_COLORS[i] === selectedPadColor);
+      });
+      document.querySelectorAll("#padIconGrid .icon-option").forEach(el => {
+        el.classList.toggle("selected", el.textContent === (existingPad.icon || "🎵"));
+      });
     } else {
       document.getElementById("padModalHeading").innerText = "Настроить пэд";
       titleInput.value = "";
@@ -1740,8 +1793,7 @@
   function changePadTrack() {
     padTrackChangeMode = true;
     closeModal('padModal');
-    // Открываем выбор источника
-    openAddSourceModal(null, 'pad');
+    openAddSourceModal(editingPadIsScenario ? 'scenario' : 'pad');
   }
 
   function savePad() {
@@ -1751,26 +1803,85 @@
     
     if (!trackId) return alert("Ошибка: не выбран трек");
     
-    const tx = db.transaction("pads", "readwrite");
-    const store = tx.objectStore("pads");
-    
-    if (editingPadId) {
-      const pad = pads.find(p => p.id === editingPadId);
-      if (pad) {
-        store.put({ ...pad, trackId: Number(trackId), title, icon, color: selectedPadColor });
+    if (editingPadIsScenario) {
+      const sc = scenarios.find(s => s.id === openedScenarioId);
+      if (!sc) return;
+      if (!sc.pads) sc.pads = [];
+      
+      if (editingPadId) {
+        const pad = sc.pads.find(p => p.id === editingPadId);
+        if (pad) {
+          pad.trackId = Number(trackId);
+          pad.title = title;
+          pad.icon = icon;
+          pad.color = selectedPadColor;
+        }
+      } else {
+        const newId = Date.now();
+        sc.pads.push({
+          id: newId,
+          trackId: Number(trackId),
+          title,
+          icon,
+          color: selectedPadColor,
+          order: sc.pads.length
+        });
       }
+      hasUnsavedChanges = true;
+      closeModal("padModal");
+      renderCurrentView();
     } else {
-      store.add({ trackId: Number(trackId), title, icon, color: selectedPadColor, order: pads.length });
+      // В глобальном режиме сохраняем в текущий сценарий (который открыт по умолчанию)
+      let sc = scenarios.find(s => s.id === openedScenarioId) || (scenarios.length > 0 ? scenarios[scenarios.length - 1] : null);
+      if (!sc) return;
+      if (!sc.pads) sc.pads = [];
+      
+      if (editingPadId) {
+        const pad = sc.pads.find(p => p.id === editingPadId);
+        if (pad) {
+          pad.trackId = Number(trackId);
+          pad.title = title;
+          pad.icon = icon;
+          pad.color = selectedPadColor;
+        }
+      } else {
+        const newId = Date.now();
+        sc.pads.push({
+          id: newId,
+          trackId: Number(trackId),
+          title,
+          icon,
+          color: selectedPadColor,
+          order: sc.pads.length
+        });
+      }
+      hasUnsavedChanges = true;
+      closeModal("padModal");
+      renderCurrentView();
     }
-    tx.oncomplete = () => { closeModal("padModal"); loadAllData(); };
   }
 
   function deletePad() {
     if (!editingPadId) return;
     if (!confirm("Удалить этот пэд?")) return;
-    const tx = db.transaction("pads", "readwrite");
-    tx.objectStore("pads").delete(editingPadId);
-    tx.oncomplete = () => { closeModal("padModal"); loadAllData(); };
+    
+    if (editingPadIsScenario) {
+      const sc = scenarios.find(s => s.id === openedScenarioId);
+      if (sc && sc.pads) {
+        sc.pads = sc.pads.filter(p => p.id !== editingPadId);
+        hasUnsavedChanges = true;
+      }
+      closeModal("padModal");
+      renderCurrentView();
+    } else {
+      let sc = scenarios.find(s => s.id === openedScenarioId) || (scenarios.length > 0 ? scenarios[scenarios.length - 1] : null);
+      if (sc && sc.pads) {
+        sc.pads = sc.pads.filter(p => p.id !== editingPadId);
+        hasUnsavedChanges = true;
+      }
+      closeModal("padModal");
+      renderCurrentView();
+    }
   }
 
   // ============ PLAYBACK ============
@@ -1782,8 +1893,16 @@
     return tracks.map(t => t.id);
   }
   
-  function playPad(padId) {
-    const pad = pads.find(p => p.id === padId);
+  function playPad(padId, isScenario) {
+    let pad;
+    if (isScenario) {
+      const sc = scenarios.find(s => s.id === openedScenarioId);
+      if (sc) pad = sc.pads?.find(p => p.id === padId);
+    } else {
+      let sc = scenarios.find(s => s.id === openedScenarioId) || (scenarios.length > 0 ? scenarios[scenarios.length - 1] : null);
+      if (sc) pad = sc.pads?.find(p => p.id === padId);
+    }
+    
     if (!pad) return;
     currentPadContext = pad;
     playTrack(pad.trackId, null);
@@ -1842,18 +1961,6 @@
     currentAudio.loop = !!track.loop;
     currentAudio.volume = currentVolume;
     currentTrackId = trackId;
-
-    if (scenarioContextId) {
-      const sc = scenarios.find(s => s.id === scenarioContextId);
-      if (sc && sc.trackIds) {
-        const t = tracks.find(x => x.id === trackId);
-        if (t) {
-          t.done = true;
-          const tx = db.transaction("tracks", "readwrite");
-          tx.objectStore("tracks").put(t);
-        }
-      }
-    }
 
     startShowTimer();
 
@@ -1978,7 +2085,7 @@
     if (currentAudio) { currentAudio.pause(); currentAudio.src = ""; currentAudio = null; }
     if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
     currentTrackId = null;
-    currentPadContext = null; // сбрасываем контекст пэда
+    currentPadContext = null;
     releaseWakeLock();
     stopShowTimer();
     if (navigator.mediaSession) { navigator.mediaSession.metadata = null; navigator.mediaSession.playbackState = "none"; }
