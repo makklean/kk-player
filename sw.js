@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kk-player-v7';
+const CACHE_NAME = 'kk-player-v8';
 const ASSETS = [
   './',
   './index.html',
