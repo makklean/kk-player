@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kk-player-v16';
+const CACHE_NAME = 'kk-player-v17';
 const ASSETS = [
   './',
   './index.html',
@@ -44,13 +44,20 @@ self.addEventListener('fetch', (e) => {
   function showProgress(text, percent) {
     const overlay = document.getElementById("progressOverlay");
     if (!overlay) return;
-    overlay.classList.add("visible");
+    overlay.style.display = "flex"; // Принудительно показываем
+    overlay.style.flexDirection = "column";
+    overlay.style.alignItems = "center";
+    overlay.style.justifyContent = "center";
+    overlay.style.position = "fixed";
+    overlay.style.inset = "0";
+    overlay.style.background = "rgba(0,0,0,0.85)";
+    overlay.style.zIndex = "100";
     document.getElementById("progressText").innerText = text;
     document.getElementById("progressBarFill").style.width = percent + "%";
   }
   function hideProgress() {
     const overlay = document.getElementById("progressOverlay");
-    if (overlay) overlay.classList.remove("visible");
+    if (overlay) overlay.style.display = "none"; // Принудительно скрываем
   }
 
   async function exportBackup() {
