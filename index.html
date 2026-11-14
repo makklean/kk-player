@@ -441,6 +441,14 @@
     cursor: pointer;
   }
   .icon-option.selected { border-color: var(--accent-blue); background: rgba(26,115,232,0.2); }
+  .progress-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+    z-index: 100; align-items: center; justify-content: center; flex-direction: column;
+  }
+  .progress-overlay.visible { display: flex; }
+  .progress-text { color: #fff; font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+  .progress-bar-bg { width: 80%; max-width: 300px; height: 8px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.3s; }
 </style>
 </head>
 <body>
