@@ -805,8 +805,8 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
       scenarios.forEach(sc => {
         const row = document.createElement("div"); row.className = "list-row scenario-card";
         row.innerHTML = '<div class="row-cover">🎛️</div><div class="row-info"><div class="row-title"></div><div class="row-subtitle"></div></div><div class="row-actions"><button class="row-btn" onclick="editScenarioAction(event,' + sc.id + ')">✎</button><button class="row-btn delete-btn" onclick="deleteScenarioAction(event,' + sc.id + ')">✕</button></div>';
-        row.querySelector(".row-title").textContent = sc.name;
-        row.querySelector(".row-subtitle").textContent = [sc.description, 'Пэдов: ' + (sc.pads || []).length].filter(Boolean).join(' • ');
+        row.querySelector(".row-title").textContent = [sc.name, sc.description].filter(Boolean).join(" — ");
+        row.querySelector(".row-subtitle").textContent = "Пэдов: " + (sc.pads || []).length;
         row.onclick = e => { if (!e.target.closest(".row-actions")) openScenario(sc.id); };
         listEl.appendChild(row);
       });
@@ -816,7 +816,7 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
       const scenario = scenarios.find(s => s.id === openedScenarioId);
       if (!scenario) { openedScenarioId = null; renderCurrentView(); return; }
       container.innerHTML = '<div class="playlist-sub-header"><button class="back-btn" onclick="closeOpenedScenario()">← Назад</button><div class="sub-header-title"></div></div><div class="pad-mode-toolbar">' + (hasUnsavedChanges ? '<button class="save-scenario-btn visible" style="float:none;margin:0;padding:9px 14px" onclick="saveScenarioState()">💾 Сохранить порядок</button>' : '') + '<button class="edit-mode-btn ' + (padEditMode ? "active" : "") + '" aria-label="Редактировать пэды" title="Редактировать пэды" style="display:flex;width:40px;height:40px;border-radius:12px;padding:0;font-size:21px;margin:0" onclick="togglePadEditMode()">✎</button></div><div class="pads-scroll" id="padsScroll"><div class="pads-grid ' + (padEditMode ? "edit-mode" : "") + '" id="padsGrid"></div></div>';
-      container.querySelector(".sub-header-title").textContent = scenario.name;
+      container.querySelector(".sub-header-title").textContent = [scenario.name, scenario.description].filter(Boolean).join(" — ");
       const grid = document.getElementById("padsGrid");
       const visiblePads = (scenario.pads || []).map((pad, idx) => ({ pad, idx })).filter(item => tracks.some(t => t.id === item.pad.trackId));
       visiblePads.forEach(({ pad, idx }) => {
