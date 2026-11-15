@@ -840,7 +840,7 @@ function attachLongPressSelection(row,type,id){
  row.addEventListener("pointerdown",e=>{
   if(e.target.closest("button")||e.target.closest(".track-select"))return;
   const selected=type==="track"?selectedTrackIds:selectedScenarioIds,delay=selected.size?260:480,x=e.clientX,y=e.clientY;
-  timer=setTimeout(()=>{timer=null;if(selected.size)startListDrag(row,type,id);else if(type==="track"){selectedTrackIds.add(id);renderCurrentView()}else{selectedScenarioIds.add(id);renderCurrentView()}},delay);
+  timer=setTimeout(()=>{timer=null;if(selected.size&&selected.has(id))startListDrag(row,type,id);else if(type==="track"){selectedTrackIds.add(id);renderCurrentView()}else{selectedScenarioIds.add(id);renderCurrentView()}},delay);
   const cancel=ev=>{if(Math.abs(ev.clientX-x)>12||Math.abs(ev.clientY-y)>12){clearTimeout(timer);timer=null;row.removeEventListener("pointermove",cancel)}};
   row.addEventListener("pointermove",cancel);
   const finish=()=>{clearTimeout(timer);timer=null;row.removeEventListener("pointermove",cancel);window.removeEventListener("pointerup",finish);window.removeEventListener("pointercancel",finish)};
@@ -851,14 +851,14 @@ function startListDrag(row,type,id){
  const selected=type==="track"?selectedTrackIds:selectedScenarioIds,draggingIds=selected.has(id)?new Set(selected):new Set([id]);row.classList.add("list-dragging");
  const selector=type==="track"?'[data-track-id]':'.scenario-card[data-item-id]';
  const move=ev=>{const target=document.elementFromPoint(ev.clientX,ev.clientY)?.closest(selector);document.querySelectorAll(".list-drop-target").forEach(x=>x.classList.remove("list-drop-target"));if(target&&target!==row)target.classList.add("list-drop-target")};
- const finish=ev=>{document.removeEventListener("pointermove",move);document.removeEventListener("pointerup",finish);document.removeEventListener("pointercancel",finish);row.classList.remove("list-dragging");const target=document.elementFromPoint(ev.clientX,ev.clientY)?.closest(selector);document.querySelectorAll(".list-drop-target").forEach(x=>x.classList.remove("list-drop-target"));if(!target||target===row)return;reorderVisibleItems(type,draggingIds,Number(type==="track"?target.dataset.trackId:target.dataset.itemId))};
+ const finish=ev=>{document.removeEventListener("pointermove",move);document.removeEventListener("pointerup",finish);document.removeEventListener("pointercancel",finish);row.classList.remove("list-dragging");const target=document.elementFromPoint(ev.clientX,ev.clientY)?.closest(selector);document.querySelectorAll(".list-drop-target").forEach(x=>x.classList.remove("list-drop-target"));if(!target||target===row)return;const targetId=Number(type==="track"?target.dataset.trackId:target.dataset.itemId);if(draggingIds.has(targetId))return;reorderVisibleItems(type,draggingIds,targetId,ev.clientY,target.getBoundingClientRect())};
  document.addEventListener("pointermove",move);document.addEventListener("pointerup",finish);document.addEventListener("pointercancel",finish);
 }
-function reorderVisibleItems(type,draggingIds,targetId){
+function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
  const isTrack=type==="track",all=(isTrack?tracks:scenarios).slice().sort((a,b)=>(a.order??a.id)-(b.order??b.id));
  const visible=isTrack?(currentFolderFilter!=="__all__"?all.filter(x=>(x.folder||"")===currentFolderFilter):musicViewMode==="allTracks"?all:all.filter(x=>!x.folder)):(scenarioFolderFilter!=="__all__"?all.filter(x=>x.folder===scenarioFolderFilter):scenarioViewMode==="all"?all:all.filter(x=>!x.folder));
  const moving=visible.filter(x=>draggingIds.has(x.id));if(!moving.length||!visible.some(x=>x.id===targetId))return;
- const remaining=visible.filter(x=>!draggingIds.has(x.id)),at=remaining.findIndex(x=>x.id===targetId);remaining.splice(Math.max(0,at),0,...moving);
+ const remaining=visible.filter(x=>!draggingIds.has(x.id));let at=remaining.findIndex(x=>x.id===targetId);if(at<0)return;if(targetRect&&dropY>targetRect.top+targetRect.height/2)at+=1;remaining.splice(at,0,...moving);
  const visibleIds=new Set(visible.map(x=>x.id));let cursor=0;const reordered=all.map(x=>visibleIds.has(x.id)?remaining[cursor++]:x);
  const tx=db.transaction(isTrack?"tracks":"scenarios","readwrite"),store=tx.objectStore(isTrack?"tracks":"scenarios");reordered.forEach((item,index)=>store.put({...item,order:index}));
  tx.oncomplete=()=>{if(isTrack)selectedTrackIds.clear();else selectedScenarioIds.clear();loadAllData()};
