@@ -49,6 +49,9 @@ jobs:
       - name: Lock Android app to portrait orientation
         run: node scripts/lock-portrait.js
 
+      - name: Set Android app version to 1.0
+        run: node scripts/set-android-release-version.js
+
       - name: Prepare exact KK Player logo for Android assets
         run: |
           node -e "const sharp=require('sharp'); Promise.all([sharp('assets/logo.svg').resize(1024,1024).png().toFile('assets/icon-only.png'), sharp('assets/logo.svg').resize(1024,1024).png().toFile('assets/splash.png')]).catch(e=>{console.error(e);process.exit(1)})"
@@ -65,10 +68,13 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
+      - name: Rename APK for sharing
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/apk/debug/KK-Player-1.0.apk
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: kk-player-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/debug/KK-Player-1.0.apk
           if-no-files-found: error
           retention-days: 14
