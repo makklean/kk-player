@@ -361,7 +361,7 @@ body{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
         const fileName = `track_${t.id}.mp3`; 
         const blob = new Blob([t.data], { type: t.mimeType || "audio/mpeg" });
         audioFolder.file(fileName, blob);
-        config.tracks.push({ id: t.id, fileName, name: t.name, tag: t.tag, order: t.order, mimeType: t.mimeType || "audio/mpeg" });
+        config.tracks.push({ id: t.id, fileName, name: t.name, tag: t.tag, folder: t.folder || "", order: t.order, mimeType: t.mimeType || "audio/mpeg" });
         if (i % 2 === 0) { showProgress(`Сборка... ${i}/${tracks.length}`, Math.round((i / tracks.length) * 100)); await new Promise(r => setTimeout(r, 10)); }
       }
 
@@ -417,6 +417,7 @@ body{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
           record: {
             name: String(meta.name || meta.fileName),
             tag: meta.tag || "linear-gradient(135deg,#1565c0,#42a5f5)|🎵",
+            folder: String(meta.folder || ""),
             order: Number.isFinite(meta.order) ? meta.order : i,
             data,
             mimeType: meta.mimeType || "audio/mpeg"
@@ -506,6 +507,7 @@ body{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
   function switchSection(section) {
     if (isLocked) return;
     activeSection = section; if (section === "all") openedScenarioId = null; hasUnsavedChanges = false;
+    const playerBar = document.getElementById("playerBar"); if (playerBar) playerBar.classList.toggle("visible", section === "all" && currentPlaybackMode === "music" && !!currentAudio);
     document.getElementById("tabAllMusic").classList.toggle("active", section === "all");
     document.getElementById("tabScenarios").classList.toggle("active", section === "scenarios");
     renderCurrentView();
@@ -838,10 +840,12 @@ body{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
       }
     });
     audio.addEventListener("play", () => {
+      refreshPadPlaybackUI();
       const btn = document.getElementById("playPauseBtn");
       if (btn) btn.innerHTML = '<svg width="26" height="26" viewBox="0 0 24 24"><path d="M7 5h4v14H7zM15 5h4v14h-4z"/></svg>';
     });
     audio.addEventListener("pause", () => {
+      refreshPadPlaybackUI();
       const btn = document.getElementById("playPauseBtn");
       if (btn) btn.innerHTML = '<svg width="26" height="26" viewBox="0 0 24 24"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z"/></svg>';
     });
@@ -873,6 +877,8 @@ body{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
   function playTrack(trackId, scenarioId = null) {
     const track = tracks.find(t => t.id === trackId);
     if (!track) return;
+    currentPlaybackMode = "music"; currentPadId = null;
+    const playerBar = document.getElementById("playerBar"); if (playerBar) playerBar.classList.toggle("visible", activeSection === "all");
     if (scenarioId) {
       const sc = scenarios.find(s => s.id === scenarioId);
       if (sc) currentQueueIds = (sc.pads || []).map(p => p.trackId).filter(Boolean);
@@ -890,7 +896,37 @@ body{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
     const track = tracks.find(t => t.id === pad.trackId);
     if (!track) return;
     currentQueueIds = (sc.pads || []).map(p => p.trackId).filter(Boolean);
+    currentPlaybackMode = "pad"; currentPadId = padId;
+    const bar = document.getElementById("playerBar"); if (bar) bar.classList.remove("visible");
     startTrackAudio(track, pad);
+  }
+
+  function togglePadPlayback(padId, scenarioId) {
+    if (currentPlaybackMode === "pad" && currentPadId === padId && currentAudio) {
+      if (currentAudio.paused) currentAudio.play().catch(() => alert("Не удалось продолжить воспроизведение."));
+      else currentAudio.pause();
+      refreshPadPlaybackUI(); return;
+    }
+    playPad(padId, scenarioId);
+  }
+
+  function restartPadPlayback(padId, scenarioId) {
+    if (currentPlaybackMode === "pad" && currentPadId === padId && currentAudio) {
+      currentAudio.currentTime = 0; currentAudio.play().catch(() => alert("Не удалось запустить пэд."));
+      refreshPadPlaybackUI(); return;
+    }
+    playPad(padId, scenarioId);
+  }
+
+  function refreshPadPlaybackUI() {
+    const sc = scenarios.find(s => s.id === openedScenarioId); if (!sc) return;
+    document.querySelectorAll(".drum-pad[data-index]").forEach(el => {
+      const pad = sc.pads[Number(el.dataset.index)];
+      const active = !!(pad && currentPlaybackMode === "pad" && currentPadId === pad.id && currentAudio);
+      const playing = active && !currentAudio.paused;
+      el.classList.toggle("playing",playing); el.classList.toggle("paused",active && currentAudio.paused);
+      const btn = el.querySelector(".pad-play-btn"); if (btn) btn.textContent = playing ? "Ⅱ" : "▶";
+    });
   }
 
   function updatePlayerUI(track, pad) {
@@ -910,7 +946,7 @@ body{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
       document.getElementById("playerTitle").innerText = track.name;
       document.getElementById("playerSub").innerText = "Вся музыка";
     }
-    bar.classList.add("visible");
+    bar.classList.toggle("visible", currentPlaybackMode === "music" && activeSection === "all");
   }
 
   function togglePauseCurrent() {
