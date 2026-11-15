@@ -1,4 +1,4 @@
-const CACHE_NAME = "kk-player-v21";
+const CACHE_NAME = "kk-player-v22";
 const APP_SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", event => {
