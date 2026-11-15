@@ -303,6 +303,7 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
 .selection-check{display:none;flex:0 0 25px;width:25px;height:25px;border:2px solid rgba(160,190,225,.58);border-radius:8px;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:900;background:rgba(255,255,255,.04)}
 #mainContainer:has(.selection-toolbar) .track-select,#mainContainer:has(.selection-toolbar) .scenario-check{display:flex}
 .list-row.track-selected,.scenario-card.scenario-selected{border-color:#5c9de9!important;background:rgba(40,108,192,.18)!important}
+.list-row.track-selected,.scenario-card.scenario-selected{touch-action:none}
 .selection-check.selected{background:#286cc0;border-color:#8dc0ff}
 .list-row.list-dragging{opacity:.55;transform:scale(.985);border-color:#8dc0ff!important}
 .list-row.list-drop-target{outline:2px solid #8dc0ff;outline-offset:2px}
@@ -802,11 +803,6 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
     document.querySelectorAll("#itemsList [data-search]").forEach(el => {
       el.style.display = el.dataset.search.includes(musicSearchQuery) ? "" : "none";
     });
-  }
-  function toggleTrackSelection(event, trackId) {
-    event.stopPropagation();
-    if (selectedTrackIds.has(trackId)) selectedTrackIds.delete(trackId); else selectedTrackIds.add(trackId);
-    renderCurrentView();
   }
   function moveSelectedTracksToFolder() {
     if (!selectedTrackIds.size) return;
