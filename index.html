@@ -260,13 +260,15 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
 .tab-pill{white-space:nowrap}
 @media(max-width:380px){.tab-pill{font-size:15px;padding-left:8px;padding-right:8px;min-height:49px}}
 
-/* Pad layout polish: one active outline, lighter transitions and compact 3-column tiles. */
-.pad{transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease,filter .18s ease;will-change:transform}
-.pad:active{transform:scale(.975)}
-.pad.playing,.pad.paused{outline:none!important;outline-offset:0!important;border:2px solid rgba(255,255,255,.95)!important;box-shadow:0 0 12px rgba(255,255,255,.24)!important;animation:none!important;filter:none!important}
-.pad.playing{border-color:#fff!important}
-@media(max-width:600px){.pads-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}.pad{aspect-ratio:1/1;padding:8px 5px 6px;border-radius:14px}.pad-title{font-size:clamp(12px,3.5vw,16px)!important;line-height:1.08!important;margin-bottom:3px!important}.pad-trackname{font-size:9px!important;padding:0 2px}.pad-mode-toolbar{margin:2px 0 8px;min-height:36px}.pads-scroll{padding-left:1px;padding-right:1px}}
-@media(prefers-reduced-motion:reduce){.pad{transition:none!important}}
+/* Pad polish: one clean active border and lightweight GPU-friendly pulse. */
+.pad{transition:border-color .16s ease,transform .16s ease;will-change:auto}
+.pad:active{transform:scale(.985)}
+.pad.playing,.pad.paused{outline:none!important;outline-offset:0!important;border:2px solid rgba(245,249,255,.96)!important;box-shadow:none!important;filter:none!important}
+.pad.playing{animation:padPlayingPulse 1.8s ease-in-out infinite;will-change:transform}
+.pad.paused{animation:none!important}
+@keyframes padPlayingPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.012)}}
+@media(max-width:600px){.pads-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}.pad{aspect-ratio:1.08/1;padding:7px 5px 5px;border-radius:14px}.pad-title{font-size:clamp(12px,3.5vw,16px)!important;line-height:1.08!important;margin-bottom:3px!important}.pad-trackname{font-size:9px!important;padding:0 2px}.pad-mode-toolbar{margin:2px 0 8px;min-height:36px}.pads-scroll{padding-left:1px;padding-right:1px}}
+@media(prefers-reduced-motion:reduce){.pad{transition:none!important}.pad.playing{animation:none!important;will-change:auto}}
 </style>
 </head>
 <body>
