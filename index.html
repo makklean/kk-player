@@ -387,26 +387,36 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       trackStore.clear();
       scenarioStore.clear();
 
+      const addScenarios = () => {
+        config.scenarios.forEach((scConfig, scenarioIndex) => {
+          const pads = (Array.isArray(scConfig.pads) ? scConfig.pads : []).map((p, padIndex) => ({
+            id: p.id || (Date.now() + scenarioIndex * 1000 + padIndex),
+            trackId: p.trackFileName ? (trackIdMap.get(p.trackFileName) || null) : null,
+            title: p.title || "",
+            icon: p.icon || "🎵",
+            color: p.color || "linear-gradient(135deg,#1565c0,#42a5f5)",
+            order: Number.isFinite(p.order) ? p.order : padIndex
+          })).sort((a, b) => a.order - b.order);
+          scenarioStore.add({
+            name: String(scConfig.name || "Новый сценарий"),
+            duration: scConfig.duration || "30",
+            order: Number.isFinite(scConfig.order) ? scConfig.order : scenarioIndex,
+            pads
+          });
+        });
+      };
+
+      // Track IDs are assigned by IndexedDB asynchronously. Add scenarios only
+      // after every track request has returned its new ID, in this same transaction.
+      let addedTracks = 0;
+      if (!trackEntries.length) addScenarios();
       trackEntries.forEach((item) => {
         const request = trackStore.add(item.record);
-        request.onsuccess = () => trackIdMap.set(item.fileName, request.result);
-      });
-
-      config.scenarios.forEach((scConfig, scenarioIndex) => {
-        const pads = (Array.isArray(scConfig.pads) ? scConfig.pads : []).map((p, padIndex) => ({
-          id: p.id || (Date.now() + scenarioIndex * 1000 + padIndex),
-          trackId: p.trackFileName ? (trackIdMap.get(p.trackFileName) || null) : null,
-          title: p.title || "",
-          icon: p.icon || "🎵",
-          color: p.color || "linear-gradient(135deg,#1565c0,#42a5f5)",
-          order: Number.isFinite(p.order) ? p.order : padIndex
-        })).sort((a, b) => a.order - b.order);
-        scenarioStore.add({
-          name: String(scConfig.name || "Новый сценарий"),
-          duration: scConfig.duration || "30",
-          order: Number.isFinite(scConfig.order) ? scConfig.order : scenarioIndex,
-          pads
-        });
+        request.onsuccess = () => {
+          trackIdMap.set(item.fileName, request.result);
+          addedTracks += 1;
+          if (addedTracks === trackEntries.length) addScenarios();
+        };
       });
 
       await new Promise((resolve, reject) => {
