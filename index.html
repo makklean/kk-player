@@ -128,7 +128,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .row-subtitle,.row-trackname{color:var(--text-muted)}
 .row-btn{width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.055)}
 .row-btn:active,.icon-btn:active,.p-ctrl:active{transform:scale(.92)}
-.main-tabs{gap:8px}.tab-pill{border:1px solid var(--border-subtle);background:rgba(255,255,255,.045);padding:10px 16px}.tab-pill.active{background:linear-gradient(135deg,#245b9b,#347bd0);border-color:transparent;box-shadow:0 5px 18px rgba(27,91,164,.22)}
+.main-tabs{gap:10px;padding:4px 0 6px}.tab-pill{flex:1 1 0;display:flex;align-items:center;justify-content:center;min-height:52px;border:1px solid rgba(148,178,220,.22);border-radius:15px;background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025));padding:12px 14px;font-size:16px;font-weight:800;letter-spacing:.01em;color:#aebbd0}.tab-pill.active{background:linear-gradient(135deg,#245b9b,#347bd0);border-color:rgba(135,190,255,.55);color:#fff;box-shadow:0 6px 20px rgba(27,91,164,.3)}
 .pads-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .pad{min-height:142px;border:1px solid rgba(255,255,255,.16);border-radius:20px;box-shadow:0 10px 22px rgba(0,0,0,.18);padding:14px;overflow:hidden}
 .pad.playing{outline:2px solid #8cc0ff;outline-offset:2px;box-shadow:0 0 0 5px rgba(110,168,255,.12),0 12px 28px rgba(0,0,0,.2)}
@@ -249,6 +249,12 @@ header{background:#000!important;backdrop-filter:none!important}
   .folder-back-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 13px!important;border:1px solid #343434!important;border-radius:10px;background:#171717!important;color:#fff!important;font-size:13px;font-weight:750}
   .file-location{gap:10px;flex-wrap:wrap}
   .save-scenario-btn{background:linear-gradient(135deg,#315b49,#3b6b55)!important;border:1px solid rgba(130,190,155,.18);box-shadow:none;color:#e5f1e9}
+/* Ensure the pad screen remains vertically scrollable in standalone Android PWAs. */
+html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:auto!important;-webkit-overflow-scrolling:touch}
+#mainContainer{height:auto!important;min-height:0;overflow:visible!important;padding-bottom:calc(230px + env(safe-area-inset-bottom))}
+#padsGrid{height:auto!important;max-height:none!important;overflow:visible!important;align-content:start}
+.tab-pill{white-space:nowrap}
+@media(max-width:380px){.tab-pill{font-size:15px;padding-left:8px;padding-right:8px;min-height:49px}}
 </style>
 </head>
 <body>
@@ -257,6 +263,17 @@ header{background:#000!important;backdrop-filter:none!important}
 <div id="showTimer" style="display:none; position:fixed; top:10px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); color:white; padding:8px 18px; border-radius:99px; font-size:16px; font-weight:700; z-index:25; box-shadow:0 4px 12px rgba(0,0,0,0.5);">00:00</div>
 <div id="progressOverlay"><div id="progressText">Подготовка...</div><div class="progress-bar-bg"><div id="progressBarFill"></div></div></div>
 <div class="locked-overlay" id="lockedOverlay" onclick="return false;"></div>
+
+<div class="modal-overlay" id="exitConfirmModal" role="dialog" aria-modal="true" aria-labelledby="exitConfirmTitle">
+  <div class="modal-box">
+    <h3 id="exitConfirmTitle">Выйти из приложения?</h3>
+    <p style="color:var(--text-muted);font-size:14px;line-height:1.5;margin:0 0 18px">Вы действительно хотите закрыть плеер?</p>
+    <div class="modal-btns">
+      <button class="m-btn" onclick="cancelExitConfirmation()">Остаться</button>
+      <button class="m-btn m-btn-primary" onclick="confirmExitApplication()">Выйти</button>
+    </div>
+  </div>
+</div>
 
 <header id="mainHeader">
   <div class="header-top">
@@ -561,14 +578,36 @@ header{background:#000!important;backdrop-filter:none!important}
   }
 
   // ============ ANDROID BACK NAVIGATION ============
-  // Keep an in-app history entry so Android/browser Back navigates inside the player.
+  // Use an in-app confirmation: native dialogs can be suppressed in installed PWAs.
+  function showExitConfirmation() {
+    const modal = document.getElementById("exitConfirmModal");
+    if (modal) modal.style.display = "flex";
+  }
+  function cancelExitConfirmation() {
+    const modal = document.getElementById("exitConfirmModal");
+    if (modal) modal.style.display = "none";
+    history.pushState({ kkPlayerBackGuard: true }, "", location.href);
+  }
+  function confirmExitApplication() {
+    const modal = document.getElementById("exitConfirmModal");
+    if (modal) modal.style.display = "none";
+    // Try closing the standalone window, then fall back to browser history navigation.
+    window.close();
+    history.back();
+  }
   function installBackNavigation() {
     if (!history.state || !history.state.kkPlayerBackGuard) {
       history.pushState({ kkPlayerBackGuard: true }, "", location.href);
     }
     window.addEventListener("popstate", () => {
+      const exitModal = document.getElementById("exitConfirmModal");
+      if (exitModal && getComputedStyle(exitModal).display !== "none") {
+        exitModal.style.display = "none";
+        history.pushState({ kkPlayerBackGuard: true }, "", location.href);
+        return;
+      }
       const visibleModals = [...document.querySelectorAll(".modal-overlay")]
-        .filter(el => getComputedStyle(el).display !== "none");
+        .filter(el => el.id !== "exitConfirmModal" && getComputedStyle(el).display !== "none");
       if (visibleModals.length) {
         visibleModals[visibleModals.length - 1].style.display = "none";
         history.pushState({ kkPlayerBackGuard: true }, "", location.href);
@@ -584,10 +623,8 @@ header{background:#000!important;backdrop-filter:none!important}
         history.pushState({ kkPlayerBackGuard: true }, "", location.href);
         return;
       }
-      if (!window.confirm("Выйти из приложения?")) {
-        history.pushState({ kkPlayerBackGuard: true }, "", location.href);
-      }
-      // On confirmation, do not restore the guard: Android/browser can leave the app.
+      showExitConfirmation();
+      // Keep the guard popped while the confirmation is visible.
     });
   }
   installBackNavigation();
