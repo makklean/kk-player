@@ -156,6 +156,7 @@ body{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
 .row-actions{flex:0 0 auto;display:flex;gap:2px}
 .row-btn{flex:0 0 30px;width:30px;height:36px;padding:0;font-size:13px}
 .music-toolbar{display:flex;gap:8px;align-items:stretch;min-width:0}
+.music-toolbar>*{height:48px;min-height:48px;display:flex;align-items:center;justify-content:center}.music-toolbar .primary-action-btn{padding-top:0;padding-bottom:0}.folder-add-btn{font-size:13px;white-space:nowrap}.music-view-tabs{display:flex;gap:7px;margin:10px 0 7px}.music-search{width:100%;height:42px;padding:0 13px;border:1px solid #292929;border-radius:12px;background:#101010;color:#fff;font-size:14px;outline:none}.folder-entry{padding:0}.folder-open{flex:1;min-width:0;display:flex;align-items:center;gap:12px;min-height:56px;padding:10px 12px;border:0;background:transparent;color:#fff;text-align:left}.folder-actions{display:flex;gap:5px;padding:0 8px}.folder-actions button{width:32px;height:32px;border:1px solid #303030;border-radius:9px;background:#1a1a1a;color:#ddd;font-size:15px;}
 .music-toolbar .primary-action-btn{flex:1 1 auto;min-width:0;width:auto}
 .folder-add-btn{flex:0 0 auto;padding:0 12px;border:1px solid var(--border-subtle);border-radius:14px;background:#18263a;color:#fff;font-weight:700}
 .folder-filter{display:flex;gap:7px;overflow-x:auto;padding:12px 0 4px;max-width:100%}
@@ -578,6 +579,7 @@ header{background:#000!important;backdrop-filter:none!important}
     activeSection = section; if (section === "all") openedScenarioId = null; hasUnsavedChanges = false;
     syncPlayerVisibility();
     document.getElementById("tabAllMusic").classList.toggle("active", section === "all");
+    selectedTrackIds.clear();
     document.getElementById("tabScenarios").classList.toggle("active", section === "scenarios");
     renderCurrentView();
   }
@@ -615,16 +617,44 @@ header{background:#000!important;backdrop-filter:none!important}
     localStorage.setItem("kk-player-folders", JSON.stringify(musicFolders));
     moveSelectedTracksInto(clean);
   }
+  let musicViewMode = "folders";
+  let musicSearchQuery = "";
+  function persistMusicFolders() { localStorage.setItem("kk-player-folders", JSON.stringify(musicFolders)); }
   function exitMusicFolder() { currentFolderFilter = "__all__"; selectedTrackIds.clear(); renderCurrentView(); }
   function createMusicFolder() {
     const name = prompt("Название новой папки:");
     if (name === null) return;
     const clean = name.trim();
     if (!clean) return alert("Введите название папки.");
-    if (!musicFolders.includes(clean)) musicFolders.push(clean);
-    localStorage.setItem("kk-player-folders", JSON.stringify(musicFolders));
-    currentFolderFilter = clean;
-    renderCurrentView();
+    if ([...new Set([...musicFolders, ...tracks.map(t => t.folder).filter(Boolean)])].includes(clean)) return alert("Папка с таким названием уже существует.");
+    musicFolders.push(clean); persistMusicFolders();
+    currentFolderFilter = clean; musicViewMode = "folders"; renderCurrentView();
+  }
+  function renameMusicFolder(oldName) {
+    const name = prompt("Новое название папки:", oldName);
+    if (name === null) return;
+    const clean = name.trim();
+    if (!clean) return alert("Введите название папки.");
+    if (clean !== oldName && [...new Set([...musicFolders, ...tracks.map(t => t.folder).filter(Boolean)])].includes(clean)) return alert("Папка с таким названием уже существует.");
+    const tx = db.transaction("tracks", "readwrite"), store = tx.objectStore("tracks");
+    tracks.filter(t => t.folder === oldName).forEach(t => store.put({ ...t, folder: clean }));
+    musicFolders = [...new Set(musicFolders.map(n => n === oldName ? clean : n))];
+    persistMusicFolders();
+    tx.oncomplete = () => { if (currentFolderFilter === oldName) currentFolderFilter = clean; loadAllData(); };
+  }
+  function deleteMusicFolder(name) {
+    if (!confirm('Удалить папку "' + name + '"? Треки останутся в библиотеке и будут перемещены в корень.')) return;
+    const tx = db.transaction("tracks", "readwrite"), store = tx.objectStore("tracks");
+    tracks.filter(t => t.folder === name).forEach(t => store.put({ ...t, folder: "" }));
+    musicFolders = musicFolders.filter(n => n !== name); persistMusicFolders();
+    tx.oncomplete = () => { if (currentFolderFilter === name) currentFolderFilter = "__all__"; selectedTrackIds.clear(); loadAllData(); };
+  }
+  function setMusicView(mode) { musicViewMode = mode; currentFolderFilter = "__all__"; selectedTrackIds.clear(); renderCurrentView(); }
+  function filterMusicList(value) {
+    musicSearchQuery = value.toLocaleLowerCase("ru").trim();
+    document.querySelectorAll("#itemsList [data-search]").forEach(el => {
+      el.style.display = el.dataset.search.includes(musicSearchQuery) ? "" : "none";
+    });
   }
   function toggleTrackSelection(event, trackId) {
     event.stopPropagation();
@@ -632,7 +662,7 @@ header{background:#000!important;backdrop-filter:none!important}
     renderCurrentView();
   }
   function moveSelectedTracksToFolder() {
-    if (!selectedTrackIds.size) return alert("Сначала выделите треки.");
+    if (!selectedTrackIds.size) return;
     renderMoveFolderChoices();
   }
 
@@ -641,29 +671,37 @@ header{background:#000!important;backdrop-filter:none!important}
     const container = document.getElementById("mainContainer");
     if (isLocked) { container.innerHTML = '<div class="empty-state" style="padding-top:80px">🔒 Экран заблокирован</div>'; return; }
     if (activeSection === "all") {
-      container.innerHTML = '<div class="music-toolbar"><button class="primary-action-btn" onclick="openTrackModal(null)">＋ Добавить треки</button><button class="folder-add-btn" onclick="createMusicFolder()">＋ Создать папку</button></div><div class="file-location">' + (currentFolderFilter !== "__all__" ? '<button class="folder-back-btn" onclick="exitMusicFolder()">← Назад</button><span>Музыка / ' + escapeHtml(currentFolderFilter || "Без папки") + '</span>' : '<span>Музыка</span>') + '</div><div class="selection-toolbar"><span id="selectedCount">Выберите треки</span><button class="folder-add-btn" onclick="moveSelectedTracksToFolder()">Переместить в папку</button></div><div class="items-list" id="itemsList"></div>';
-      const listEl = document.getElementById("itemsList");
+      const inFolder = currentFolderFilter !== "__all__";
       const folderNames = [...new Set([...musicFolders, ...tracks.map(t => t.folder).filter(Boolean)])].sort((a,b) => a.localeCompare(b,"ru"));
-      if (currentFolderFilter === "__all__") folderNames.forEach(name => {
+      container.innerHTML = '<div class="music-toolbar"><button class="primary-action-btn" onclick="openTrackModal(null)">＋ Добавить треки</button><button class="folder-add-btn" onclick="createMusicFolder()">＋ Создать папку</button></div><div class="music-view-tabs"><button class="folder-chip ' + (musicViewMode === "folders" ? "active" : "") + '" onclick="setMusicView(\'folders\')">Папки</button><button class="folder-chip ' + (musicViewMode === "allTracks" ? "active" : "") + '" onclick="setMusicView(\'allTracks\')">Вся музыка</button></div><input class="music-search" type="search" placeholder="Поиск по названию трека…" value="' + escapeHtml(musicSearchQuery) + '" oninput="filterMusicList(this.value)"><div class="file-location">' + (inFolder ? '<button class="folder-back-btn" onclick="exitMusicFolder()">← Назад</button><span>Музыка / ' + escapeHtml(currentFolderFilter) + '</span>' : '<span>' + (musicViewMode === "allTracks" ? "Вся музыка" : "Музыка") + '</span>') + '</div>' + (selectedTrackIds.size ? '<div class="selection-toolbar"><span id="selectedCount">Выбрано: ' + selectedTrackIds.size + '</span><button class="folder-add-btn" onclick="moveSelectedTracksToFolder()">Переместить в папку</button></div>' : '') + '<div class="items-list" id="itemsList"></div>';
+      const listEl = document.getElementById("itemsList");
+      if (!inFolder && musicViewMode === "folders") folderNames.forEach(name => {
         const count = tracks.filter(t => t.folder === name).length;
-        const folderRow = document.createElement("button"); folderRow.className = "folder-entry";
-        folderRow.innerHTML = '<span class="folder-entry-icon">▰</span><span class="folder-entry-name"></span><span class="folder-entry-count">' + count + '</span><span class="folder-entry-chevron">›</span>';
+        const folderRow = document.createElement("div"); folderRow.className = "folder-entry";
+        folderRow.innerHTML = '<button class="folder-open" type="button"><span class="folder-entry-icon">▰</span><span class="folder-entry-name"></span><span class="folder-entry-count">' + count + '</span></button><div class="folder-actions"><button type="button" aria-label="Переименовать папку">✎</button><button type="button" aria-label="Удалить папку">✕</button></div>';
         folderRow.querySelector(".folder-entry-name").textContent = name;
-        folderRow.onclick = () => { currentFolderFilter = name; renderCurrentView(); };
+        folderRow.querySelector(".folder-open").onclick = () => { currentFolderFilter = name; renderCurrentView(); };
+        const actions = folderRow.querySelectorAll(".folder-actions button");
+        actions[0].onclick = () => renameMusicFolder(name);
+        actions[1].onclick = () => deleteMusicFolder(name);
+        folderRow.dataset.search = name.toLocaleLowerCase("ru");
         listEl.appendChild(folderRow);
       });
-      const visibleTracks = currentFolderFilter === "__all__" ? tracks.filter(t => !t.folder) : tracks.filter(t => (t.folder || "") === currentFolderFilter);
+      let visibleTracks;
+      if (inFolder) visibleTracks = tracks.filter(t => (t.folder || "") === currentFolderFilter);
+      else if (musicViewMode === "allTracks") visibleTracks = tracks;
+      else visibleTracks = tracks.filter(t => !t.folder);
       if (!tracks.length && !folderNames.length) { listEl.innerHTML = '<div class="empty-state">Библиотека пуста. Добавьте аудиофайлы или создайте папку.</div>'; return; }
-      if (!visibleTracks.length && !(currentFolderFilter === "__all__" && folderNames.length)) { listEl.innerHTML = '<div class="empty-state">В этой папке пока нет треков.</div>'; return; }
       visibleTracks.forEach(track => {
         const row = document.createElement("div"); row.className = "list-row";
         row.innerHTML = '<div class="track-select ' + (selectedTrackIds.has(track.id) ? "selected" : "") + '" role="checkbox" aria-checked="' + selectedTrackIds.has(track.id) + '" onclick="toggleTrackSelection(event,' + track.id + ')">' + (selectedTrackIds.has(track.id) ? "✓" : "") + '</div><div class="row-info"><div class="row-title"></div></div><div class="row-actions"><button class="row-btn" onclick="editTrackAction(event,' + track.id + ')">✎</button><button class="row-btn delete-btn" onclick="deleteTrackAction(event,' + track.id + ')">✕</button></div>';
         row.querySelector(".row-title").textContent = track.name;
         row.classList.toggle("track-selected", selectedTrackIds.has(track.id));
+        row.dataset.search = (track.name + " " + (track.folder || "")).toLocaleLowerCase("ru");
         row.onclick = e => { if (!e.target.closest(".row-actions") && !e.target.closest(".track-select")) playTrack(track.id); };
         listEl.appendChild(row);
       });
-      const count = document.getElementById("selectedCount"); if (count) count.textContent = selectedTrackIds.size ? "Выбрано: " + selectedTrackIds.size : "Нажмите кружки у треков";
+      filterMusicList(musicSearchQuery);
       return;
     }
     if (activeSection === "scenarios" && openedScenarioId === null) {
