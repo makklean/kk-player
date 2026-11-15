@@ -514,109 +514,138 @@ body{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
   function closeOpenedScenario() { openedScenarioId = null; hasUnsavedChanges = false; renderCurrentView(); }
   function togglePadEditMode() { padEditMode = !padEditMode; renderCurrentView(); }
 
+  // ============ FOLDERS ============
+  function renderFolderFilter() {
+    const host = document.getElementById("folderFilter");
+    if (!host) return;
+    const folders = [...new Set(tracks.map(t => t.folder).filter(Boolean))].sort((a,b) => a.localeCompare(b, "ru"));
+    host.innerHTML = "";
+    const addChip = (label, value) => {
+      const btn = document.createElement("button");
+      btn.className = "folder-chip" + (currentFolderFilter === value ? " active" : "");
+      btn.textContent = label;
+      btn.onclick = () => { currentFolderFilter = value; renderCurrentView(); };
+      host.appendChild(btn);
+    };
+    addChip("Все", "__all__"); addChip("Без папки", "");
+    folders.forEach(name => addChip("📁 " + name, name));
+  }
+  function createMusicFolder() {
+    const name = prompt("Название новой папки:");
+    if (name === null) return;
+    const clean = name.trim();
+    if (!clean) return alert("Введите название папки.");
+    currentFolderFilter = clean;
+    renderCurrentView();
+  }
+  function moveTrackToFolder(event, trackId) {
+    event.stopPropagation();
+    const track = tracks.find(t => t.id === trackId); if (!track) return;
+    const answer = prompt("Название папки (пусто — без папки):", track.folder || "");
+    if (answer === null) return;
+    const folder = answer.trim();
+    const tx = db.transaction("tracks", "readwrite");
+    tx.objectStore("tracks").put({ ...track, folder });
+    tx.oncomplete = () => { currentFolderFilter = folder || "__all__"; loadAllData(); };
+  }
+
   // ============ RENDER ============
   function renderCurrentView() {
     const container = document.getElementById("mainContainer");
-    if (isLocked) { container.innerHTML = `<div class="empty-state" style="padding-top:80px">🔒 Экран заблокирован</div>`; return; }
-    
+    if (isLocked) { container.innerHTML = '<div class="empty-state" style="padding-top:80px">🔒 Экран заблокирован</div>'; return; }
     if (activeSection === "all") {
-      container.innerHTML = `<button class="primary-action-btn" onclick="openTrackModal(null)">➕ Добавить треки</button><div class="items-list" id="itemsList"></div>`;
+      container.innerHTML = '<div class="music-toolbar"><button class="primary-action-btn" onclick="openTrackModal(null)">＋ Добавить треки</button><button class="folder-add-btn" onclick="createMusicFolder()">＋ Папка</button></div><div class="folder-filter" id="folderFilter"></div><div class="items-list" id="itemsList"></div>';
+      renderFolderFilter();
       const listEl = document.getElementById("itemsList");
-      if (!tracks.length) { listEl.innerHTML = `<div class="empty-state">Список пуст.</div>`; return; }
-      tracks.forEach((track, idx) => {
-        const [bg, ico] = (track.tag || "linear-gradient(135deg,#1565c0,#42a5f5)|🎵").split("|");
-        const row = document.createElement("div"); row.className = "list-row";
-        row.innerHTML = `<div class="drag-handle">☰</div><div class="row-cover" style="background:${bg}"><span>${ico}</span></div><div class="row-info"><div class="row-title">${track.name}</div></div><div class="row-actions"><button class="row-btn" onclick="editTrackAction(event, ${track.id})">✎</button><button class="row-btn delete-btn" onclick="deleteTrackAction(event, ${track.id})">✕</button></div>`;
-        row.onclick = (e) => { if (e.target.closest(".row-actions, .drag-handle")) return; playTrack(track.id); };
-        listEl.appendChild(row);
+      const visibleTracks = currentFolderFilter === "__all__" ? tracks : tracks.filter(t => (t.folder || "") === currentFolderFilter);
+      if (!tracks.length) { listEl.innerHTML = '<div class="empty-state">Библиотека пуста. Добавьте аудиофайлы.</div>'; return; }
+      if (!visibleTracks.length) { listEl.innerHTML = '<div class="empty-state">В этой папке пока нет треков.</div>'; return; }
+      const grouped = new Map();
+      visibleTracks.forEach(track => { const key = track.folder || ""; if (!grouped.has(key)) grouped.set(key, []); grouped.get(key).push(track); });
+      grouped.forEach((folderTracks, folderName) => {
+        if (currentFolderFilter === "__all__" && folderName) {
+          const heading = document.createElement("div"); heading.className = "folder-heading"; heading.textContent = "📁 " + folderName; listEl.appendChild(heading);
+        }
+        folderTracks.forEach(track => {
+          const parts = (track.tag || "linear-gradient(135deg,#1565c0,#42a5f5)|🎵").split("|");
+          const row = document.createElement("div"); row.className = "list-row";
+          row.innerHTML = '<div class="row-cover" style="background:' + parts[0] + '"><span>' + (parts[1] || "🎵") + '</span></div><div class="row-info"><div class="row-title"></div><div class="row-subtitle">' + (track.folder ? "📁 " + track.folder : "Без папки") + '</div></div><div class="row-actions"><button class="row-btn" title="Папка" onclick="moveTrackToFolder(event,' + track.id + ')">📁</button><button class="row-btn" onclick="editTrackAction(event,' + track.id + ')">✎</button><button class="row-btn delete-btn" onclick="deleteTrackAction(event,' + track.id + ')">✕</button></div>';
+          row.querySelector(".row-title").textContent = track.name;
+          row.onclick = e => { if (!e.target.closest(".row-actions")) playTrack(track.id); };
+          listEl.appendChild(row);
+        });
       });
       return;
     }
-    
     if (activeSection === "scenarios" && openedScenarioId === null) {
-      container.innerHTML = `<button class="primary-action-btn" onclick="openScenarioModal(null)">➕ Создать сценарий</button><div class="items-list" id="itemsList"></div>`;
+      container.innerHTML = '<button class="primary-action-btn" onclick="openScenarioModal(null)">＋ Создать сценарий</button><div class="items-list" id="itemsList"></div>';
       const listEl = document.getElementById("itemsList");
-      if (!scenarios.length) { listEl.innerHTML = `<div class="empty-state">Сценариев пока нет.</div>`; return; }
-      scenarios.forEach((sc, idx) => {
+      if (!scenarios.length) { listEl.innerHTML = '<div class="empty-state">Сценариев пока нет.</div>'; return; }
+      scenarios.forEach(sc => {
         const row = document.createElement("div"); row.className = "list-row scenario-card";
-        row.innerHTML = `<div class="row-cover" style="background:rgba(255,255,255,0.05);"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#64b5f6" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div><div class="row-info"><div class="row-title">${sc.name}</div><div class="row-subtitle">${sc.duration} мин • Пэдов: ${(sc.pads || []).length}</div></div><div class="row-actions"><button class="row-btn" onclick="editScenarioAction(event, ${sc.id})">✎</button><button class="row-btn delete-btn" onclick="deleteScenarioAction(event, ${sc.id})">✕</button></div>`;
-        row.onclick = (e) => { if (e.target.closest(".row-actions")) return; openScenario(sc.id); };
+        row.innerHTML = '<div class="row-cover">🎛️</div><div class="row-info"><div class="row-title"></div><div class="row-subtitle">' + sc.duration + ' мин • Пэдов: ' + (sc.pads || []).length + '</div></div><div class="row-actions"><button class="row-btn" onclick="editScenarioAction(event,' + sc.id + ')">✎</button><button class="row-btn delete-btn" onclick="deleteScenarioAction(event,' + sc.id + ')">✕</button></div>';
+        row.querySelector(".row-title").textContent = sc.name;
+        row.onclick = e => { if (!e.target.closest(".row-actions")) openScenario(sc.id); };
         listEl.appendChild(row);
       });
       return;
     }
-    
     if (activeSection === "scenarios" && openedScenarioId !== null) {
       const scenario = scenarios.find(s => s.id === openedScenarioId);
       if (!scenario) { openedScenarioId = null; renderCurrentView(); return; }
-      container.innerHTML = `<div class="playlist-sub-header"><button class="back-btn" onclick="closeOpenedScenario()">← Назад</button><div class="sub-header-title">${scenario.name}</div><button class="row-btn" onclick="openScenarioModal(${scenario.id})">✎</button></div><div class="pads-grid ${padEditMode ? 'edit-mode' : ''}" id="padsGrid"></div><button class="edit-mode-btn ${padEditMode ? 'active' : ''}" onclick="togglePadEditMode()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg></button><button class="save-scenario-btn ${hasUnsavedChanges ? 'visible' : ''}" onclick="saveScenarioState()">💾 Сохранить</button>`;
-      
-      const gridEl = document.getElementById("padsGrid");
+      container.innerHTML = '<div class="playlist-sub-header"><button class="back-btn" onclick="closeOpenedScenario()">← Назад</button><div class="sub-header-title"></div><button class="row-btn" onclick="openScenarioModal(' + scenario.id + ')">✎</button></div><div class="pad-mode-toolbar"><span>' + (padEditMode ? "Перетаскивайте пэды за ⠿" : "Каждый пэд — отдельный мини-плеер") + '</span><button class="edit-mode-btn ' + (padEditMode ? "active" : "") + '" style="display:flex;width:auto;height:40px;border-radius:12px;padding:0 14px;font-size:13px" onclick="togglePadEditMode()">' + (padEditMode ? "✓ Готово" : "↔ Переместить") + '</button></div><div class="pads-grid ' + (padEditMode ? "edit-mode" : "") + '" id="padsGrid"></div><button class="save-scenario-btn ' + (hasUnsavedChanges ? "visible" : "") + '" onclick="saveScenarioState()">💾 Сохранить порядок</button>';
+      container.querySelector(".sub-header-title").textContent = scenario.name;
+      const grid = document.getElementById("padsGrid");
       (scenario.pads || []).forEach((pad, idx) => {
         const track = tracks.find(t => t.id === pad.trackId);
-        const isPlaying = currentTrackId === pad.trackId && currentAudio && !currentAudio.paused;
-        const padEl = document.createElement("div");
-        padEl.className = "pad" + (isPlaying ? " playing" : "") + (track ? "" : " empty");
-        padEl.dataset.index = idx;
+        const current = currentPlaybackMode === "pad" && currentPadId === pad.id && !!currentAudio;
+        const playing = current && !currentAudio.paused;
+        const tile = document.createElement("div");
+        tile.className = "pad drum-pad" + (playing ? " playing" : "") + (current && !playing ? " paused" : "") + (track ? "" : " empty");
+        tile.dataset.index = idx;
         if (!track) {
-          padEl.innerHTML = `<div class="pad-add">+</div>`;
-          if (!padEditMode) padEl.onclick = () => { editingPadId = null; openAddSourceModal(); };
+          tile.innerHTML = '<div class="pad-add">+</div>';
+          if (!padEditMode) tile.onclick = () => { editingPadId = null; openAddSourceModal(); };
         } else {
-          const [bg] = pad.color ? pad.color.split("|") : (track.tag || "#333").split("|");
-          padEl.style.background = bg;
-          padEl.innerHTML = `<div class="pad-handle">☰</div><div class="pad-icon">${pad.icon || "🎵"}</div><div class="pad-title">${pad.title || track.name}</div><div class="pad-trackname">${track.name}</div>`;
-          if (!padEditMode) {
-            padEl.onclick = () => playPad(pad.id, scenario.id);
-            let holdTimer = null;
-            padEl.addEventListener('touchstart', () => { holdTimer = setTimeout(() => { editingPadId = pad.id; openPadEditor(); }, 800); });
-            padEl.addEventListener('touchend', () => clearTimeout(holdTimer));
-            padEl.addEventListener('touchmove', () => clearTimeout(holdTimer));
-            padEl.addEventListener('mousedown', () => { holdTimer = setTimeout(() => { editingPadId = pad.id; openPadEditor(); }, 800); });
-            padEl.addEventListener('mouseup', () => clearTimeout(holdTimer));
-            padEl.addEventListener('mouseleave', () => clearTimeout(holdTimer));
-          }
+          const bg = pad.color ? pad.color.split("|")[0] : (track.tag || "#333").split("|")[0];
+          tile.style.background = bg;
+          tile.innerHTML = '<div class="pad-handle">⠿</div><div class="pad-icon"></div><div class="pad-title"></div><div class="pad-trackname"></div><div class="pad-controls"><button class="pad-play-btn" onclick="event.stopPropagation();togglePadPlayback(' + pad.id + ',' + scenario.id + ')">' + (playing ? "Ⅱ" : "▶") + '</button><button class="pad-restart-btn" onclick="event.stopPropagation();restartPadPlayback(' + pad.id + ',' + scenario.id + ')">↻</button><button class="pad-edit-btn" onclick="event.stopPropagation();editingPadId=' + pad.id + ';openPadEditor()">✎</button></div>';
+          tile.querySelector(".pad-icon").textContent = pad.icon || "🎵";
+          tile.querySelector(".pad-title").textContent = pad.title || track.name;
+          tile.querySelector(".pad-trackname").textContent = track.name;
+          if (padEditMode) tile.classList.add("move-ready");
         }
-        gridEl.appendChild(padEl);
+        grid.appendChild(tile);
       });
-      const addPadBtn = document.createElement("div"); addPadBtn.className = "pad empty"; addPadBtn.innerHTML = `<div class="pad-add">+</div>`;
-      if (!padEditMode) addPadBtn.onclick = () => { editingPadId = null; openAddSourceModal(); };
-      gridEl.appendChild(addPadBtn);
-      if (padEditMode) gridEl.querySelectorAll('.pad[data-index]').forEach(padEl => attachPadDragEvents(padEl));
-      return;
+      const add = document.createElement("div"); add.className = "pad empty add-pad-tile"; add.innerHTML = '<div class="pad-add">+</div><div class="pad-trackname">Добавить пэд</div>';
+      if (!padEditMode) add.onclick = () => { editingPadId = null; openAddSourceModal(); };
+      grid.appendChild(add);
+      if (padEditMode) grid.querySelectorAll(".pad[data-index]").forEach(attachPadDragEvents);
     }
   }
 
   // ============ DRAG ============
   function attachPadDragEvents(padEl) {
-    const idx = Number(padEl.dataset.index);
-    const handle = padEl.querySelector('.pad-handle');
-    if (!handle) return;
-    let draggedIdx = null;
-    const startDrag = (e) => { e.preventDefault(); draggedIdx = idx; padEl.classList.add('dragging'); };
-    const moveDrag = (e) => {
-      e.preventDefault();
-      const t = e.touches ? e.touches[0] : e;
-      const target = document.elementFromPoint(t.clientX, t.clientY)?.closest('.pad[data-index]');
-      document.querySelectorAll('.pad').forEach(el => el.classList.remove('drag-over'));
-      if (target && Number(target.dataset.index) !== draggedIdx) target.classList.add('drag-over');
-    };
-    const endDrag = (e) => {
-      padEl.classList.remove('dragging');
-      const t = e.changedTouches ? e.changedTouches[0] : e;
-      const target = document.elementFromPoint(t.clientX, t.clientY)?.closest('.pad[data-index]');
-      document.querySelectorAll('.pad').forEach(el => el.classList.remove('drag-over'));
-      if (target) {
-        const toIdx = Number(target.dataset.index);
-        if (draggedIdx !== null && draggedIdx !== toIdx) {
-          const sc = scenarios.find(s => s.id === openedScenarioId);
-          if (sc) { const [moved] = sc.pads.splice(draggedIdx, 1); sc.pads.splice(toIdx, 0, moved); sc.pads.forEach((p, i) => p.order = i); hasUnsavedChanges = true; renderCurrentView(); }
-        }
+    const handle = padEl.querySelector(".pad-handle"); if (!handle) return;
+    const fromIndex = Number(padEl.dataset.index); let active = false;
+    const clearTargets = () => document.querySelectorAll(".pad").forEach(el => el.classList.remove("drag-over"));
+    handle.addEventListener("pointerdown", e => { e.preventDefault(); e.stopPropagation(); active = true; handle.setPointerCapture(e.pointerId); padEl.classList.add("dragging"); });
+    handle.addEventListener("pointermove", e => {
+      if (!active) return;
+      const target = document.elementFromPoint(e.clientX,e.clientY)?.closest(".pad[data-index]");
+      clearTargets(); if (target && Number(target.dataset.index) !== fromIndex) target.classList.add("drag-over");
+    });
+    const finish = e => {
+      if (!active) return; active = false; padEl.classList.remove("dragging");
+      const target = document.elementFromPoint(e.clientX,e.clientY)?.closest(".pad[data-index]"); clearTargets();
+      if (!target) return;
+      const toIndex = Number(target.dataset.index), sc = scenarios.find(s => s.id === openedScenarioId);
+      if (sc && toIndex !== fromIndex) {
+        const moved = sc.pads.splice(fromIndex,1)[0]; sc.pads.splice(toIndex,0,moved);
+        sc.pads.forEach((p,i) => p.order = i); hasUnsavedChanges = true; renderCurrentView();
       }
-      draggedIdx = null;
     };
-    handle.addEventListener('touchstart', startDrag, { passive: false });
-    handle.addEventListener('touchmove', moveDrag, { passive: false });
-    handle.addEventListener('touchend', endDrag);
+    handle.addEventListener("pointerup",finish); handle.addEventListener("pointercancel",finish);
   }
 
   // ============ CRUD ============
