@@ -574,7 +574,8 @@ header{background:#000!important;backdrop-filter:none!important}
   function confirmExitApplication() {
     const modal = document.getElementById("exitConfirmModal");
     if (modal) modal.style.display = "none";
-    // The guard was already popped by Back; move back once more to leave the app.
+    // Try closing the standalone window, then fall back to browser history navigation.
+    window.close();
     history.back();
   }
   function installBackNavigation() {
