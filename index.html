@@ -459,6 +459,7 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
   let currentFolderFilter = "__all__", currentPadId = null, currentPadScenarioId = null, currentPlaybackMode = "music";
   let selectedTrackIds = new Set();
   let selectedScenarioIds = new Set();
+  let moveFolderContext = "tracks";
   let musicFolders = (() => { try { return JSON.parse(localStorage.getItem("kk-player-folders") || "[]"); } catch(e) { return []; } })();
   let scenarioFolders = (() => { try { return JSON.parse(localStorage.getItem("kk-player-scenario-folders") || "[]"); } catch(e) { return []; } })();
   let scenarioFolderFilter = "__all__";
@@ -740,30 +741,66 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
   function escapeHtml(value) { return String(value).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch])); }
   function renderMoveFolderChoices() {
     const host = document.getElementById("moveFolderChoices");
-    const names = [...new Set([...musicFolders, ...tracks.map(t => t.folder).filter(Boolean)])].sort((a,b) => a.localeCompare(b,"ru"));
+    const isScenario = moveFolderContext === "scenarios";
+    const names = isScenario
+      ? [...new Set([...scenarioFolders, ...scenarios.map(x => x.folder).filter(Boolean)])]
+      : [...new Set([...musicFolders, ...tracks.map(x => x.folder).filter(Boolean)])];
     host.innerHTML = "";
-    if (!names.length) host.innerHTML = '<div class="empty-state">Папок пока нет. Создайте папку, чтобы переместить выбранные треки.</div>';
-    else names.forEach(name => {
+    if (!names.length) host.innerHTML = '<div class="empty-state">Папок пока нет. Создайте папку, чтобы переместить выбранные элементы.</div>';
+    else names.sort((a,b) => a.localeCompare(b,"ru")).forEach(name => {
       const btn = document.createElement("button"); btn.className = "folder-choice";
       btn.innerHTML = '<span>▰</span><span class="folder-choice-name"></span><span>›</span>';
       btn.querySelector(".folder-choice-name").textContent = name;
-      btn.onclick = () => moveSelectedTracksInto(name);
+      btn.onclick = () => isScenario ? moveSelectedScenariosInto(name) : moveSelectedTracksInto(name);
       host.appendChild(btn);
     });
     document.getElementById("moveFolderModal").style.display = "flex";
+  }
+  function moveSelectedTracksToFolder() {
+    if (!selectedTrackIds.size) return;
+    moveFolderContext = "tracks";
+    renderMoveFolderChoices();
+  }
+  function moveSelectedScenariosToFolder() {
+    if (!selectedScenarioIds.size) return;
+    moveFolderContext = "scenarios";
+    renderMoveFolderChoices();
   }
   function moveSelectedTracksInto(folder) {
     const tx = db.transaction("tracks", "readwrite"), store = tx.objectStore("tracks");
     tracks.filter(t => selectedTrackIds.has(t.id)).forEach(t => store.put({ ...t, folder }));
     tx.oncomplete = () => { selectedTrackIds.clear(); currentFolderFilter = folder; closeModal("moveFolderModal"); loadAllData(); };
   }
+  function moveSelectedScenariosInto(folder) {
+    const tx = db.transaction("scenarios", "readwrite"), store = tx.objectStore("scenarios");
+    scenarios.filter(x => selectedScenarioIds.has(x.id)).forEach(x => store.put({ ...x, folder }));
+    tx.oncomplete = () => {
+      selectedScenarioIds.clear();
+      if (!scenarioFolders.includes(folder)) { scenarioFolders.push(folder); persistScenarioFolders(); }
+      scenarioFolderFilter = folder;
+      scenarioViewMode = "folders";
+      closeModal("moveFolderModal");
+      loadAllData();
+    };
+  }
   function createFolderAndMoveSelection() {
     const name = prompt("Название новой папки:");
     if (name === null) return;
-    const clean = name.trim(); if (!clean) return alert("Введите название папки.");
-    if (!musicFolders.includes(clean)) musicFolders.push(clean);
-    localStorage.setItem("kk-player-folders", JSON.stringify(musicFolders));
-    moveSelectedTracksInto(clean);
+    const clean = name.trim();
+    if (!clean) return alert("Введите название папки.");
+    if (moveFolderContext === "scenarios") {
+      const existing = [...new Set([...scenarioFolders, ...scenarios.map(x => x.folder).filter(Boolean)])];
+      if (existing.includes(clean)) return alert("Папка с таким названием уже существует.");
+      scenarioFolders.push(clean);
+      persistScenarioFolders();
+      moveSelectedScenariosInto(clean);
+    } else {
+      const existing = [...new Set([...musicFolders, ...tracks.map(x => x.folder).filter(Boolean)])];
+      if (existing.includes(clean)) return alert("Папка с таким названием уже существует.");
+      musicFolders.push(clean);
+      persistMusicFolders();
+      moveSelectedTracksInto(clean);
+    }
   }
   let musicViewMode = "folders";
   let musicSearchQuery = "";
@@ -804,10 +841,7 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
       el.style.display = el.dataset.search.includes(musicSearchQuery) ? "" : "none";
     });
   }
-  function moveSelectedTracksToFolder() {
-    if (!selectedTrackIds.size) return;
-    renderMoveFolderChoices();
-  }
+  
 
 
 function appIcon(type){const p={note:'<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',pads:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',folder:'<path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H10l2 2h6.5A2.5 2.5 0 0 1 21 9.5v8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/>'};return '<svg viewBox="0 0 24 24" aria-hidden="true">'+(p[type]||p.pads)+'</svg>'}
@@ -821,7 +855,6 @@ function renderScenarioLibrary(host){
  if(!visible.length){list.innerHTML+='<div class="empty-state">В этой папке пока нет сценариев.</div>';return}
  visible.forEach(s=>{const e=document.createElement("div");e.className="list-row scenario-card"+(selectedScenarioIds.has(s.id)?" scenario-selected":"");e.dataset.itemId=String(s.id);e.innerHTML='<div class="selection-check scenario-check '+(selectedScenarioIds.has(s.id)?"selected":"")+'">'+(selectedScenarioIds.has(s.id)?"✓":"")+'</div><div class="row-cover">'+appIcon("pads")+'</div><div class="row-info"><div class="row-title"></div><div class="scenario-description"></div><div class="row-subtitle"></div></div><div class="scenario-actions"><button class="row-btn" title="Дублировать">⧉</button><button class="row-btn" title="Редактировать">✎</button><button class="row-btn delete-btn" title="Удалить">✕</button></div>';e.querySelector(".row-title").textContent=s.name;e.querySelector(".scenario-description").textContent=s.description||"";e.querySelector(".row-subtitle").textContent="Пэдов: "+(s.pads||[]).length;e.onclick=x=>{if(x.target.closest(".scenario-actions"))return;if(selectedScenarioIds.size){toggleScenarioSelection(s.id);return}openScenario(s.id)};const b=e.querySelectorAll(".scenario-actions button");b[0].onclick=()=>duplicateScenario(s.id);b[1].onclick=x=>editScenarioAction(x,s.id);b[2].onclick=x=>deleteScenarioAction(x,s.id);attachLongPressSelection(e,"scenario",s.id);list.appendChild(e)});
 }
-function moveSelectedScenariosToFolder(){if(!selectedScenarioIds.size)return;const names=[...new Set([...scenarioFolders,...scenarios.map(s=>s.folder).filter(Boolean)])];const v=prompt("Папка для выбранных сценариев (пусто — в корень):\n"+names.join("\n"),"");if(v===null)return;const n=v.trim();if(n&&!names.includes(n)){if(!confirm("Создать папку "+n+"?"))return;scenarioFolders.push(n);persistScenarioFolders()}const tx=db.transaction("scenarios","readwrite"),st=tx.objectStore("scenarios");scenarios.filter(s=>selectedScenarioIds.has(s.id)).forEach(s=>{const c={...s};if(n)c.folder=n;else delete c.folder;st.put(c)});tx.oncomplete=()=>{selectedScenarioIds.clear();scenarioFolderFilter=n||"__all__";scenarioViewMode=n?"folders":"all";loadAllData()}}
 function setScenarioView(v){scenarioViewMode=v;scenarioFolderFilter="__all__";selectedScenarioIds.clear();renderCurrentView()}
 function exitScenarioFolder(){scenarioFolderFilter="__all__";renderCurrentView()}
 function createScenarioFolder(){const v=prompt("Название папки сценариев:");if(v===null)return;const n=v.trim();if(!n)return alert("Введите название.");if(scenarioFolders.includes(n)||scenarios.some(s=>s.folder===n))return alert("Такая папка уже существует.");scenarioFolders.push(n);persistScenarioFolders();scenarioFolderFilter=n;renderCurrentView()}
