@@ -271,6 +271,16 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
 @keyframes padPlayingPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.012)}}
 @media(max-width:600px){.pads-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}.pad{aspect-ratio:1.08/1;padding:7px 5px 5px;border-radius:14px}.pad-title{font-size:clamp(12px,3.5vw,16px)!important;line-height:1.08!important;margin-bottom:3px!important}.pad-trackname{font-size:9px!important;padding:0 2px}.pad-mode-toolbar{margin:2px 0 8px;min-height:36px}.pads-scroll{padding-left:1px;padding-right:1px}}
 @media(prefers-reduced-motion:reduce){.pad{transition:none!important}.pad.playing{animation:none!important;will-change:auto}}
+  /* Android safe areas and clearer playback state */
+  header{padding-top:calc(14px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)))}
+  .player-bar{bottom:calc(8px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)))!important}
+  body{padding-bottom:calc(210px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)))}
+  .list-row.track-playing{border-color:#6ea8ff!important;background:linear-gradient(100deg,rgba(42,105,180,.34),rgba(18,33,54,.96))!important;box-shadow:inset 3px 0 0 #78b5ff,0 0 18px rgba(65,139,225,.12)!important}
+  .list-row.track-playing .row-title{color:#d8eaff}
+  .list-row.track-paused{border-color:rgba(110,168,255,.48)!important;background:rgba(35,69,111,.22)!important}
+  .pad-mode-toolbar{display:flex;align-items:center;justify-content:flex-end;gap:9px}
+  .pad-mode-toolbar .save-scenario-btn{float:none!important;margin:0!important;padding:9px 12px!important;white-space:nowrap}
+  @media(max-width:600px){.pad-title{font-size:clamp(15px,4.4vw,19px)!important;line-height:1.12!important}}
 </style>
 </head>
 <body>
@@ -789,10 +799,12 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
       else visibleTracks = tracks.filter(t => !t.folder);
       if (!tracks.length && !folderNames.length) { listEl.innerHTML = '<div class="empty-state">Библиотека пуста. Добавьте аудиофайлы или создайте папку.</div>'; return; }
       visibleTracks.forEach(track => {
-        const row = document.createElement("div"); row.className = "list-row";
+        const row = document.createElement("div"); row.className = "list-row"; row.dataset.trackId = String(track.id);
         row.innerHTML = '<div class="track-select ' + (selectedTrackIds.has(track.id) ? "selected" : "") + '" role="checkbox" aria-checked="' + selectedTrackIds.has(track.id) + '" onclick="toggleTrackSelection(event,' + track.id + ')">' + (selectedTrackIds.has(track.id) ? "✓" : "") + '</div><div class="row-info"><div class="row-title"></div></div><div class="row-actions"><button class="row-btn" onclick="editTrackAction(event,' + track.id + ')">✎</button><button class="row-btn delete-btn" onclick="deleteTrackAction(event,' + track.id + ')">✕</button></div>';
         row.querySelector(".row-title").textContent = track.name;
         row.classList.toggle("track-selected", selectedTrackIds.has(track.id));
+        row.classList.toggle("track-playing", currentTrackId === track.id && !!currentAudio && !currentAudio.paused);
+        row.classList.toggle("track-paused", currentTrackId === track.id && !!currentAudio && currentAudio.paused);
         row.dataset.search = (track.name + " " + (track.folder || "")).toLocaleLowerCase("ru");
         row.onclick = e => { if (!e.target.closest(".row-actions") && !e.target.closest(".track-select")) playTrack(track.id); };
         listEl.appendChild(row);
@@ -818,7 +830,7 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
     if (activeSection === "scenarios" && openedScenarioId !== null) {
       const scenario = scenarios.find(s => s.id === openedScenarioId);
       if (!scenario) { openedScenarioId = null; renderCurrentView(); return; }
-      container.innerHTML = '<div class="playlist-sub-header"><button class="back-btn" onclick="closeOpenedScenario()">← Назад</button><div class="sub-header-heading"><div class="sub-header-title"></div><div class="scenario-description"></div></div></div><div class="pad-mode-toolbar">' + (hasUnsavedChanges ? '<button class="save-scenario-btn visible" style="float:none;margin:0;padding:9px 14px" onclick="saveScenarioState()">💾 Сохранить порядок</button>' : '') + '<button class="edit-mode-btn ' + (padEditMode ? "active" : "") + '" aria-label="Редактировать пэды" title="Редактировать пэды" style="display:flex;width:40px;height:40px;border-radius:12px;padding:0;font-size:21px;margin:0" onclick="togglePadEditMode()">✎</button></div><div class="pads-scroll" id="padsScroll"><div class="pads-grid ' + (padEditMode ? "edit-mode" : "") + '" id="padsGrid"></div></div>';
+      container.innerHTML = '<div class="playlist-sub-header"><button class="back-btn" onclick="closeOpenedScenario()">← Назад</button><div class="sub-header-heading"><div class="sub-header-title"></div><div class="scenario-description"></div></div></div><div class="pad-mode-toolbar">' + '<button class="edit-mode-btn ' + (padEditMode ? "active" : "") + '" aria-label="Редактировать пэды" title="Редактировать пэды" style="display:flex;width:40px;height:40px;border-radius:12px;padding:0;font-size:21px;margin:0" onclick="togglePadEditMode()">✎</button>' + (hasUnsavedChanges ? '<button class="save-scenario-btn visible" onclick="saveScenarioState()">💾 Сохранить порядок</button>' : '') + '</div><div class="pads-scroll" id="padsScroll"><div class="pads-grid ' + (padEditMode ? "edit-mode" : "") + '" id="padsGrid"></div></div>';
       container.querySelector(".sub-header-title").textContent = scenario.name;
       container.querySelector(".sub-header-heading .scenario-description").textContent = scenario.description || "";
       const grid = document.getElementById("padsGrid");
@@ -1103,12 +1115,14 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
       }
     });
     audio.addEventListener("play", () => {
+      refreshMusicPlaybackUI();
       refreshPadPlaybackUI();
       updateMediaSessionPlaybackState();
       const btn = document.getElementById("playPauseBtn");
       if (btn) btn.innerHTML = '<svg width="26" height="26" viewBox="0 0 24 24"><path d="M7 5h4v14H7zM15 5h4v14h-4z"/></svg>';
     });
     audio.addEventListener("pause", () => {
+      refreshMusicPlaybackUI();
       refreshPadPlaybackUI();
       updateMediaSessionPlaybackState();
       const btn = document.getElementById("playPauseBtn");
@@ -1187,6 +1201,14 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
       refreshPadPlaybackUI(); return;
     }
     playPad(padId, scenarioId);
+  }
+
+  function refreshMusicPlaybackUI() {
+    document.querySelectorAll(".list-row[data-track-id]").forEach(row => {
+      const active = Number(row.dataset.trackId) === currentTrackId && !!currentAudio;
+      row.classList.toggle("track-playing", active && !currentAudio.paused);
+      row.classList.toggle("track-paused", active && currentAudio.paused);
+    });
   }
 
   function refreshPadPlaybackUI() {
