@@ -617,9 +617,9 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
       if (importedFolders !== null) {
         musicFolders = importedFolders;
         localStorage.setItem("kk-player-folders", JSON.stringify(musicFolders));
-        scenarioFolders = importedScenarioFolders;
-        persistScenarioFolders();
       }
+      scenarioFolders = importedScenarioFolders;
+      persistScenarioFolders();
       hideProgress();
       alert("Импорт завершён. Загружено треков: " + trackEntries.length + ", сценариев: " + config.scenarios.length + ".");
       window.location.reload();
