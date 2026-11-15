@@ -235,6 +235,13 @@ header{background:#000!important;backdrop-filter:none!important}
 .pad:not(.move-ready) .pad-edit-text{display:none}
 .pad-handle{font-size:20px}
 
+
+/* Shared floating player controls */
+.player-hide-btn{flex:0 0 34px;width:34px;height:34px;border:1px solid rgba(255,255,255,.18);border-radius:11px;background:rgba(255,255,255,.08);color:#fff;font-size:23px;line-height:1;display:flex;align-items:center;justify-content:center}
+.player-bar.user-hidden{transform:translateX(-50%) translateY(calc(150% + 24px))!important;pointer-events:none}
+@media(max-width:720px){.player-bar.user-hidden{transform:translateY(calc(150% + 24px))!important}}
+.player-launcher{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:31;display:none;align-items:center;gap:7px;padding:12px 16px;border:1px solid rgba(133,177,235,.3);border-radius:999px;background:rgba(22,43,72,.96);color:#fff;font-size:14px;font-weight:750;box-shadow:0 8px 28px rgba(0,0,0,.45);backdrop-filter:blur(18px)}
+.player-launcher.visible{display:flex}
 </style>
 </head>
 <body>
@@ -271,6 +278,7 @@ header{background:#000!important;backdrop-filter:none!important}
       <div class="player-title" id="playerTitle">Название трека</div>
       <div class="player-sub" id="playerSub">Назначение</div>
     </div>
+    <button class="player-hide-btn" type="button" aria-label="Скрыть плеер" onclick="hidePlayer()">⌄</button>
   </div>
   <div class="seek-container">
     <span class="time-txt" id="timeCurrent">0:00</span>
@@ -285,6 +293,7 @@ header{background:#000!important;backdrop-filter:none!important}
     <button class="p-ctrl" onclick="playNextTrack()"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
   </div>
 </div>
+<button class="player-launcher" id="playerLauncher" type="button" onclick="showPlayer()" aria-label="Показать плеер">♫ <span>Плеер</span></button>
 
 <!-- Модалки -->
 <div class="modal-overlay" id="trackModal" onclick="if(event.target === this) closeModal('trackModal')">
@@ -368,7 +377,7 @@ header{background:#000!important;backdrop-filter:none!important}
   let musicFolders = (() => { try { return JSON.parse(localStorage.getItem("kk-player-folders") || "[]"); } catch(e) { return []; } })();
   let currentAudio = null, currentBlobUrl = null, currentTrackId = null, currentQueueIds = [];
   let editingTrackId = null, editingScenarioId = null, editingPadId = null;
-  let isLocked = false, wakeLock = null, currentVolume = 1.0;
+  let isLocked = false, wakeLock = null, currentVolume = 1.0, playerHidden = false;
   let padEditMode = false, hasUnsavedChanges = false;
   let padTrackChangeMode = false;
 
@@ -562,7 +571,7 @@ header{background:#000!important;backdrop-filter:none!important}
   function switchSection(section) {
     if (isLocked) return;
     activeSection = section; if (section === "all") openedScenarioId = null; hasUnsavedChanges = false;
-    const playerBar = document.getElementById("playerBar"); if (playerBar) playerBar.classList.toggle("visible", section === "all" && currentPlaybackMode === "music" && !!currentAudio);
+    syncPlayerVisibility();
     document.getElementById("tabAllMusic").classList.toggle("active", section === "all");
     document.getElementById("tabScenarios").classList.toggle("active", section === "scenarios");
     renderCurrentView();
@@ -944,10 +953,11 @@ header{background:#000!important;backdrop-filter:none!important}
   }
 
   function playTrack(trackId, scenarioId = null) {
+    playerHidden = false;
     const track = tracks.find(t => t.id === trackId);
     if (!track) return;
     currentPlaybackMode = "music"; currentPadId = null;
-    const playerBar = document.getElementById("playerBar"); if (playerBar) playerBar.classList.toggle("visible", activeSection === "all");
+    syncPlayerVisibility();
     if (scenarioId) {
       const sc = scenarios.find(s => s.id === scenarioId);
       if (sc) currentQueueIds = (sc.pads || []).map(p => p.trackId).filter(Boolean);
@@ -958,6 +968,7 @@ header{background:#000!important;backdrop-filter:none!important}
   }
 
   function playPad(padId, scenarioId) {
+    playerHidden = false;
     const sc = scenarios.find(s => s.id === scenarioId);
     if (!sc) return;
     const pad = (sc.pads || []).find(p => p.id === padId);
@@ -966,7 +977,7 @@ header{background:#000!important;backdrop-filter:none!important}
     if (!track) return;
     currentQueueIds = (sc.pads || []).map(p => p.trackId).filter(Boolean);
     currentPlaybackMode = "pad"; currentPadId = padId;
-    const bar = document.getElementById("playerBar"); if (bar) bar.classList.remove("visible");
+    syncPlayerVisibility();
     startTrackAudio(track, pad, scenarioId);
   }
 
@@ -1024,8 +1035,21 @@ header{background:#000!important;backdrop-filter:none!important}
       document.getElementById("playerTitle").innerText = track.name;
       document.getElementById("playerSub").innerText = "Вся музыка";
     }
-    bar.classList.toggle("visible", currentPlaybackMode === "music" && activeSection === "all");
+    syncPlayerVisibility();
   }
+
+  function syncPlayerVisibility() {
+    const bar = document.getElementById("playerBar");
+    const launcher = document.getElementById("playerLauncher");
+    const hasTrack = !!(currentAudio && currentTrackId !== null);
+    if (bar) {
+      bar.classList.toggle("visible", hasTrack && !playerHidden);
+      bar.classList.toggle("user-hidden", hasTrack && playerHidden);
+    }
+    if (launcher) launcher.classList.toggle("visible", hasTrack && playerHidden);
+  }
+  function hidePlayer() { playerHidden = true; syncPlayerVisibility(); }
+  function showPlayer() { playerHidden = false; syncPlayerVisibility(); }
 
   function togglePauseCurrent() {
     if (!currentAudio) return;
