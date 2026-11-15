@@ -113,24 +113,19 @@
 <body>
 
 <div class="lock-indicator" id="lockIndicator">🔒 ЗАБЛОКИРОВАНО</div>
-<div class="show-timer" id="showTimer" style="display:none; position:fixed; top:10px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); color:white; padding:8px 18px; border-radius:99px; font-size:16px; font-weight:700; z-index:25; box-shadow:0 4px 12px rgba(0,0,0,0.5); border:1px solid var(--border-subtle);">00:00</div>
-
-<div id="progressOverlay">
-  <div id="progressText">Подготовка...</div>
-  <div class="progress-bar-bg"><div id="progressBarFill"></div></div>
-</div>
-
+<div id="showTimer" style="display:none; position:fixed; top:10px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); color:white; padding:8px 18px; border-radius:99px; font-size:16px; font-weight:700; z-index:25; box-shadow:0 4px 12px rgba(0,0,0,0.5);">00:00</div>
+<div id="progressOverlay"><div id="progressText">Подготовка...</div><div class="progress-bar-bg"><div id="progressBarFill"></div></div></div>
 <div class="locked-overlay" id="lockedOverlay" onclick="return false;"></div>
 
 <header id="mainHeader">
   <div class="header-top">
     <div class="brand"><h1 class="brand-title">ʞk</h1></div>
     <div class="header-actions">
-      <button class="icon-btn" id="lockBtn" onclick="toggleLock()" title="Заблокировать экран" style="pointer-events: auto !important; z-index: 100; position: relative;">
-        <svg id="lockIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      <button class="icon-btn" id="lockBtn" onclick="toggleLock()" style="pointer-events: auto !important; z-index: 100; position: relative;">
+        <svg id="lockIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
       </button>
-      <button class="icon-btn" onclick="openSettings()" title="Настройки" id="settingsBtn">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      <button class="icon-btn" onclick="openSettings()" id="settingsBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       </button>
     </div>
   </div>
@@ -156,11 +151,11 @@
     <span class="time-txt" id="timeDuration" style="text-align:right">0:00</span>
   </div>
   <div class="player-controls">
-    <button class="p-ctrl" onclick="playPrevTrack()" title="Предыдущий"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14l-11-7z"/></svg></button>
-    <button class="p-ctrl p-ctrl-stop" onclick="stopAndReset()" title="Стоп"><svg width="22" height="22" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg></button>
+    <button class="p-ctrl" onclick="playPrevTrack()"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14l-11-7z"/></svg></button>
+    <button class="p-ctrl p-ctrl-stop" onclick="stopAndReset()"><svg width="22" height="22" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg></button>
     <button class="p-ctrl p-ctrl-main" id="playPauseBtn" onclick="togglePauseCurrent()"></button>
-    <button class="p-ctrl" onclick="restartCurrent()" title="Заново"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
-    <button class="p-ctrl" onclick="playNextTrack()" title="Следующий"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+    <button class="p-ctrl" onclick="restartCurrent()"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
+    <button class="p-ctrl" onclick="playNextTrack()"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
   </div>
 </div>
 
@@ -174,7 +169,7 @@
     </div>
     <div id="editTrackFields" style="display:none">
       <label class="field-label">Название трека:</label>
-      <input type="text" class="modal-input" id="inputTrackName" placeholder="Например: Выход Снегурочки">
+      <input type="text" class="modal-input" id="inputTrackName">
       <label class="field-label">Обложка:</label>
       <select class="modal-select" id="inputTrackTag">
         <option value="linear-gradient(135deg,#1565c0,#42a5f5)|🎵">Синий — Музыка</option>
@@ -183,13 +178,8 @@
         <option value="linear-gradient(135deg,#ad1457,#ec407a)|💃">Розовый — Танцы</option>
         <option value="linear-gradient(135deg,#4527a0,#7e57c2)|🔮">Фиолетовый — Тайна</option>
       </select>
-      <label class="field-label">Заменить аудиофайл:</label>
-      <input type="file" class="modal-input" id="inputTrackFileReplace" accept="audio/*">
     </div>
-    <div class="modal-btns">
-      <button class="m-btn" onclick="closeModal('trackModal')">Отмена</button>
-      <button class="m-btn m-btn-primary" id="saveTrackBtn" onclick="saveTrack()">Сохранить</button>
-    </div>
+    <div class="modal-btns"><button class="m-btn" onclick="closeModal('trackModal')">Отмена</button><button class="m-btn m-btn-primary" id="saveTrackBtn" onclick="saveTrack()">Сохранить</button></div>
   </div>
 </div>
 
@@ -197,17 +187,10 @@
   <div class="modal-box">
     <h3 id="scenarioModalHeading">Создать сценарий</h3>
     <label class="field-label">Название сценария:</label>
-    <input type="text" class="modal-input" id="inputScName" placeholder="Например: Новогодний утренник">
+    <input type="text" class="modal-input" id="inputScName">
     <label class="field-label">Таймер:</label>
-    <select class="modal-select" id="inputScDur">
-      <option value="15">15 минут</option>
-      <option value="30">30 минут</option>
-      <option value="60">60 минут</option>
-    </select>
-    <div class="modal-btns">
-      <button class="m-btn" onclick="closeModal('scenarioModal')">Отмена</button>
-      <button class="m-btn m-btn-primary" onclick="saveScenario()">Сохранить</button>
-    </div>
+    <select class="modal-select" id="inputScDur"><option value="15">15 минут</option><option value="30">30 минут</option><option value="60">60 минут</option></select>
+    <div class="modal-btns"><button class="m-btn" onclick="closeModal('scenarioModal')">Отмена</button><button class="m-btn m-btn-primary" onclick="saveScenario()">Сохранить</button></div>
   </div>
 </div>
 
@@ -216,21 +199,13 @@
     <h3>Добавить звук</h3>
     <div class="choice-card" onclick="openLibraryPicker()">
       <div style="font-size:24px">🎵</div>
-      <div>
-        <div style="font-weight:700;font-size:15px">Из списка плеера</div>
-        <div style="font-size:12px;color:var(--text-muted)">Выбрать из «Вся музыка»</div>
-      </div>
+      <div><div style="font-weight:700;font-size:15px">Из списка плеера</div><div style="font-size:12px;color:var(--text-muted)">Выбрать из «Вся музыка»</div></div>
     </div>
     <div class="choice-card" onclick="addFromDeviceToPad()">
       <div style="font-size:24px">📱</div>
-      <div>
-        <div style="font-weight:700;font-size:15px">Из памяти телефона</div>
-        <div style="font-size:12px;color:var(--text-muted)">Загрузить новый файл</div>
-      </div>
+      <div><div style="font-weight:700;font-size:15px">Из памяти телефона</div><div style="font-size:12px;color:var(--text-muted)">Загрузить новый файл</div></div>
     </div>
-    <div class="modal-btns" style="margin-top:8px">
-      <button class="m-btn" onclick="closeModal('addSourceModal')">Закрыть</button>
-    </div>
+    <div class="modal-btns" style="margin-top:8px"><button class="m-btn" onclick="closeModal('addSourceModal')">Закрыть</button></div>
   </div>
 </div>
 
@@ -239,9 +214,7 @@
     <h3>Выберите трек</h3>
     <input type="text" class="modal-input" id="pickerSearch" placeholder="Поиск..." oninput="filterPickerList()">
     <div class="library-pick-list" id="libraryPickList"></div>
-    <div class="modal-btns">
-      <button class="m-btn" onclick="closeModal('libraryPickerModal')">Отмена</button>
-    </div>
+    <div class="modal-btns"><button class="m-btn" onclick="closeModal('libraryPickerModal')">Отмена</button></div>
   </div>
 </div>
 
@@ -250,10 +223,7 @@
     <h3 id="padModalHeading">Настроить пэд</h3>
     <input type="hidden" id="inputPadTrackId">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; padding:10px 12px; background:#0d0d11; border-radius:12px; border:1px solid var(--border-subtle);">
-      <div style="flex:1; min-width:0;">
-        <div style="font-size:11px; color:var(--text-muted); margin-bottom:2px;">Текущий трек</div>
-        <div id="padCurrentTrackName" style="font-size:14px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">—</div>
-      </div>
+      <div style="flex:1; min-width:0;"><div style="font-size:11px; color:var(--text-muted); margin-bottom:2px;">Текущий трек</div><div id="padCurrentTrackName" style="font-size:14px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">—</div></div>
       <button class="m-btn" onclick="changePadTrack()" style="flex:none; padding:8px 12px; font-size:13px;">Сменить</button>
     </div>
     <label class="field-label">Название на пэде:</label>
@@ -263,13 +233,8 @@
     <input type="hidden" id="inputPadIcon" value="🎵">
     <label class="field-label">Цвет:</label>
     <div class="color-palette" id="padColorPalette"></div>
-    <div class="modal-btns" style="margin-top:10px">
-      <button class="m-btn" onclick="closeModal('padModal')">Отмена</button>
-      <button class="m-btn m-btn-primary" onclick="savePad()">Сохранить</button>
-    </div>
-    <div class="modal-btns" style="margin-top:10px">
-      <button class="m-btn m-btn-danger" onclick="deletePad()" id="deletePadBtn">Удалить пэд</button>
-    </div>
+    <div class="modal-btns" style="margin-top:10px"><button class="m-btn" onclick="closeModal('padModal')">Отмена</button><button class="m-btn m-btn-primary" onclick="savePad()">Сохранить</button></div>
+    <div class="modal-btns" style="margin-top:10px"><button class="m-btn m-btn-danger" onclick="deletePad()" id="deletePadBtn">Удалить пэд</button></div>
   </div>
 </div>
 
@@ -277,58 +242,37 @@
   <div class="modal-box">
     <h3>Настройки</h3>
     <div class="choice-card" onclick="exportBackup()" style="margin-top:10px; border: 1px solid var(--accent-blue);">
-      <div style="font-size:24px">📤</div>
-      <div>
-        <div style="font-weight:700;font-size:15px; color:#64b5f6;">Экспортировать всё (ZIP)</div>
-        <div style="font-size:12px;color:var(--text-muted)">Скачать треки и сценарии одним архивом</div>
-      </div>
+      <div style="font-size:24px">📤</div><div><div style="font-weight:700;font-size:15px; color:#64b5f6;">Экспортировать всё (ZIP)</div><div style="font-size:12px;color:var(--text-muted)">Скачать треки и сценарии архивом</div></div>
     </div>
     <div class="choice-card" onclick="triggerImportBackup()">
-      <div style="font-size:24px">📥</div>
-      <div>
-        <div style="font-weight:700;font-size:15px">Импортировать из архива (ZIP)</div>
-        <div style="font-size:12px;color:var(--text-muted)">Загрузить треки и сценарии из файла</div>
-      </div>
+      <div style="font-size:24px">📥</div><div><div style="font-weight:700;font-size:15px">Импортировать из архива (ZIP)</div><div style="font-size:12px;color:var(--text-muted)">Загрузить треки и сценарии</div></div>
     </div>
     <input type="file" id="importFileInput" accept=".zip" style="display:none;" onchange="handleImportFile(event)">
     <div class="choice-card" onclick="forceAppUpdate()" style="margin-top:10px;">
-      <div style="font-size:24px">🔄</div>
-      <div>
-        <div style="font-weight:700;font-size:15px">Проверить обновления</div>
-        <div style="font-size:12px;color:var(--text-muted)">Скачать новую версию с сервера</div>
-      </div>
+      <div style="font-size:24px">🔄</div><div><div style="font-weight:700;font-size:15px">Проверить обновления</div><div style="font-size:12px;color:var(--text-muted)">Скачать новую версию</div></div>
     </div>
-    <div style="margin-top:16px; text-align:center; font-size:11px; color:var(--text-muted);">
-      Версия: <strong>v18</strong><br>База данных: IndexedDB v9
-    </div>
-    <div class="modal-btns" style="margin-top:16px">
-      <button class="m-btn" onclick="closeModal('settingsModal')">Закрыть</button>
-    </div>
+    <div style="margin-top:16px; text-align:center; font-size:11px; color:var(--text-muted);">Версия: <strong>v19</strong> • База: IndexedDB v9</div>
+    <div class="modal-btns" style="margin-top:16px"><button class="m-btn" onclick="closeModal('settingsModal')">Закрыть</button></div>
   </div>
 </div>
 
 <script>
+  // ============ STATE ============
   let db = null, tracks = [], scenarios = [];
   let activeSection = "all", openedScenarioId = null;
   let currentAudio = null, currentBlobUrl = null, currentTrackId = null, currentQueueIds = [];
+  let currentPadContext = null;
   let editingTrackId = null, editingScenarioId = null, editingPadId = null;
   let isLocked = false, wakeLock = null, currentVolume = 1.0;
   let padEditMode = false, hasUnsavedChanges = false;
+  let padTrackChangeMode = false;
   let showTimerInterval = null, showTimerRemaining = 0;
 
-  const PAD_COLORS = [
-    "linear-gradient(135deg,#1565c0,#42a5f5)",
-    "linear-gradient(135deg,#2e7d32,#66bb6a)",
-    "linear-gradient(135deg,#ef6c00,#ffa726)",
-    "linear-gradient(135deg,#ad1457,#ec407a)",
-    "linear-gradient(135deg,#4527a0,#7e57c2)",
-    "linear-gradient(135deg,#b71c1c,#e53935)",
-    "linear-gradient(135deg,#00695c,#26a69a)",
-    "linear-gradient(135deg,#37474f,#607d8b)"
-  ];
+  const PAD_COLORS = ["linear-gradient(135deg,#1565c0,#42a5f5)","linear-gradient(135deg,#2e7d32,#66bb6a)","linear-gradient(135deg,#ef6c00,#ffa726)","linear-gradient(135deg,#ad1457,#ec407a)","linear-gradient(135deg,#4527a0,#7e57c2)","linear-gradient(135deg,#b71c1c,#e53935)","linear-gradient(135deg,#00695c,#26a69a)","linear-gradient(135deg,#37474f,#607d8b)"];
   let selectedPadColor = PAD_COLORS[0];
   const PAD_ICONS = ["😂", "🎵", "🎺", "📦", "💃", "🔮", "🎉", "👏", "⚡", "❄️", "🎅", "🎁", "🐻", "🌟", "🎈", "🚀"];
 
+  // ============ DB ============
   const dbReq = indexedDB.open("KKPlayerDB_v9", 1); 
   dbReq.onupgradeneeded = (e) => {
     const database = e.target.result;
@@ -343,70 +287,48 @@
     let loadedTracks = [], loadedScenarios = [];
     tx.objectStore("tracks").getAll().onsuccess = (e) => { loadedTracks = (e.target.result || []).sort((a,b) => (a.order ?? a.id) - (b.order ?? b.id)); };
     tx.objectStore("scenarios").getAll().onsuccess = (e) => { loadedScenarios = (e.target.result || []).sort((a,b) => (a.order ?? a.id) - (b.order ?? b.id)); };
-    tx.oncomplete = () => {
-      tracks = loadedTracks; scenarios = loadedScenarios;
-      renderCurrentView();
-      if (callback) callback();
-    };
+    tx.oncomplete = () => { tracks = loadedTracks; scenarios = loadedScenarios; renderCurrentView(); if (callback) callback(); };
   }
 
   function formatTime(s) { if (!s || isNaN(s)) return "0:00"; const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return m + ":" + (sec < 10 ? "0" : "") + sec; }
   function formatMinSec(totalSec) { const m = Math.floor(totalSec / 60); const s = totalSec % 60; return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s; }
 
   // ============ PROGRESS ============
-  function showProgress(text, percent) {
-    const overlay = document.getElementById("progressOverlay");
-    if (!overlay) return;
-    overlay.classList.add("visible");
-    document.getElementById("progressText").innerText = text;
-    document.getElementById("progressBarFill").style.width = percent + "%";
-  }
+  function showProgress(text, percent) { const overlay = document.getElementById("progressOverlay"); if (!overlay) return; overlay.classList.add("visible"); document.getElementById("progressText").innerText = text; document.getElementById("progressBarFill").style.width = percent + "%"; }
   function hideProgress() { const overlay = document.getElementById("progressOverlay"); if (overlay) overlay.classList.remove("visible"); }
-  document.getElementById("progressOverlay").style.display = "none";
 
   // ============ EXPORT / IMPORT ============
   async function exportBackup() {
     closeModal('settingsModal');
-    if (typeof JSZip === 'undefined') return alert("Ошибка: библиотека JSZip не загружена.");
+    if (typeof JSZip === 'undefined') return alert("Ошибка: JSZip не загружен.");
     showProgress("Сборка архива...", 0);
     try {
       const zip = new JSZip();
       const audioFolder = zip.folder("audio");
-      const config = { version: 4, tracks: [], scenarios: [] };
+      const config = { version: 5, tracks: [], scenarios: [] };
       
-      // 1. Сохраняем треки и создаем имена файлов
       for (let i = 0; i < tracks.length; i++) {
         const t = tracks[i];
         const fileName = `track_${t.id}.mp3`; 
-        t.fileName = fileName; // временно привязываем имя
         const blob = new Blob([t.data], { type: t.mimeType || "audio/mpeg" });
         audioFolder.file(fileName, blob);
         config.tracks.push({ fileName: fileName, name: t.name, tag: t.tag, order: t.order });
-        if (i % 2 === 0) {
-          showProgress(`Сборка треков... ${i}/${tracks.length}`, Math.round((i / tracks.length) * 100));
-          await new Promise(r => setTimeout(r, 10));
-        }
+        if (i % 2 === 0) { showProgress(`Сборка... ${i}/${tracks.length}`, Math.round((i / tracks.length) * 100)); await new Promise(r => setTimeout(r, 10)); }
       }
 
-      // 2. Сохраняем сценарии с пэдами
       config.scenarios = scenarios.map(s => ({
         name: s.name, duration: s.duration, order: s.order,
         pads: (s.pads || []).map(p => ({
           title: p.title, icon: p.icon, color: p.color, order: p.order,
-          trackFileName: tracks.find(t => t.id === p.trackId)?.fileName || null // Ссылка на имя файла
+          trackFileName: tracks.find(t => t.id === p.trackId)?.fileName || null
         }))
       }));
 
       zip.file("config.json", JSON.stringify(config, null, 2));
       showProgress("Финализация...", 99);
-      const content = await zip.generateAsync({ type: "blob" }, (metadata) => {
-        showProgress(`Сжатие... ${Math.round(metadata.percent)}%`, Math.round(metadata.percent));
-      });
+      const content = await zip.generateAsync({ type: "blob" }, (metadata) => { showProgress(`Сжатие... ${Math.round(metadata.percent)}%`, Math.round(metadata.percent)); });
       const url = URL.createObjectURL(content);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `kk_player_backup_${new Date().toISOString().slice(0, 10)}.zip`;
-      a.click();
+      const a = document.createElement("a"); a.href = url; a.download = `kk_player_backup_${new Date().toISOString().slice(0, 10)}.zip`; a.click();
       setTimeout(() => URL.revokeObjectURL(url), 5000);
       hideProgress();
     } catch (err) { hideProgress(); alert("Ошибка экспорта: " + err.message); }
@@ -415,8 +337,7 @@
   function triggerImportBackup() { closeModal('settingsModal'); document.getElementById("importFileInput").value = ""; document.getElementById("importFileInput").click(); }
 
   async function handleImportFile(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+    const file = event.target.files[0]; if (!file) return;
     showProgress("Чтение архива...", 0);
     try {
       const zip = await JSZip.loadAsync(file);
@@ -424,13 +345,10 @@
       if (!configFile) throw new Error("Не найден файл конфигурации.");
       const config = JSON.parse(await configFile.async("string"));
       
-      // Очищаем базу
       const txClear = db.transaction(["tracks", "scenarios"], "readwrite");
-      txClear.objectStore("tracks").clear();
-      txClear.objectStore("scenarios").clear();
+      txClear.objectStore("tracks").clear(); txClear.objectStore("scenarios").clear();
       await new Promise((resolve, reject) => { txClear.oncomplete = resolve; txClear.onerror = reject; });
 
-      // 1. Загружаем треки и строим карту fileName -> newId
       const trackIdMap = {}; 
       const trackEntries = Object.values(zip.files).filter(f => f.name.startsWith("audio/") && !f.dir);
       for (let i = 0; i < trackEntries.length; i++) {
@@ -439,30 +357,18 @@
         const arrayBuffer = await zipEntry.async("arraybuffer");
         const meta = config.tracks.find(t => t.fileName === fileName);
         const tx = db.transaction("tracks", "readwrite");
-        const addReq = tx.objectStore("tracks").add({
-          name: meta ? meta.name : fileName, tag: meta ? meta.tag : "linear-gradient(135deg,#1565c0,#42a5f5)|🎵",
-          order: i, data: arrayBuffer, mimeType: "audio/mpeg"
-        });
-        await new Promise((resolve, reject) => {
-          addReq.onsuccess = (e) => { trackIdMap[fileName] = e.target.result; resolve(); }; // Сохраняем новый ID
-          addReq.onerror = reject;
-        });
+        const addReq = tx.objectStore("tracks").add({ name: meta ? meta.name : fileName, tag: meta ? meta.tag : "linear-gradient(135deg,#1565c0,#42a5f5)|🎵", order: i, data: arrayBuffer, mimeType: "audio/mpeg" });
+        await new Promise((resolve, reject) => { addReq.onsuccess = (e) => { trackIdMap[fileName] = e.target.result; resolve(); }; addReq.onerror = reject; });
         showProgress(`Загрузка треков... ${i+1}/${trackEntries.length}`, Math.round(((i+1) / trackEntries.length) * 80));
       }
 
-      // 2. Восстанавливаем сценарии с пэдами
       showProgress("Восстановление сценариев...", 85);
       for (const scConfig of config.scenarios) {
         const newPads = [];
         if (scConfig.pads) {
           for (const pConfig of scConfig.pads) {
             if (pConfig.trackFileName && trackIdMap[pConfig.trackFileName]) {
-              newPads.push({ 
-                id: Date.now() + Math.random(), 
-                trackId: trackIdMap[pConfig.trackFileName], // Подставляем новый ID
-                title: pConfig.title, icon: pConfig.icon, color: pConfig.color, 
-                order: pConfig.order !== undefined ? pConfig.order : newPads.length 
-              });
+              newPads.push({ id: Date.now() + Math.random(), trackId: trackIdMap[pConfig.trackFileName], title: pConfig.title, icon: pConfig.icon, color: pConfig.color, order: pConfig.order !== undefined ? pConfig.order : newPads.length });
             }
           }
         }
@@ -471,31 +377,23 @@
         tx.objectStore("scenarios").add({ name: scConfig.name, duration: scConfig.duration, order: scConfig.order, pads: newPads });
         await new Promise(r => setTimeout(r, 10));
       }
-      
-      hideProgress();
-      alert("Импорт завершен! Все треки и пэды загружены.");
-      window.location.reload();
+      hideProgress(); alert("Импорт завершен!"); window.location.reload();
     } catch (err) { hideProgress(); alert("Ошибка импорта: " + err.message); }
   }
 
-  // ============ ОСТАЛЬНОЙ КОД БЕЗ ИЗМЕНЕНИЙ ============
+  // ============ SETTINGS ============
   function forceAppUpdate() {
     closeModal('settingsModal');
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(registrations => {
-        for (let registration of registrations) registration.update();
-        setTimeout(() => window.location.reload(true), 1000);
-      });
-    } else window.location.reload(true);
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.getRegistrations().then(registrations => { for (let registration of registrations) registration.update(); setTimeout(() => window.location.reload(true), 1000); }); }
+    else window.location.reload(true);
   }
 
-  async function requestWakeLock() {
-    if (!('wakeLock' in navigator)) return;
-    try { if (wakeLock) return; wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); } catch (e) {}
-  }
+  // ============ WAKE LOCK ============
+  async function requestWakeLock() { if (!('wakeLock' in navigator)) return; try { if (wakeLock) return; wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); } catch (e) {} }
   function releaseWakeLock() { if (wakeLock) { wakeLock.release(); wakeLock = null; } }
   document.addEventListener('visibilitychange', async () => { if (document.visibilityState === 'visible' && currentAudio && !currentAudio.paused) await requestWakeLock(); });
 
+  // ============ LOCK MODE ============
   function toggleLock() {
     isLocked = !isLocked;
     const btn = document.getElementById('lockBtn'); const indicator = document.getElementById('lockIndicator'); const overlay = document.getElementById('lockedOverlay');
@@ -504,6 +402,7 @@
     renderCurrentView();
   }
 
+  // ============ NAV ============
   function switchSection(section) {
     if (isLocked) return;
     activeSection = section; if (section === "all") openedScenarioId = null; hasUnsavedChanges = false;
@@ -515,6 +414,7 @@
   function closeOpenedScenario() { openedScenarioId = null; hasUnsavedChanges = false; renderCurrentView(); }
   function togglePadEditMode() { padEditMode = !padEditMode; renderCurrentView(); }
 
+  // ============ RENDER ============
   function renderCurrentView() {
     const container = document.getElementById("mainContainer");
     if (isLocked) { container.innerHTML = `<div class="empty-state" style="padding-top:80px">🔒 Экран заблокирован</div>`; return; }
@@ -526,14 +426,7 @@
       tracks.forEach((track, idx) => {
         const [bg, ico] = (track.tag || "linear-gradient(135deg,#1565c0,#42a5f5)|🎵").split("|");
         const row = document.createElement("div"); row.className = "list-row";
-        row.innerHTML = `
-          <div class="drag-handle">☰</div>
-          <div class="row-cover" style="background:${bg}"><span>${ico}</span></div>
-          <div class="row-info"><div class="row-title">${track.name}</div></div>
-          <div class="row-actions">
-            <button class="row-btn" onclick="editTrackAction(event, ${track.id})">✎</button>
-            <button class="row-btn delete-btn" onclick="deleteTrackAction(event, ${track.id})">✕</button>
-          </div>`;
+        row.innerHTML = `<div class="drag-handle">☰</div><div class="row-cover" style="background:${bg}"><span>${ico}</span></div><div class="row-info"><div class="row-title">${track.name}</div></div><div class="row-actions"><button class="row-btn" onclick="editTrackAction(event, ${track.id})">✎</button><button class="row-btn delete-btn" onclick="deleteTrackAction(event, ${track.id})">✕</button></div>`;
         row.onclick = (e) => { if (e.target.closest(".row-actions, .drag-handle")) return; playTrack(track.id); };
         listEl.appendChild(row);
       });
@@ -546,13 +439,7 @@
       if (!scenarios.length) { listEl.innerHTML = `<div class="empty-state">Сценариев пока нет.</div>`; return; }
       scenarios.forEach((sc, idx) => {
         const row = document.createElement("div"); row.className = "list-row scenario-card";
-        row.innerHTML = `
-          <div class="row-cover" style="background:rgba(255,255,255,0.05);"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#64b5f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div>
-          <div class="row-info"><div class="row-title">${sc.name}</div><div class="row-subtitle">${sc.duration} мин • Пэдов: ${(sc.pads || []).length}</div></div>
-          <div class="row-actions">
-            <button class="row-btn" onclick="editScenarioAction(event, ${sc.id})">✎</button>
-            <button class="row-btn delete-btn" onclick="deleteScenarioAction(event, ${sc.id})">✕</button>
-          </div>`;
+        row.innerHTML = `<div class="row-cover" style="background:rgba(255,255,255,0.05);"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#64b5f6" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div><div class="row-info"><div class="row-title">${sc.name}</div><div class="row-subtitle">${sc.duration} мин • Пэдов: ${(sc.pads || []).length}</div></div><div class="row-actions"><button class="row-btn" onclick="editScenarioAction(event, ${sc.id})">✎</button><button class="row-btn delete-btn" onclick="deleteScenarioAction(event, ${sc.id})">✕</button></div>`;
         row.onclick = (e) => { if (e.target.closest(".row-actions")) return; openScenario(sc.id); };
         listEl.appendChild(row);
       });
@@ -562,17 +449,7 @@
     if (activeSection === "scenarios" && openedScenarioId !== null) {
       const scenario = scenarios.find(s => s.id === openedScenarioId);
       if (!scenario) { openedScenarioId = null; renderCurrentView(); return; }
-      container.innerHTML = `
-        <div class="playlist-sub-header">
-          <button class="back-btn" onclick="closeOpenedScenario()">← Назад</button>
-          <div class="sub-header-title">${scenario.name}</div>
-          <button class="row-btn" onclick="openScenarioModal(${scenario.id})">✎</button>
-        </div>
-        <div class="pads-grid ${padEditMode ? 'edit-mode' : ''}" id="padsGrid"></div>
-        <button class="edit-mode-btn ${padEditMode ? 'active' : ''}" onclick="togglePadEditMode()">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
-        </button>
-        <button class="save-scenario-btn ${hasUnsavedChanges ? 'visible' : ''}" onclick="saveScenarioState()">💾 Сохранить</button>`;
+      container.innerHTML = `<div class="playlist-sub-header"><button class="back-btn" onclick="closeOpenedScenario()">← Назад</button><div class="sub-header-title">${scenario.name}</div><button class="row-btn" onclick="openScenarioModal(${scenario.id})">✎</button></div><div class="pads-grid ${padEditMode ? 'edit-mode' : ''}" id="padsGrid"></div><button class="edit-mode-btn ${padEditMode ? 'active' : ''}" onclick="togglePadEditMode()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg></button><button class="save-scenario-btn ${hasUnsavedChanges ? 'visible' : ''}" onclick="saveScenarioState()">💾 Сохранить</button>`;
       
       const gridEl = document.getElementById("padsGrid");
       (scenario.pads || []).forEach((pad, idx) => {
@@ -583,29 +460,33 @@
         padEl.dataset.index = idx;
         if (!track) {
           padEl.innerHTML = `<div class="pad-add">+</div>`;
-          if (!padEditMode) padEl.onclick = () => { editingPadId = null; openAddSourceModal('pad'); };
+          if (!padEditMode) padEl.onclick = () => { editingPadId = null; openAddSourceModal(); };
         } else {
           const [bg] = pad.color ? pad.color.split("|") : (track.tag || "#333").split("|");
           padEl.style.background = bg;
           padEl.innerHTML = `<div class="pad-handle">☰</div><div class="pad-icon">${pad.icon || "🎵"}</div><div class="pad-title">${pad.title || track.name}</div><div class="pad-trackname">${track.name}</div>`;
           if (!padEditMode) {
-            padEl.onclick = () => playTrack(track.id, scenario.id);
+            padEl.onclick = () => playPad(pad.id, scenario.id);
             let holdTimer = null;
             padEl.addEventListener('touchstart', () => { holdTimer = setTimeout(() => { editingPadId = pad.id; openPadEditor(); }, 800); });
             padEl.addEventListener('touchend', () => clearTimeout(holdTimer));
             padEl.addEventListener('touchmove', () => clearTimeout(holdTimer));
+            padEl.addEventListener('mousedown', () => { holdTimer = setTimeout(() => { editingPadId = pad.id; openPadEditor(); }, 800); });
+            padEl.addEventListener('mouseup', () => clearTimeout(holdTimer));
+            padEl.addEventListener('mouseleave', () => clearTimeout(holdTimer));
           }
         }
         gridEl.appendChild(padEl);
       });
       const addPadBtn = document.createElement("div"); addPadBtn.className = "pad empty"; addPadBtn.innerHTML = `<div class="pad-add">+</div>`;
-      if (!padEditMode) addPadBtn.onclick = () => { editingPadId = null; openAddSourceModal('pad'); };
+      if (!padEditMode) addPadBtn.onclick = () => { editingPadId = null; openAddSourceModal(); };
       gridEl.appendChild(addPadBtn);
       if (padEditMode) gridEl.querySelectorAll('.pad[data-index]').forEach(padEl => attachPadDragEvents(padEl));
       return;
     }
   }
 
+  // ============ DRAG ============
   function attachPadDragEvents(padEl) {
     const idx = Number(padEl.dataset.index);
     const handle = padEl.querySelector('.pad-handle');
@@ -638,6 +519,7 @@
     handle.addEventListener('touchend', endDrag);
   }
 
+  // ============ CRUD ============
   function closeModal(id) { document.getElementById(id).style.display = "none"; }
   function openSettings() { document.getElementById("settingsModal").style.display = "flex"; }
   
@@ -657,8 +539,7 @@
       const t = tracks.find(x => x.id === editingTrackId);
       const name = document.getElementById("inputTrackName").value.trim() || t.name;
       const tag = document.getElementById("inputTrackTag").value;
-      const tx = db.transaction("tracks", "readwrite");
-      tx.objectStore("tracks").put({ ...t, name, tag });
+      const tx = db.transaction("tracks", "readwrite"); tx.objectStore("tracks").put({ ...t, name, tag });
       tx.oncomplete = () => { closeModal("trackModal"); loadAllData(); };
     } else {
       const files = document.getElementById("inputTrackFiles").files;
@@ -694,9 +575,8 @@
     if (!name) return alert("Введите название!");
     const duration = document.getElementById("inputScDur").value;
     const tx = db.transaction("scenarios", "readwrite"); const store = tx.objectStore("scenarios");
-    if (editingScenarioId) {
-      const old = scenarios.find(x => x.id === editingScenarioId); store.put({ ...old, name, duration });
-    } else { store.add({ name, duration, order: scenarios.length, pads: [] }); }
+    if (editingScenarioId) { const old = scenarios.find(x => x.id === editingScenarioId); store.put({ ...old, name, duration }); }
+    else { store.add({ name, duration, order: scenarios.length, pads: [] }); }
     tx.oncomplete = () => { closeModal("scenarioModal"); loadAllData(); };
   }
   
@@ -709,7 +589,7 @@
     tx.oncomplete = () => { hasUnsavedChanges = false; renderCurrentView(); };
   }
 
-  function openAddSourceModal(target) { document.getElementById("addSourceModal").style.display = "flex"; }
+  function openAddSourceModal() { document.getElementById("addSourceModal").style.display = "flex"; }
   function openLibraryPicker() { closeModal("addSourceModal"); renderPickerList(""); document.getElementById("libraryPickerModal").style.display = "flex"; }
   function renderPickerList(q) {
     const listEl = document.getElementById("libraryPickList"); listEl.innerHTML = "";
@@ -720,6 +600,21 @@
     });
   }
   function filterPickerList() { renderPickerList(document.getElementById("pickerSearch").value); }
+  function addFromDeviceToPad() {
+    closeModal("addSourceModal");
+    const input = document.createElement('input'); input.type = 'file'; input.accept = 'audio/*';
+    input.onchange = (e) => {
+      const file = e.target.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const tx = db.transaction("tracks", "readwrite");
+        const addReq = tx.objectStore("tracks").add({ name: file.name.replace(/\.[^/.]+$/, ""), tag: "linear-gradient(135deg,#1565c0,#42a5f5)|🎵", order: tracks.length, data: ev.target.result, mimeType: file.type });
+        addReq.onsuccess = (res) => { const newTrackId = res.target.result; loadAllData(() => { editingPadId = null; openPadEditor(newTrackId); }); };
+      };
+      reader.readAsArrayBuffer(file);
+    };
+    input.click();
+  }
 
   function openPadEditor(trackId = null) {
     const paletteEl = document.getElementById("padColorPalette"); paletteEl.innerHTML = "";
@@ -734,20 +629,15 @@
       o.onclick = () => { document.getElementById("inputPadIcon").value = i; document.querySelectorAll(".icon-option").forEach(el => el.classList.remove("selected")); o.classList.add("selected"); };
       iconGrid.appendChild(o);
     });
-    
     const sc = scenarios.find(s => s.id === openedScenarioId);
     const existingPad = editingPadId ? sc.pads.find(p => p.id === editingPadId) : null;
-    
     if (existingPad) {
       document.getElementById("inputPadTrackId").value = existingPad.trackId;
       document.getElementById("inputPadTitle").value = existingPad.title || "";
-      document.getElementById("inputPadIcon").value = existingPad.icon;
-      selectedPadColor = existingPad.color;
+      document.getElementById("inputPadIcon").value = existingPad.icon; selectedPadColor = existingPad.color;
     } else {
       document.getElementById("inputPadTrackId").value = trackId;
-      document.getElementById("inputPadTitle").value = "";
-      document.getElementById("inputPadIcon").value = "🎵";
-      selectedPadColor = PAD_COLORS[0];
+      document.getElementById("inputPadTitle").value = ""; document.getElementById("inputPadIcon").value = "🎵"; selectedPadColor = PAD_COLORS[0];
     }
     const tr = tracks.find(t => t.id === Number(document.getElementById("inputPadTrackId").value));
     document.getElementById("padCurrentTrackName").innerText = tr ? tr.name : "—";
@@ -760,12 +650,8 @@
     const icon = document.getElementById("inputPadIcon").value;
     const sc = scenarios.find(s => s.id === openedScenarioId);
     if (!sc.pads) sc.pads = [];
-    if (editingPadId) {
-      const pad = sc.pads.find(p => p.id === editingPadId);
-      pad.trackId = trackId; pad.title = title; pad.icon = icon; pad.color = selectedPadColor;
-    } else {
-      sc.pads.push({ id: Date.now(), trackId, title, icon, color: selectedPadColor, order: sc.pads.length });
-    }
+    if (editingPadId) { const pad = sc.pads.find(p => p.id === editingPadId); pad.trackId = trackId; pad.title = title; pad.icon = icon; pad.color = selectedPadColor; }
+    else { sc.pads.push({ id: Date.now(), trackId, title, icon, color: selectedPadColor, order: sc.pads.length }); }
     const tx = db.transaction("scenarios", "readwrite"); tx.objectStore("scenarios").put(sc);
     tx.oncomplete = () => { closeModal("padModal"); loadAllData(); };
   }
@@ -777,33 +663,78 @@
     const tx = db.transaction("scenarios", "readwrite"); tx.objectStore("scenarios").put(sc);
     tx.oncomplete = () => { closeModal("padModal"); loadAllData(); };
   }
+  
+  function changePadTrack() {
+    padTrackChangeMode = true;
+    closeModal('padModal');
+    openAddSourceModal();
+  }
 
+  // ============ PLAYBACK (ИСПРАВЛЕНО) ============
   function playTrack(trackId, scenarioId = null) {
     const track = tracks.find(t => t.id === trackId); if (!track) return;
     if (currentAudio) { currentAudio.pause(); currentAudio.src = ""; }
-    if (scenarioId) {
-      const sc = scenarios.find(s => s.id === scenarioId);
-      if (sc) currentQueueIds = sc.pads.map(p => p.trackId);
-    } else { currentQueueIds = tracks.map(t => t.id); }
+    if (scenarioId) { const sc = scenarios.find(s => s.id === scenarioId); if (sc) currentQueueIds = sc.pads.map(p => p.trackId); }
+    else { currentQueueIds = tracks.map(t => t.id); }
+    
     currentBlobUrl = URL.createObjectURL(new Blob([track.data], { type: track.mimeType }));
     currentAudio = new Audio(currentBlobUrl);
     currentTrackId = trackId; currentAudio.volume = currentVolume;
-    currentAudio.play(); requestWakeLock(); updatePlayerUI(); renderCurrentView();
+    currentPadContext = null; // Сбрасываем контекст пэда, если играем просто трек
+    
+    currentAudio.play(); requestWakeLock();
+    updatePlayerUI(track, null);
   }
 
-  function updatePlayerUI() {
-    const track = tracks.find(t => t.id === currentTrackId);
+  function playPad(padId, scenarioId) {
+    const sc = scenarios.find(s => s.id === scenarioId);
+    if (!sc) return;
+    const pad = sc.pads.find(p => p.id === padId);
+    if (!pad) return;
+    const track = tracks.find(t => t.id === pad.trackId);
     if (!track) return;
-    document.getElementById("playerTitle").innerText = track.name;
-    document.getElementById("playerBar").classList.add("visible");
-    document.getElementById("playerCover").innerText = "🎵";
+    
+    if (currentAudio) { currentAudio.pause(); currentAudio.src = ""; }
+    
+    currentQueueIds = sc.pads.map(p => p.trackId);
+    currentBlobUrl = URL.createObjectURL(new Blob([track.data], { type: track.mimeType }));
+    currentAudio = new Audio(currentBlobUrl);
+    currentTrackId = track.id; currentAudio.volume = currentVolume;
+    currentPadContext = pad; // Запоминаем пэд для UI
+    
+    currentAudio.play(); requestWakeLock();
+    updatePlayerUI(track, pad);
+    renderCurrentView();
+  }
+
+  function updatePlayerUI(track, pad) {
+    if (!track) return;
+    const bar = document.getElementById("playerBar");
+    const cover = document.getElementById("playerCover");
+    
+    if (pad) {
+      // Если играет пэд, показываем его данные
+      const [bg] = pad.color ? pad.color.split("|") : (track.tag || "#333").split("|");
+      cover.style.background = bg;
+      cover.innerText = pad.icon || "🎵";
+      document.getElementById("playerTitle").innerText = pad.title || track.name;
+      document.getElementById("playerSub").innerText = track.name;
+    } else {
+      // Если играет просто трек
+      const [bg, ico] = (track.tag || "linear-gradient(135deg,#1565c0,#42a5f5)|🎵").split("|");
+      cover.style.background = bg;
+      cover.innerText = ico;
+      document.getElementById("playerTitle").innerText = track.name;
+      document.getElementById("playerSub").innerText = "Вся музыка";
+    }
+    bar.classList.add("visible");
   }
 
   function togglePauseCurrent() { if (currentAudio) { currentAudio.paused ? currentAudio.play() : currentAudio.pause(); } }
   function stopAndReset() { if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; } }
   function restartCurrent() { if (currentAudio) { currentAudio.currentTime = 0; } }
-  function playNextTrack() { if (!currentQueueIds.length) return; const idx = currentQueueIds.indexOf(currentTrackId); const next = currentQueueIds[idx + 1]; if (next) playTrack(next, openedScenarioId); }
-  function playPrevTrack() { if (!currentQueueIds.length) return; const idx = currentQueueIds.indexOf(currentTrackId); const prev = currentQueueIds[idx - 1]; if (prev) playTrack(prev, openedScenarioId); }
+  function playNextTrack() { if (!currentQueueIds.length) return; const idx = currentQueueIds.indexOf(currentTrackId); const next = currentQueueIds[idx + 1]; if (next) { const sc = openedScenarioId; playTrack(next, sc); } }
+  function playPrevTrack() { if (!currentQueueIds.length) return; const idx = currentQueueIds.indexOf(currentTrackId); const prev = currentQueueIds[idx - 1]; if (prev) { const sc = openedScenarioId; playTrack(prev, sc); } }
 
   document.getElementById("playPauseBtn").innerHTML = `<svg width="26" height="26" viewBox="0 0 24 24"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z"/></svg>`;
   if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(() => {}); }
