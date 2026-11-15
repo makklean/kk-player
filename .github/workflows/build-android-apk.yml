@@ -13,6 +13,7 @@ on:
       - 'package.json'
       - 'capacitor.config.ts'
       - 'scripts/**'
+      - 'assets/logo.svg'
       - '.github/workflows/build-android-apk.yml'
 
 permissions:
@@ -44,6 +45,10 @@ jobs:
 
       - name: Generate Android project
         run: npx cap add android
+
+      - name: Prepare exact KK Player logo for Android assets
+        run: |
+          node -e "const sharp=require('sharp'); Promise.all([sharp('assets/logo.svg').resize(1024,1024).png().toFile('assets/icon-only.png'), sharp('assets/logo.svg').resize(1024,1024).png().toFile('assets/splash.png')]).catch(e=>{console.error(e);process.exit(1)})"
 
       - name: Generate Android app icon and splash screen
         run: npx capacitor-assets generate --android --pwa --iconBackgroundColor "#080b12" --iconBackgroundColorDark "#080b12" --splashBackgroundColor "#080b12" --splashBackgroundColorDark "#080b12"
