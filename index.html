@@ -178,7 +178,7 @@ body{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
 .pad-controls{display:flex;gap:7px;margin-top:8px;align-items:center;justify-content:center}
 .pad-controls button{width:34px;height:32px;border:1px solid rgba(255,255,255,.34);border-radius:10px;background:rgba(0,0,0,.2);color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center}
 .pad-controls .pad-play-btn{width:42px;background:rgba(0,0,0,.35)}
-.pads-grid.edit-mode .pad-controls{opacity:.35;pointer-events:none}
+.pads-grid.edit-mode .pad-controls{opacity:.35;pointer-events:none}.pad-controls .pad-edit-btn{display:flex}
 .pads-grid.edit-mode .pad-handle{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:rgba(0,0,0,.38);touch-action:none;cursor:grab}
 .pad.move-ready{outline:1px dashed rgba(255,255,255,.35);outline-offset:-5px}
 .pad.dragging{opacity:.55;transform:scale(.96)}.pad.drag-over{outline:3px solid #fff;outline-offset:2px}
@@ -685,7 +685,7 @@ body{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
         const reader = new FileReader();
         reader.onload = (e) => {
           const tx = db.transaction("tracks", "readwrite");
-          tx.objectStore("tracks").add({ name: file.name.replace(/\.[^/.]+$/, ""), tag: "linear-gradient(135deg,#1565c0,#42a5f5)|🎵", order: tracks.length, data: e.target.result, mimeType: file.type });
+          tx.objectStore("tracks").add({ name: file.name.replace(/\.[^/.]+$/, ""), tag: "linear-gradient(135deg,#1565c0,#42a5f5)|🎵", order: tracks.length, folder: currentFolderFilter === "__all__" ? "" : currentFolderFilter, data: e.target.result, mimeType: file.type });
           tx.oncomplete = () => { count++; if (count === files.length) { btn.disabled = false; btn.innerText = "Сохранить"; closeModal("trackModal"); loadAllData(); } };
         };
         reader.readAsArrayBuffer(file);
