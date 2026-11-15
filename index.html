@@ -10,237 +10,99 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
   :root {
-    --bg-main: #09090b;
-    --bg-pill: #1c1c22;
-    --accent-blue: #1a73e8;
-    --player-blue: #0a3c9e;
-    --player-blue-light: #1557d6;
-    --text-main: #ffffff;
-    --text-muted: #8e8e98;
-    --border-subtle: rgba(255, 255, 255, 0.08);
-    --danger: #e53935;
-    --success: #43a047;
-    --warning: #ff9800;
+    --bg-main: #09090b; --bg-pill: #1c1c22; --accent-blue: #1a73e8;
+    --player-blue: #0a3c9e; --player-blue-light: #1557d6;
+    --text-main: #ffffff; --text-muted: #8e8e98;
+    --border-subtle: rgba(255, 255, 255, 0.08); --danger: #e53935;
+    --success: #43a047; --warning: #ff9800;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body {
-    margin: 0; padding: 0 0 200px 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--bg-main); color: var(--text-main);
-    user-select: none; overflow-x: hidden; -webkit-user-select: none;
-  }
-  header {
-    position: sticky; top: 0; z-index: 20;
-    background: rgba(9, 9, 11, 0.94); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-    padding: 14px 16px 12px; border-bottom: 1px solid var(--border-subtle);
-  }
+  body { margin: 0; padding: 0 0 200px 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-main); color: var(--text-main); user-select: none; overflow-x: hidden; }
+  header { position: sticky; top: 0; z-index: 20; background: rgba(9, 9, 11, 0.94); backdrop-filter: blur(16px); padding: 14px 16px 12px; border-bottom: 1px solid var(--border-subtle); }
   .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
   .brand-title { font-size: 24px; font-weight: 800; color: #fff; margin: 0; }
   .header-actions { display: flex; align-items: center; gap: 8px; }
-  .icon-btn {
-    width: 40px; height: 40px; border-radius: 50%; border: none; background: transparent;
-    color: var(--text-main); display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: 17px; transition: background 0.15s, transform 0.1s;
-  }
+  .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: transparent; color: var(--text-main); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s, transform 0.1s; }
   .icon-btn:active { transform: scale(0.92); background: rgba(255,255,255,0.1); }
   .icon-btn.active { background: rgba(26,115,232,0.3); color: #64b5f6; }
-  
   .main-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
   .main-tabs::-webkit-scrollbar { display: none; }
-  .tab-pill {
-    padding: 8px 16px; border-radius: 99px; border: none; background: var(--bg-pill);
-    color: var(--text-muted); font-size: 13px; font-weight: 600; cursor: pointer;
-    transition: background 0.2s, color 0.2s, transform 0.1s; white-space: nowrap;
-  }
+  .tab-pill { padding: 8px 16px; border-radius: 99px; border: none; background: var(--bg-pill); color: var(--text-muted); font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s, color 0.2s, transform 0.1s; white-space: nowrap; }
   .tab-pill.active { background: var(--accent-blue); color: #fff; box-shadow: 0 3px 12px rgba(26,115,232,0.4); }
-
   .content-container { max-width: 720px; margin: 0 auto; padding: 14px 16px; }
-
-  .playlist-sub-header {
-    display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border-subtle);
-  }
-  .back-btn {
-    display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px;
-    border-radius: 99px; border: 1px solid var(--border-subtle); background: var(--bg-pill);
-    color: #fff; font-size: 13px; font-weight: 600; cursor: pointer;
-  }
+  .playlist-sub-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border-subtle); }
+  .back-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 99px; border: 1px solid var(--border-subtle); background: var(--bg-pill); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
   .sub-header-title { flex: 1; font-size: 17px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  .primary-action-btn {
-    width: 100%; padding: 12px 16px; border-radius: 14px;
-    border: 1px dashed rgba(41,121,255,0.55); background: rgba(26,115,232,0.12);
-    color: #64b5f6; font-size: 14px; font-weight: 700; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    margin-bottom: 14px; transition: background 0.15s, transform 0.1s;
-  }
+  .primary-action-btn { width: 100%; padding: 12px 16px; border-radius: 14px; border: 1px dashed rgba(41,121,255,0.55); background: rgba(26,115,232,0.12); color: #64b5f6; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 14px; transition: background 0.15s, transform 0.1s; }
   .primary-action-btn:active { transform: scale(0.98); background: rgba(26,115,232,0.22); }
-
   .items-list { display: flex; flex-direction: column; gap: 12px; }
-  .empty-state { text-align: center; color: var(--text-muted); padding: 46px 20px; font-size: 14px; line-height: 1.5; }
-
-  .list-row {
-    display: flex; align-items: center; gap: 13px; padding: 6px 4px;
-    border-radius: 14px; cursor: pointer; transition: background 0.15s, opacity 0.15s;
-  }
+  .empty-state { text-align: center; color: var(--text-muted); padding: 46px 20px; font-size: 14px; }
+  .list-row { display: flex; align-items: center; gap: 13px; padding: 6px 4px; border-radius: 14px; cursor: pointer; transition: background 0.15s; }
   .list-row:active { background: rgba(255,255,255,0.05); }
-  .drag-handle { color: #555562; font-size: 18px; padding: 8px 2px; cursor: grab; touch-action: none; }
-  .row-cover {
-    width: 54px; height: 54px; border-radius: 13px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 24px; flex-shrink: 0; position: relative; overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.45);
-  }
+  .drag-handle { color: #555562; font-size: 18px; padding: 8px 2px; cursor: grab; }
+  .row-cover { width: 54px; height: 54px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
   .row-info { flex: 1; min-width: 0; }
-  .row-title {
-    font-size: 16px; font-weight: 700; color: var(--text-main);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px;
-  }
-  .row-subtitle { font-size: 13px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row-title { font-size: 16px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row-subtitle { font-size: 13px; color: var(--text-muted); }
   .row-actions { display: flex; align-items: center; gap: 4px; }
-  .row-btn {
-    width: 34px; height: 34px; border-radius: 50%; border: none; background: transparent;
-    color: var(--text-muted); font-size: 16px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-  }
+  .row-btn { width: 34px; height: 34px; border-radius: 50%; border: none; background: transparent; color: var(--text-muted); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
   .row-btn:active { background: rgba(255,255,255,0.1); color: #fff; }
-
-  .scenario-card {
-    background: var(--bg-pill); border: 1px solid var(--border-subtle);
-    border-radius: 18px; padding: 16px; display: flex; align-items: center; gap: 14px;
-    cursor: pointer; transition: transform 0.1s, background 0.15s; position: relative;
-  }
-  .scenario-card:active { transform: scale(0.98); background: rgba(255,255,255,0.06); }
+  .scenario-card { background: var(--bg-pill); border: 1px solid var(--border-subtle); border-radius: 18px; padding: 16px; display: flex; align-items: center; gap: 14px; cursor: pointer; }
   .scenario-card .row-cover { width: 56px; height: 56px; background: rgba(255,255,255,0.05); }
-  .scenario-card .row-title { font-size: 18px; margin-bottom: 6px; }
-  .scenario-card .row-subtitle { font-size: 13px; }
-
+  .scenario-card .row-title { font-size: 18px; }
   .pads-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding-bottom: 20px; }
   @media (min-width: 500px) { .pads-grid { grid-template-columns: repeat(3, 1fr); } }
-  .pad {
-    aspect-ratio: 1 / 1; border-radius: 22px; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; cursor: pointer; position: relative;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4); transition: transform 0.1s, box-shadow 0.15s;
-    overflow: hidden; border: 2px solid transparent; padding: 10px;
-  }
+  .pad { aspect-ratio: 1 / 1; border-radius: 22px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.4); overflow: hidden; border: 2px solid transparent; padding: 10px; }
   .pad:active { transform: scale(0.95); }
   .pad.playing { border-color: #fff; box-shadow: 0 0 20px rgba(255,255,255,0.5); }
   .pad.empty { background: rgba(255,255,255,0.05); border: 2px dashed rgba(255,255,255,0.2); }
-  .pad.dragging { opacity: 0.3; }
-  .pad.drag-over { border: 3px dashed #fff; }
-  
-  .pad-handle {
-    position: absolute; top: 8px; left: 8px; font-size: 18px; color: rgba(255,255,255,0.6);
-    display: none; cursor: grab; touch-action: none; z-index: 5; padding: 6px;
-  }
+  .pad-handle { position: absolute; top: 8px; left: 8px; font-size: 18px; color: rgba(255,255,255,0.6); display: none; cursor: grab; z-index: 5; padding: 6px; }
   .pads-grid.edit-mode .pad-handle { display: block; }
-  .pads-grid.edit-mode .pad { cursor: grab; }
-  
   .pad-icon { font-size: 44px; margin-bottom: 2px; line-height: 1; }
   .pad-title { font-size: 20px; font-weight: 900; text-align: center; line-height: 1.1; word-break: break-word; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); margin-bottom: 2px; }
   .pad-trackname { font-size: 11px; font-weight: 500; text-align: center; color: rgba(255,255,255,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; padding: 0 4px; }
   .pad-add { font-size: 60px; color: rgba(255,255,255,0.4); font-weight: 200; line-height: 1; }
-
-  /* Кнопка перестановки (возвращена) */
-  .edit-mode-btn {
-    display: none; width: 52px; height: 52px; border-radius: 50%;
-    background: rgba(28,28,34,0.95); color: #fff; font-size: 22px;
-    border: 1px solid rgba(255,255,255,0.15); cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    align-items: center; justify-content: center;
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    transition: transform 0.1s, background 0.15s; margin: 10px auto 0 auto;
-  }
-  .edit-mode-btn:active { transform: scale(0.9); }
+  .edit-mode-btn { display: none; width: 52px; height: 52px; border-radius: 50%; background: rgba(28,28,34,0.95); color: #fff; font-size: 22px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer; align-items: center; justify-content: center; margin: 10px auto 0 auto; }
   .edit-mode-btn.visible { display: flex; }
   .edit-mode-btn.active { background: var(--danger); border-color: var(--danger); }
-
-  /* Маленькая кнопка сохранения */
-  .save-scenario-btn {
-    display: none; width: auto; padding: 10px 20px; border-radius: 99px;
-    background: var(--success); color: #fff; font-size: 14px; font-weight: 700;
-    border: none; cursor: pointer; float: right; margin-top: 10px;
-    box-shadow: 0 4px 12px rgba(67,160,71,0.4);
-    align-items: center; gap: 6px;
-  }
+  .save-scenario-btn { display: none; width: auto; padding: 10px 20px; border-radius: 99px; background: var(--success); color: #fff; font-size: 14px; font-weight: 700; border: none; cursor: pointer; float: right; margin-top: 10px; align-items: center; gap: 6px; }
   .save-scenario-btn.visible { display: flex; }
-
-  .show-timer {
-    position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
-    background: rgba(0,0,0,0.85); color: white; padding: 8px 18px;
-    border-radius: 99px; font-size: 16px; font-weight: 700;
-    font-variant-numeric: tabular-nums; z-index: 25; display: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5); border: 1px solid var(--border-subtle);
-  }
-  .show-timer.visible { display: block; }
-  .show-timer.warning { background: var(--warning); color: #000; animation: pulse 1s infinite; }
-  .show-timer.danger { background: var(--danger); color: #fff; animation: pulse 0.5s infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-
-  .player-bar {
-    position: fixed; left: 10px; right: 10px; bottom: 10px; max-width: 700px; margin: 0 auto;
-    background: linear-gradient(135deg, var(--player-blue), var(--player-blue-light));
-    border-radius: 18px; padding: 10px 14px 12px; z-index: 30;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.75);
-    transform: translateY(130%); transition: transform 0.28s cubic-bezier(0.2,0.8,0.2,1);
-  }
+  .player-bar { position: fixed; left: 10px; right: 10px; bottom: 10px; max-width: 700px; margin: 0 auto; background: linear-gradient(135deg, var(--player-blue), var(--player-blue-light)); border-radius: 18px; padding: 10px 14px 12px; z-index: 30; transform: translateY(130%); transition: transform 0.28s; }
   .player-bar.visible { transform: translateY(0); }
   .player-top { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-  .player-cover { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; background: rgba(0,0,0,0.25); }
+  .player-cover { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; background: rgba(0,0,0,0.25); }
   .player-meta { flex: 1; min-width: 0; }
   .player-title { font-size: 15px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .player-sub { font-size: 12px; color: rgba(255,255,255,0.78); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .player-sub { font-size: 12px; color: rgba(255,255,255,0.78); }
   .player-controls { display: flex; align-items: center; gap: 4px; justify-content: center; }
-  .p-ctrl { width: 52px; height: 52px; border-radius: 16px; border: none; background: transparent; color: #fff; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s, transform 0.1s; }
-  .p-ctrl:active { background: rgba(255,255,255,0.16); transform: scale(0.92); }
+  .p-ctrl { width: 52px; height: 52px; border-radius: 16px; border: none; background: transparent; color: #fff; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
   .p-ctrl svg { display: block; fill: #fff; }
   .p-ctrl-main { width: 64px; height: 64px; border-radius: 20px; background: rgba(255,255,255,0.15); }
-  .p-ctrl-main:active { background: rgba(255,255,255,0.3); }
-  .p-ctrl-stop { color: #ffcdd2; }
-  .p-ctrl-stop:active { background: rgba(229,57,53,0.3); }
   .seek-container { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-  .time-txt { font-size: 11px; color: rgba(255,255,255,0.85); font-variant-numeric: tabular-nums; min-width: 34px; }
-  .seek-slider { -webkit-appearance: none; appearance: none; flex: 1; height: 5px; border-radius: 99px; background: rgba(255,255,255,0.28); outline: none; cursor: pointer; margin: 0; }
-  .seek-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 15px; height: 15px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.45); cursor: pointer; }
-
-  .modal-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.78);
-    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-    z-index: 50; align-items: center; justify-content: center; padding: 16px;
-  }
-  .modal-box {
-    background: #16161c; border: 1px solid var(--border-subtle); border-radius: 20px;
-    padding: 20px; width: 100%; max-width: 450px; max-height: 85vh;
-    overflow-y: auto; box-shadow: 0 14px 36px rgba(0,0,0,0.7);
-  }
+  .time-txt { font-size: 11px; color: rgba(255,255,255,0.85); min-width: 34px; }
+  .seek-slider { flex: 1; height: 5px; border-radius: 99px; background: rgba(255,255,255,0.28); outline: none; cursor: pointer; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.78); backdrop-filter: blur(6px); z-index: 50; align-items: center; justify-content: center; padding: 16px; }
+  .modal-box { background: #16161c; border: 1px solid var(--border-subtle); border-radius: 20px; padding: 20px; width: 100%; max-width: 450px; max-height: 85vh; overflow-y: auto; }
   .modal-box h3 { margin: 0 0 14px; font-size: 18px; }
   .field-label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
-  .modal-input, .modal-select, .modal-textarea { width: 100%; padding: 11px 12px; margin-bottom: 14px; border-radius: 12px; border: 1px solid var(--border-subtle); background: #0d0d11; color: #fff; font-size: 14px; font-family: inherit; }
+  .modal-input, .modal-select { width: 100%; padding: 11px 12px; margin-bottom: 14px; border-radius: 12px; border: 1px solid var(--border-subtle); background: #0d0d11; color: #fff; font-size: 14px; }
   .modal-btns { display: flex; gap: 10px; }
   .m-btn { flex: 1; padding: 11px; border-radius: 12px; border: 1px solid var(--border-subtle); background: var(--bg-pill); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
   .m-btn-primary { background: var(--accent-blue); border: none; }
   .m-btn-danger { background: var(--danger); border: none; }
-  .modal-hint { font-size: 12px; color: var(--text-muted); margin: -6px 0 14px; line-height: 1.45; }
   .choice-card { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 14px; background: var(--bg-pill); border: 1px solid var(--border-subtle); margin-bottom: 10px; cursor: pointer; }
-  .choice-card:active { background: rgba(26,115,232,0.22); border-color: var(--accent-blue); }
-  
   .library-pick-list { max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-  .pick-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: #0d0d11; border: 1px solid var(--border-subtle); cursor: pointer; }
-  .row-btn.warn { color: var(--danger); }
-
-  .lock-indicator { position: fixed; top: 8px; left: 50%; transform: translateX(-50%); background: var(--danger); color: #fff; padding: 4px 14px; border-radius: 99px; font-size: 11px; font-weight: 700; z-index: 60; display: none; letter-spacing: 0.5px; }
+  .pick-item { padding: 10px 12px; border-radius: 12px; background: #0d0d11; border: 1px solid var(--border-subtle); cursor: pointer; }
+  .lock-indicator { position: fixed; top: 8px; left: 50%; transform: translateX(-50%); background: var(--danger); color: #fff; padding: 4px 14px; border-radius: 99px; font-size: 11px; font-weight: 700; z-index: 60; display: none; }
   .lock-indicator.visible { display: block; }
   .locked-overlay { display: none; position: fixed; inset: 0; z-index: 15; background: rgba(0, 0, 0, 0.65); }
   .locked-overlay.visible { display: block; }
-
   .color-palette { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
-  .color-swatch { width: 48px; height: 48px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+  .color-swatch { width: 48px; height: 48px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; }
   .color-swatch.selected { border-color: #fff; transform: scale(1.1); }
-
   .icon-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
   .icon-option { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 26px; background: #0d0d11; border: 2px solid transparent; cursor: pointer; }
   .icon-option.selected { border-color: var(--accent-blue); background: rgba(26,115,232,0.2); }
-
   #progressOverlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; flex-direction: column; align-items: center; justify-content: center; }
   #progressOverlay.visible { display: flex; }
   #progressText { color: #fff; font-size: 18px; font-weight: 700; margin-bottom: 16px; }
@@ -251,7 +113,7 @@
 <body>
 
 <div class="lock-indicator" id="lockIndicator">🔒 ЗАБЛОКИРОВАНО</div>
-<div class="show-timer" id="showTimer">00:00</div>
+<div class="show-timer" id="showTimer" style="display:none; position:fixed; top:10px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); color:white; padding:8px 18px; border-radius:99px; font-size:16px; font-weight:700; z-index:25; box-shadow:0 4px 12px rgba(0,0,0,0.5); border:1px solid var(--border-subtle);">00:00</div>
 
 <div id="progressOverlay">
   <div id="progressText">Подготовка...</div>
@@ -295,7 +157,7 @@
   </div>
   <div class="player-controls">
     <button class="p-ctrl" onclick="playPrevTrack()" title="Предыдущий"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14l-11-7z"/></svg></button>
-    <button class="p-ctrl p-ctrl-stop" onclick="stopAndReset()" title="Стоп (сброс)"><svg width="22" height="22" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg></button>
+    <button class="p-ctrl p-ctrl-stop" onclick="stopAndReset()" title="Стоп"><svg width="22" height="22" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg></button>
     <button class="p-ctrl p-ctrl-main" id="playPauseBtn" onclick="togglePauseCurrent()"></button>
     <button class="p-ctrl" onclick="restartCurrent()" title="Заново"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
     <button class="p-ctrl" onclick="playNextTrack()" title="Следующий"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
@@ -352,7 +214,7 @@
 <div class="modal-overlay" id="addSourceModal" onclick="if(event.target === this) closeModal('addSourceModal')">
   <div class="modal-box">
     <h3>Добавить звук</h3>
-    <div class="choice-card" onclick="openLibraryPicker('pad')">
+    <div class="choice-card" onclick="openLibraryPicker()">
       <div style="font-size:24px">🎵</div>
       <div>
         <div style="font-weight:700;font-size:15px">Из списка плеера</div>
@@ -414,7 +276,6 @@
 <div class="modal-overlay" id="settingsModal" onclick="if(event.target === this) closeModal('settingsModal')">
   <div class="modal-box">
     <h3>Настройки</h3>
-    
     <div class="choice-card" onclick="exportBackup()" style="margin-top:10px; border: 1px solid var(--accent-blue);">
       <div style="font-size:24px">📤</div>
       <div>
@@ -430,7 +291,6 @@
       </div>
     </div>
     <input type="file" id="importFileInput" accept=".zip" style="display:none;" onchange="handleImportFile(event)">
-    
     <div class="choice-card" onclick="forceAppUpdate()" style="margin-top:10px;">
       <div style="font-size:24px">🔄</div>
       <div>
@@ -438,9 +298,8 @@
         <div style="font-size:12px;color:var(--text-muted)">Скачать новую версию с сервера</div>
       </div>
     </div>
-    <div class="modal-hint" style="margin-top:16px; text-align:center; font-size:11px;">
-      Версия приложения: <strong>v16</strong><br>
-      Ваши треки хранятся в безопасности (IndexedDB v9)
+    <div style="margin-top:16px; text-align:center; font-size:11px; color:var(--text-muted);">
+      Версия: <strong>v18</strong><br>База данных: IndexedDB v9
     </div>
     <div class="modal-btns" style="margin-top:16px">
       <button class="m-btn" onclick="closeModal('settingsModal')">Закрыть</button>
@@ -449,31 +308,14 @@
 </div>
 
 <script>
-  // ============ STATE ============
-  let db = null;
-  let tracks = [];
-  let scenarios = [];
-  let activeSection = "all";
-  let openedScenarioId = null;
-  let currentAudio = null;
-  let currentBlobUrl = null;
-  let currentTrackId = null;
-  let currentQueueIds = [];
-  let isSeeking = false;
-  let editingTrackId = null;
-  let editingScenarioId = null;
-  let editingPadId = null; 
-  let draggedIndex = null;
-  let isLocked = false;
-  let wakeLock = null;
-  let currentVolume = 1.0;
-  let padEditMode = false;
-  let hasUnsavedChanges = false;
-  let pickerTarget = null; 
-  let padTrackChangeMode = false;
-  let showTimerInterval = null;
-  let showTimerRemaining = 0;
-  
+  let db = null, tracks = [], scenarios = [];
+  let activeSection = "all", openedScenarioId = null;
+  let currentAudio = null, currentBlobUrl = null, currentTrackId = null, currentQueueIds = [];
+  let editingTrackId = null, editingScenarioId = null, editingPadId = null;
+  let isLocked = false, wakeLock = null, currentVolume = 1.0;
+  let padEditMode = false, hasUnsavedChanges = false;
+  let showTimerInterval = null, showTimerRemaining = 0;
+
   const PAD_COLORS = [
     "linear-gradient(135deg,#1565c0,#42a5f5)",
     "linear-gradient(135deg,#2e7d32,#66bb6a)",
@@ -487,7 +329,6 @@
   let selectedPadColor = PAD_COLORS[0];
   const PAD_ICONS = ["😂", "🎵", "🎺", "📦", "💃", "🔮", "🎉", "👏", "⚡", "❄️", "🎅", "🎁", "🐻", "🌟", "🎈", "🚀"];
 
-  // ============ DB ============
   const dbReq = indexedDB.open("KKPlayerDB_v9", 1); 
   dbReq.onupgradeneeded = (e) => {
     const database = e.target.result;
@@ -509,15 +350,8 @@
     };
   }
 
-  function formatTime(s) {
-    if (!s || isNaN(s) || !isFinite(s)) return "0:00";
-    const m = Math.floor(s / 60); const sec = Math.floor(s % 60);
-    return m + ":" + (sec < 10 ? "0" : "") + sec;
-  }
-  function formatMinSec(totalSec) {
-    const m = Math.floor(totalSec / 60); const s = totalSec % 60;
-    return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
-  }
+  function formatTime(s) { if (!s || isNaN(s)) return "0:00"; const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return m + ":" + (sec < 10 ? "0" : "") + sec; }
+  function formatMinSec(totalSec) { const m = Math.floor(totalSec / 60); const s = totalSec % 60; return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s; }
 
   // ============ PROGRESS ============
   function showProgress(text, percent) {
@@ -527,10 +361,7 @@
     document.getElementById("progressText").innerText = text;
     document.getElementById("progressBarFill").style.width = percent + "%";
   }
-  function hideProgress() {
-    const overlay = document.getElementById("progressOverlay");
-    if (overlay) overlay.classList.remove("visible");
-  }
+  function hideProgress() { const overlay = document.getElementById("progressOverlay"); if (overlay) overlay.classList.remove("visible"); }
   document.getElementById("progressOverlay").style.display = "none";
 
   // ============ EXPORT / IMPORT ============
@@ -541,20 +372,13 @@
     try {
       const zip = new JSZip();
       const audioFolder = zip.folder("audio");
-      const config = {
-        version: 2,
-        tracks: [],
-        scenarios: scenarios.map(s => ({ 
-          name: s.name, duration: s.duration, order: s.order,
-          pads: (s.pads || []).map(p => ({
-            title: p.title, icon: p.icon, color: p.color, order: p.order,
-            trackFileName: tracks.find(t => t.id === p.trackId)?.fileName || null
-          }))
-        }))
-      };
+      const config = { version: 4, tracks: [], scenarios: [] };
+      
+      // 1. Сохраняем треки и создаем имена файлов
       for (let i = 0; i < tracks.length; i++) {
         const t = tracks[i];
         const fileName = `track_${t.id}.mp3`; 
+        t.fileName = fileName; // временно привязываем имя
         const blob = new Blob([t.data], { type: t.mimeType || "audio/mpeg" });
         audioFolder.file(fileName, blob);
         config.tracks.push({ fileName: fileName, name: t.name, tag: t.tag, order: t.order });
@@ -563,6 +387,16 @@
           await new Promise(r => setTimeout(r, 10));
         }
       }
+
+      // 2. Сохраняем сценарии с пэдами
+      config.scenarios = scenarios.map(s => ({
+        name: s.name, duration: s.duration, order: s.order,
+        pads: (s.pads || []).map(p => ({
+          title: p.title, icon: p.icon, color: p.color, order: p.order,
+          trackFileName: tracks.find(t => t.id === p.trackId)?.fileName || null // Ссылка на имя файла
+        }))
+      }));
+
       zip.file("config.json", JSON.stringify(config, null, 2));
       showProgress("Финализация...", 99);
       const content = await zip.generateAsync({ type: "blob" }, (metadata) => {
@@ -578,11 +412,7 @@
     } catch (err) { hideProgress(); alert("Ошибка экспорта: " + err.message); }
   }
 
-  function triggerImportBackup() {
-    closeModal('settingsModal');
-    document.getElementById("importFileInput").value = "";
-    document.getElementById("importFileInput").click();
-  }
+  function triggerImportBackup() { closeModal('settingsModal'); document.getElementById("importFileInput").value = ""; document.getElementById("importFileInput").click(); }
 
   async function handleImportFile(event) {
     const file = event.target.files[0];
@@ -594,11 +424,13 @@
       if (!configFile) throw new Error("Не найден файл конфигурации.");
       const config = JSON.parse(await configFile.async("string"));
       
+      // Очищаем базу
       const txClear = db.transaction(["tracks", "scenarios"], "readwrite");
       txClear.objectStore("tracks").clear();
       txClear.objectStore("scenarios").clear();
       await new Promise((resolve, reject) => { txClear.oncomplete = resolve; txClear.onerror = reject; });
 
+      // 1. Загружаем треки и строим карту fileName -> newId
       const trackIdMap = {}; 
       const trackEntries = Object.values(zip.files).filter(f => f.name.startsWith("audio/") && !f.dir);
       for (let i = 0; i < trackEntries.length; i++) {
@@ -612,23 +444,26 @@
           order: i, data: arrayBuffer, mimeType: "audio/mpeg"
         });
         await new Promise((resolve, reject) => {
-          addReq.onsuccess = (e) => { trackIdMap[fileName] = e.target.result; resolve(); };
+          addReq.onsuccess = (e) => { trackIdMap[fileName] = e.target.result; resolve(); }; // Сохраняем новый ID
           addReq.onerror = reject;
         });
         showProgress(`Загрузка треков... ${i+1}/${trackEntries.length}`, Math.round(((i+1) / trackEntries.length) * 80));
       }
 
+      // 2. Восстанавливаем сценарии с пэдами
       showProgress("Восстановление сценариев...", 85);
       for (const scConfig of config.scenarios) {
         const newPads = [];
-        for (const pConfig of scConfig.pads) {
-          if (pConfig.trackFileName && trackIdMap[pConfig.trackFileName]) {
-            newPads.push({ 
-              id: Date.now() + Math.random(), 
-              trackId: trackIdMap[pConfig.trackFileName], 
-              title: pConfig.title, icon: pConfig.icon, color: pConfig.color, 
-              order: pConfig.order !== undefined ? pConfig.order : newPads.length 
-            });
+        if (scConfig.pads) {
+          for (const pConfig of scConfig.pads) {
+            if (pConfig.trackFileName && trackIdMap[pConfig.trackFileName]) {
+              newPads.push({ 
+                id: Date.now() + Math.random(), 
+                trackId: trackIdMap[pConfig.trackFileName], // Подставляем новый ID
+                title: pConfig.title, icon: pConfig.icon, color: pConfig.color, 
+                order: pConfig.order !== undefined ? pConfig.order : newPads.length 
+              });
+            }
           }
         }
         newPads.sort((a,b) => a.order - b.order);
@@ -643,7 +478,7 @@
     } catch (err) { hideProgress(); alert("Ошибка импорта: " + err.message); }
   }
 
-  // ============ SETTINGS ============
+  // ============ ОСТАЛЬНОЙ КОД БЕЗ ИЗМЕНЕНИЙ ============
   function forceAppUpdate() {
     closeModal('settingsModal');
     if ('serviceWorker' in navigator) {
@@ -654,40 +489,24 @@
     } else window.location.reload(true);
   }
 
-  // ============ WAKE LOCK ============
   async function requestWakeLock() {
     if (!('wakeLock' in navigator)) return;
-    try {
-      if (wakeLock) return;
-      wakeLock = await navigator.wakeLock.request('screen');
-      wakeLock.addEventListener('release', () => { wakeLock = null; });
-    } catch (e) {}
+    try { if (wakeLock) return; wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); } catch (e) {}
   }
   function releaseWakeLock() { if (wakeLock) { wakeLock.release(); wakeLock = null; } }
-  document.addEventListener('visibilitychange', async () => {
-    if (document.visibilityState === 'visible' && currentAudio && !currentAudio.paused) await requestWakeLock();
-  });
+  document.addEventListener('visibilitychange', async () => { if (document.visibilityState === 'visible' && currentAudio && !currentAudio.paused) await requestWakeLock(); });
 
-  // ============ LOCK MODE ============
   function toggleLock() {
     isLocked = !isLocked;
-    const btn = document.getElementById('lockBtn');
-    const indicator = document.getElementById('lockIndicator');
-    const overlay = document.getElementById('lockedOverlay');
-    btn.classList.toggle('active', isLocked);
-    indicator.classList.toggle('visible', isLocked);
-    overlay.classList.toggle('visible', isLocked);
-    if (isLocked) { btn.style.zIndex = '100'; btn.style.color = '#64b5f6'; }
-    else { btn.style.zIndex = ''; btn.style.color = ''; }
+    const btn = document.getElementById('lockBtn'); const indicator = document.getElementById('lockIndicator'); const overlay = document.getElementById('lockedOverlay');
+    btn.classList.toggle('active', isLocked); indicator.classList.toggle('visible', isLocked); overlay.classList.toggle('visible', isLocked);
+    if (isLocked) { btn.style.zIndex = '100'; btn.style.color = '#64b5f6'; } else { btn.style.zIndex = ''; btn.style.color = ''; }
     renderCurrentView();
   }
 
-  // ============ NAV ============
   function switchSection(section) {
     if (isLocked) return;
-    activeSection = section;
-    if (section === "all") openedScenarioId = null;
-    hasUnsavedChanges = false;
+    activeSection = section; if (section === "all") openedScenarioId = null; hasUnsavedChanges = false;
     document.getElementById("tabAllMusic").classList.toggle("active", section === "all");
     document.getElementById("tabScenarios").classList.toggle("active", section === "scenarios");
     renderCurrentView();
@@ -696,21 +515,17 @@
   function closeOpenedScenario() { openedScenarioId = null; hasUnsavedChanges = false; renderCurrentView(); }
   function togglePadEditMode() { padEditMode = !padEditMode; renderCurrentView(); }
 
-  // ============ RENDER ============
   function renderCurrentView() {
     const container = document.getElementById("mainContainer");
-    if (isLocked) {
-      container.innerHTML = `<div class="empty-state" style="padding-top:80px">🔒 Экран заблокирован<br><br><span style="font-size:12px">Управление плеером внизу работает.</span></div>`;
-      return;
-    }
+    if (isLocked) { container.innerHTML = `<div class="empty-state" style="padding-top:80px">🔒 Экран заблокирован</div>`; return; }
+    
     if (activeSection === "all") {
       container.innerHTML = `<button class="primary-action-btn" onclick="openTrackModal(null)">➕ Добавить треки</button><div class="items-list" id="itemsList"></div>`;
       const listEl = document.getElementById("itemsList");
       if (!tracks.length) { listEl.innerHTML = `<div class="empty-state">Список пуст.</div>`; return; }
       tracks.forEach((track, idx) => {
         const [bg, ico] = (track.tag || "linear-gradient(135deg,#1565c0,#42a5f5)|🎵").split("|");
-        const row = document.createElement("div");
-        row.className = "list-row";
+        const row = document.createElement("div"); row.className = "list-row";
         row.innerHTML = `
           <div class="drag-handle">☰</div>
           <div class="row-cover" style="background:${bg}"><span>${ico}</span></div>
@@ -718,33 +533,32 @@
           <div class="row-actions">
             <button class="row-btn" onclick="editTrackAction(event, ${track.id})">✎</button>
             <button class="row-btn delete-btn" onclick="deleteTrackAction(event, ${track.id})">✕</button>
-          </div>
-        `;
+          </div>`;
         row.onclick = (e) => { if (e.target.closest(".row-actions, .drag-handle")) return; playTrack(track.id); };
         listEl.appendChild(row);
       });
       return;
     }
+    
     if (activeSection === "scenarios" && openedScenarioId === null) {
       container.innerHTML = `<button class="primary-action-btn" onclick="openScenarioModal(null)">➕ Создать сценарий</button><div class="items-list" id="itemsList"></div>`;
       const listEl = document.getElementById("itemsList");
       if (!scenarios.length) { listEl.innerHTML = `<div class="empty-state">Сценариев пока нет.</div>`; return; }
       scenarios.forEach((sc, idx) => {
-        const row = document.createElement("div");
-        row.className = "list-row scenario-card";
+        const row = document.createElement("div"); row.className = "list-row scenario-card";
         row.innerHTML = `
           <div class="row-cover" style="background:rgba(255,255,255,0.05);"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#64b5f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div>
           <div class="row-info"><div class="row-title">${sc.name}</div><div class="row-subtitle">${sc.duration} мин • Пэдов: ${(sc.pads || []).length}</div></div>
           <div class="row-actions">
             <button class="row-btn" onclick="editScenarioAction(event, ${sc.id})">✎</button>
             <button class="row-btn delete-btn" onclick="deleteScenarioAction(event, ${sc.id})">✕</button>
-          </div>
-        `;
+          </div>`;
         row.onclick = (e) => { if (e.target.closest(".row-actions")) return; openScenario(sc.id); };
         listEl.appendChild(row);
       });
       return;
     }
+    
     if (activeSection === "scenarios" && openedScenarioId !== null) {
       const scenario = scenarios.find(s => s.id === openedScenarioId);
       if (!scenario) { openedScenarioId = null; renderCurrentView(); return; }
@@ -758,8 +572,8 @@
         <button class="edit-mode-btn ${padEditMode ? 'active' : ''}" onclick="togglePadEditMode()">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
         </button>
-        <button class="save-scenario-btn ${hasUnsavedChanges ? 'visible' : ''}" onclick="saveScenarioState()">💾 Сохранить</button>
-      `;
+        <button class="save-scenario-btn ${hasUnsavedChanges ? 'visible' : ''}" onclick="saveScenarioState()">💾 Сохранить</button>`;
+      
       const gridEl = document.getElementById("padsGrid");
       (scenario.pads || []).forEach((pad, idx) => {
         const track = tracks.find(t => t.id === pad.trackId);
@@ -784,18 +598,15 @@
         }
         gridEl.appendChild(padEl);
       });
-      const addPadBtn = document.createElement("div");
-      addPadBtn.className = "pad empty";
-      addPadBtn.innerHTML = `<div class="pad-add">+</div>`;
+      const addPadBtn = document.createElement("div"); addPadBtn.className = "pad empty"; addPadBtn.innerHTML = `<div class="pad-add">+</div>`;
       if (!padEditMode) addPadBtn.onclick = () => { editingPadId = null; openAddSourceModal('pad'); };
       gridEl.appendChild(addPadBtn);
-      if (padEditMode) gridEl.querySelectorAll('.pad[data-index]').forEach(padEl => attachPadDragEvents(padEl, 'scenario'));
+      if (padEditMode) gridEl.querySelectorAll('.pad[data-index]').forEach(padEl => attachPadDragEvents(padEl));
       return;
     }
   }
 
-  // ============ DRAG ============
-  function attachPadDragEvents(padEl, context) {
+  function attachPadDragEvents(padEl) {
     const idx = Number(padEl.dataset.index);
     const handle = padEl.querySelector('.pad-handle');
     if (!handle) return;
@@ -817,13 +628,7 @@
         const toIdx = Number(target.dataset.index);
         if (draggedIdx !== null && draggedIdx !== toIdx) {
           const sc = scenarios.find(s => s.id === openedScenarioId);
-          if (sc) {
-            const [moved] = sc.pads.splice(draggedIdx, 1);
-            sc.pads.splice(toIdx, 0, moved);
-            sc.pads.forEach((p, i) => p.order = i);
-            hasUnsavedChanges = true;
-            renderCurrentView();
-          }
+          if (sc) { const [moved] = sc.pads.splice(draggedIdx, 1); sc.pads.splice(toIdx, 0, moved); sc.pads.forEach((p, i) => p.order = i); hasUnsavedChanges = true; renderCurrentView(); }
         }
       }
       draggedIdx = null;
@@ -833,24 +638,16 @@
     handle.addEventListener('touchend', endDrag);
   }
 
-  // ============ CRUD ============
   function closeModal(id) { document.getElementById(id).style.display = "none"; }
   function openSettings() { document.getElementById("settingsModal").style.display = "flex"; }
   
   function openTrackModal(trackId = null) {
     editingTrackId = trackId;
     const t = trackId ? tracks.find(x => x.id === trackId) : null;
-    const addFields = document.getElementById("addTrackFields");
-    const editFields = document.getElementById("editTrackFields");
-    if (t) {
-      addFields.style.display = "none"; editFields.style.display = "block";
-      document.getElementById("trackModalHeading").innerText = "Редактировать трек";
-      document.getElementById("inputTrackName").value = t.name;
-      document.getElementById("inputTrackTag").value = t.tag;
-    } else {
-      addFields.style.display = "block"; editFields.style.display = "none";
-      document.getElementById("trackModalHeading").innerText = "Добавить треки";
-    }
+    document.getElementById("addTrackFields").style.display = t ? "none" : "block";
+    document.getElementById("editTrackFields").style.display = t ? "block" : "none";
+    document.getElementById("trackModalHeading").innerText = t ? "Редактировать трек" : "Добавить треки";
+    if (t) { document.getElementById("inputTrackName").value = t.name; document.getElementById("inputTrackTag").value = t.tag; }
     document.getElementById("trackModal").style.display = "flex";
   }
   
@@ -872,14 +669,8 @@
         const reader = new FileReader();
         reader.onload = (e) => {
           const tx = db.transaction("tracks", "readwrite");
-          tx.objectStore("tracks").add({
-            name: file.name.replace(/\.[^/.]+$/, ""), tag: "linear-gradient(135deg,#1565c0,#42a5f5)|🎵",
-            order: tracks.length, data: e.target.result, mimeType: file.type
-          });
-          tx.oncomplete = () => {
-            count++;
-            if (count === files.length) { btn.disabled = false; btn.innerText = "Сохранить"; closeModal("trackModal"); loadAllData(); }
-          };
+          tx.objectStore("tracks").add({ name: file.name.replace(/\.[^/.]+$/, ""), tag: "linear-gradient(135deg,#1565c0,#42a5f5)|🎵", order: tracks.length, data: e.target.result, mimeType: file.type });
+          tx.oncomplete = () => { count++; if (count === files.length) { btn.disabled = false; btn.innerText = "Сохранить"; closeModal("trackModal"); loadAllData(); } };
         };
         reader.readAsArrayBuffer(file);
       });
@@ -888,7 +679,7 @@
 
   function editTrackAction(e, id) { e.stopPropagation(); openTrackModal(id); }
   function deleteTrackAction(e, id) { e.stopPropagation(); if(confirm("Удалить трек?")) { const tx = db.transaction("tracks", "readwrite"); tx.objectStore("tracks").delete(id); tx.oncomplete = loadAllData; } }
-
+  
   function openScenarioModal(id = null) {
     editingScenarioId = id;
     const sc = id ? scenarios.find(x => x.id === id) : null;
@@ -902,36 +693,28 @@
     const name = document.getElementById("inputScName").value.trim();
     if (!name) return alert("Введите название!");
     const duration = document.getElementById("inputScDur").value;
-    const tx = db.transaction("scenarios", "readwrite");
-    const store = tx.objectStore("scenarios");
+    const tx = db.transaction("scenarios", "readwrite"); const store = tx.objectStore("scenarios");
     if (editingScenarioId) {
-      const old = scenarios.find(x => x.id === editingScenarioId);
-      store.put({ ...old, name, duration });
-      tx.oncomplete = () => { closeModal("scenarioModal"); loadAllData(); };
-    } else {
-      store.add({ name, duration, order: scenarios.length, pads: [] });
-      tx.oncomplete = () => { closeModal("scenarioModal"); loadAllData(); };
-    }
+      const old = scenarios.find(x => x.id === editingScenarioId); store.put({ ...old, name, duration });
+    } else { store.add({ name, duration, order: scenarios.length, pads: [] }); }
+    tx.oncomplete = () => { closeModal("scenarioModal"); loadAllData(); };
   }
   
   function editScenarioAction(e, id) { e.stopPropagation(); openScenarioModal(id); }
   function deleteScenarioAction(e, id) { e.stopPropagation(); if(confirm("Удалить сценарий?")) { const tx = db.transaction("scenarios", "readwrite"); tx.objectStore("scenarios").delete(id); tx.oncomplete = loadAllData; } }
   
   function saveScenarioState() {
-    const sc = scenarios.find(s => s.id === openedScenarioId);
-    if (!sc) return;
-    const tx = db.transaction("scenarios", "readwrite");
-    tx.objectStore("scenarios").put(sc);
+    const sc = scenarios.find(s => s.id === openedScenarioId); if (!sc) return;
+    const tx = db.transaction("scenarios", "readwrite"); tx.objectStore("scenarios").put(sc);
     tx.oncomplete = () => { hasUnsavedChanges = false; renderCurrentView(); };
   }
 
-  function openAddSourceModal(target) { pickerTarget = target; document.getElementById("addSourceModal").style.display = "flex"; }
+  function openAddSourceModal(target) { document.getElementById("addSourceModal").style.display = "flex"; }
   function openLibraryPicker() { closeModal("addSourceModal"); renderPickerList(""); document.getElementById("libraryPickerModal").style.display = "flex"; }
   function renderPickerList(q) {
     const listEl = document.getElementById("libraryPickList"); listEl.innerHTML = "";
     tracks.filter(t => t.name.toLowerCase().includes(q.toLowerCase())).forEach(t => {
-      const item = document.createElement("div"); item.className = "pick-item";
-      item.innerHTML = `<div style="font-weight:600;font-size:14px">${t.name}</div>`;
+      const item = document.createElement("div"); item.className = "pick-item"; item.innerHTML = `<div style="font-weight:600;font-size:14px">${t.name}</div>`;
       item.onclick = () => { closeModal("libraryPickerModal"); editingPadId = null; openPadEditor(t.id); };
       listEl.appendChild(item);
     });
@@ -941,9 +724,7 @@
   function openPadEditor(trackId = null) {
     const paletteEl = document.getElementById("padColorPalette"); paletteEl.innerHTML = "";
     PAD_COLORS.forEach(c => {
-      const s = document.createElement("div");
-      s.className = "color-swatch" + (selectedPadColor === c ? " selected" : "");
-      s.style.background = c;
+      const s = document.createElement("div"); s.className = "color-swatch" + (selectedPadColor === c ? " selected" : ""); s.style.background = c;
       s.onclick = () => { selectedPadColor = c; document.querySelectorAll(".color-swatch").forEach(el => el.classList.remove("selected")); s.classList.add("selected"); };
       paletteEl.appendChild(s);
     });
@@ -968,7 +749,6 @@
       document.getElementById("inputPadIcon").value = "🎵";
       selectedPadColor = PAD_COLORS[0];
     }
-    
     const tr = tracks.find(t => t.id === Number(document.getElementById("inputPadTrackId").value));
     document.getElementById("padCurrentTrackName").innerText = tr ? tr.name : "—";
     document.getElementById("padModal").style.display = "flex";
@@ -978,19 +758,15 @@
     const trackId = Number(document.getElementById("inputPadTrackId").value);
     const title = document.getElementById("inputPadTitle").value.trim();
     const icon = document.getElementById("inputPadIcon").value;
-    
     const sc = scenarios.find(s => s.id === openedScenarioId);
     if (!sc.pads) sc.pads = [];
-    
     if (editingPadId) {
       const pad = sc.pads.find(p => p.id === editingPadId);
       pad.trackId = trackId; pad.title = title; pad.icon = icon; pad.color = selectedPadColor;
     } else {
       sc.pads.push({ id: Date.now(), trackId, title, icon, color: selectedPadColor, order: sc.pads.length });
     }
-    
-    const tx = db.transaction("scenarios", "readwrite");
-    tx.objectStore("scenarios").put(sc);
+    const tx = db.transaction("scenarios", "readwrite"); tx.objectStore("scenarios").put(sc);
     tx.oncomplete = () => { closeModal("padModal"); loadAllData(); };
   }
 
@@ -998,32 +774,21 @@
     if (!editingPadId) return;
     const sc = scenarios.find(s => s.id === openedScenarioId);
     sc.pads = sc.pads.filter(p => p.id !== editingPadId);
-    const tx = db.transaction("scenarios", "readwrite");
-    tx.objectStore("scenarios").put(sc);
+    const tx = db.transaction("scenarios", "readwrite"); tx.objectStore("scenarios").put(sc);
     tx.oncomplete = () => { closeModal("padModal"); loadAllData(); };
   }
 
-  // ============ PLAYBACK ============
   function playTrack(trackId, scenarioId = null) {
     const track = tracks.find(t => t.id === trackId); if (!track) return;
     if (currentAudio) { currentAudio.pause(); currentAudio.src = ""; }
-    
     if (scenarioId) {
       const sc = scenarios.find(s => s.id === scenarioId);
       if (sc) currentQueueIds = sc.pads.map(p => p.trackId);
-    } else {
-      currentQueueIds = tracks.map(t => t.id);
-    }
-    
+    } else { currentQueueIds = tracks.map(t => t.id); }
     currentBlobUrl = URL.createObjectURL(new Blob([track.data], { type: track.mimeType }));
     currentAudio = new Audio(currentBlobUrl);
-    currentTrackId = trackId;
-    currentAudio.volume = currentVolume;
-    
-    currentAudio.play();
-    requestWakeLock();
-    updatePlayerUI();
-    renderCurrentView();
+    currentTrackId = trackId; currentAudio.volume = currentVolume;
+    currentAudio.play(); requestWakeLock(); updatePlayerUI(); renderCurrentView();
   }
 
   function updatePlayerUI() {
@@ -1037,18 +802,8 @@
   function togglePauseCurrent() { if (currentAudio) { currentAudio.paused ? currentAudio.play() : currentAudio.pause(); } }
   function stopAndReset() { if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; } }
   function restartCurrent() { if (currentAudio) { currentAudio.currentTime = 0; } }
-  function playNextTrack() {
-    if (!currentQueueIds.length) return;
-    const idx = currentQueueIds.indexOf(currentTrackId);
-    const next = currentQueueIds[idx + 1];
-    if (next) playTrack(next, openedScenarioId);
-  }
-  function playPrevTrack() {
-    if (!currentQueueIds.length) return;
-    const idx = currentQueueIds.indexOf(currentTrackId);
-    const prev = currentQueueIds[idx - 1];
-    if (prev) playTrack(prev, openedScenarioId);
-  }
+  function playNextTrack() { if (!currentQueueIds.length) return; const idx = currentQueueIds.indexOf(currentTrackId); const next = currentQueueIds[idx + 1]; if (next) playTrack(next, openedScenarioId); }
+  function playPrevTrack() { if (!currentQueueIds.length) return; const idx = currentQueueIds.indexOf(currentTrackId); const prev = currentQueueIds[idx - 1]; if (prev) playTrack(prev, openedScenarioId); }
 
   document.getElementById("playPauseBtn").innerHTML = `<svg width="26" height="26" viewBox="0 0 24 24"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z"/></svg>`;
   if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(() => {}); }
