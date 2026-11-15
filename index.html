@@ -312,6 +312,7 @@ body{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
   let db = null, tracks = [], scenarios = [];
   let activeSection = "all", openedScenarioId = null;
   let currentFolderFilter = "__all__", currentPadId = null, currentPlaybackMode = "music";
+  let musicFolders = (() => { try { return JSON.parse(localStorage.getItem("kk-player-folders") || "[]"); } catch(e) { return []; } })();
   let currentAudio = null, currentBlobUrl = null, currentTrackId = null, currentQueueIds = [];
   let editingTrackId = null, editingScenarioId = null, editingPadId = null;
   let isLocked = false, wakeLock = null, currentVolume = 1.0;
@@ -354,7 +355,7 @@ body{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
     try {
       const zip = new JSZip();
       const audioFolder = zip.folder("audio");
-      const config = { version: 6, tracks: [], scenarios: [] };
+      const config = { version: 7, tracks: [], scenarios: [], folders: [...new Set([...musicFolders, ...tracks.map(t => t.folder).filter(Boolean)])] };
       
       for (let i = 0; i < tracks.length; i++) {
         const t = tracks[i];
@@ -396,6 +397,7 @@ body{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
       const configFile = zip.file("config.json");
       if (!configFile) throw new Error("В архиве нет config.json.");
       const config = JSON.parse(await configFile.async("string"));
+      if (Array.isArray(config.folders)) { musicFolders = config.folders.filter(x => typeof x === "string" && x.trim()); localStorage.setItem("kk-player-folders", JSON.stringify(musicFolders)); }
       if (!config || !Array.isArray(config.tracks) || !Array.isArray(config.scenarios)) {
         throw new Error("Неверный формат резервной копии.");
       }
@@ -520,7 +522,7 @@ body{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
   function renderFolderFilter() {
     const host = document.getElementById("folderFilter");
     if (!host) return;
-    const folders = [...new Set(tracks.map(t => t.folder).filter(Boolean))].sort((a,b) => a.localeCompare(b, "ru"));
+    const folders = [...new Set([...musicFolders, ...tracks.map(t => t.folder).filter(Boolean)])].sort((a,b) => a.localeCompare(b, "ru"));
     host.innerHTML = "";
     const addChip = (label, value) => {
       const btn = document.createElement("button");
@@ -537,6 +539,8 @@ body{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
     if (name === null) return;
     const clean = name.trim();
     if (!clean) return alert("Введите название папки.");
+    if (!musicFolders.includes(clean)) musicFolders.push(clean);
+    localStorage.setItem("kk-player-folders", JSON.stringify(musicFolders));
     currentFolderFilter = clean;
     renderCurrentView();
   }
@@ -850,7 +854,9 @@ body{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
       if (btn) btn.innerHTML = '<svg width="26" height="26" viewBox="0 0 24 24"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z"/></svg>';
     });
     audio.addEventListener("ended", () => {
-      if (currentAudio === audio) playNextTrack();
+      if (currentAudio !== audio) return;
+      if (currentPlaybackMode === "pad") { currentPadId = null; refreshPadPlaybackUI(); }
+      else playNextTrack();
     });
     audio.addEventListener("error", () => {
       if (currentAudio === audio) {
