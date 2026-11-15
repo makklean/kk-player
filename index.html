@@ -560,6 +560,38 @@ header{background:#000!important;backdrop-filter:none!important}
     else window.location.reload(true);
   }
 
+  // ============ ANDROID BACK NAVIGATION ============
+  // Keep an in-app history entry so Android/browser Back navigates inside the player.
+  function installBackNavigation() {
+    if (!history.state || !history.state.kkPlayerBackGuard) {
+      history.pushState({ kkPlayerBackGuard: true }, "", location.href);
+    }
+    window.addEventListener("popstate", () => {
+      const visibleModals = [...document.querySelectorAll(".modal-overlay")]
+        .filter(el => getComputedStyle(el).display !== "none");
+      if (visibleModals.length) {
+        visibleModals[visibleModals.length - 1].style.display = "none";
+        history.pushState({ kkPlayerBackGuard: true }, "", location.href);
+        return;
+      }
+      if (activeSection === "all" && currentFolderFilter !== "__all__") {
+        exitMusicFolder();
+        history.pushState({ kkPlayerBackGuard: true }, "", location.href);
+        return;
+      }
+      if (activeSection === "scenarios" && openedScenarioId !== null) {
+        closeOpenedScenario();
+        history.pushState({ kkPlayerBackGuard: true }, "", location.href);
+        return;
+      }
+      if (!window.confirm("Выйти из приложения?")) {
+        history.pushState({ kkPlayerBackGuard: true }, "", location.href);
+      }
+      // On confirmation, do not restore the guard: Android/browser can leave the app.
+    });
+  }
+  installBackNavigation();
+
   // ============ WAKE LOCK ============
   async function requestWakeLock() { if (!('wakeLock' in navigator)) return; try { if (wakeLock) return; wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); } catch (e) {} }
   function releaseWakeLock() { if (wakeLock) { wakeLock.release(); wakeLock = null; } }
