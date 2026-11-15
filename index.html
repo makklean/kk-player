@@ -249,6 +249,10 @@ header{background:#000!important;backdrop-filter:none!important}
   .folder-back-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 13px!important;border:1px solid #343434!important;border-radius:10px;background:#171717!important;color:#fff!important;font-size:13px;font-weight:750}
   .file-location{gap:10px;flex-wrap:wrap}
   .save-scenario-btn{background:linear-gradient(135deg,#315b49,#3b6b55)!important;border:1px solid rgba(130,190,155,.18);box-shadow:none;color:#e5f1e9}
+/* Dedicated touch-scroll viewport for long scenario pad grids. */
+.pads-scroll{display:block;width:100%;height:calc(100vh - 230px);height:calc(100dvh - 230px);min-height:180px;overflow-x:hidden;overflow-y:scroll;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;touch-action:pan-y;position:relative;padding:0 2px 190px}
+.pads-scroll>.pads-grid{height:auto!important;max-height:none!important;overflow:visible!important;touch-action:pan-y}
+@media(max-width:600px){.pads-scroll{height:calc(100vh - 215px);height:calc(100dvh - 215px);padding-bottom:190px}}
 /* Ensure the pad screen remains vertically scrollable in standalone Android PWAs. */
 html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:auto!important;-webkit-overflow-scrolling:touch}
 #mainContainer{height:auto!important;min-height:0;overflow:visible!important;padding-bottom:calc(230px + env(safe-area-inset-bottom))}
@@ -790,7 +794,7 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
     if (activeSection === "scenarios" && openedScenarioId !== null) {
       const scenario = scenarios.find(s => s.id === openedScenarioId);
       if (!scenario) { openedScenarioId = null; renderCurrentView(); return; }
-      container.innerHTML = '<div class="playlist-sub-header"><button class="back-btn" onclick="closeOpenedScenario()">← Назад</button><div class="sub-header-title"></div><button class="row-btn" onclick="openScenarioModal(' + scenario.id + ')">✎</button></div><div class="pad-mode-toolbar"><span>' + (hasUnsavedChanges ? "" : (padEditMode ? "Перетаскивайте пэды за маркер" : "Каждый пэд — отдельный мини-плеер")) + '</span>' + (hasUnsavedChanges ? '<button class="save-scenario-btn visible" style="float:none;margin:0;padding:9px 14px" onclick="saveScenarioState()">💾 Сохранить порядок</button>' : '') + '<button class="edit-mode-btn ' + (padEditMode ? "active" : "") + '" style="display:flex;width:auto;height:40px;border-radius:12px;padding:0 14px;font-size:13px" onclick="togglePadEditMode()">' + (padEditMode ? "✓ Готово" : "✎ Редактировать") + '</button></div><div class="pads-grid ' + (padEditMode ? "edit-mode" : "") + '" id="padsGrid"></div>';
+      container.innerHTML = '<div class="playlist-sub-header"><button class="back-btn" onclick="closeOpenedScenario()">← Назад</button><div class="sub-header-title"></div><button class="row-btn" onclick="openScenarioModal(' + scenario.id + ')">✎</button></div><div class="pad-mode-toolbar"><span>' + (hasUnsavedChanges ? "" : (padEditMode ? "Перетаскивайте пэды за маркер" : "Каждый пэд — отдельный мини-плеер")) + '</span>' + (hasUnsavedChanges ? '<button class="save-scenario-btn visible" style="float:none;margin:0;padding:9px 14px" onclick="saveScenarioState()">💾 Сохранить порядок</button>' : '') + '<button class="edit-mode-btn ' + (padEditMode ? "active" : "") + '" style="display:flex;width:auto;height:40px;border-radius:12px;padding:0 14px;font-size:13px" onclick="togglePadEditMode()">' + (padEditMode ? "✓ Готово" : "✎ Редактировать") + '</button></div><div class="pads-scroll" id="padsScroll"><div class="pads-grid ' + (padEditMode ? "edit-mode" : "") + '" id="padsGrid"></div></div>';
       container.querySelector(".sub-header-title").textContent = scenario.name;
       const grid = document.getElementById("padsGrid");
       const visiblePads = (scenario.pads || []).map((pad, idx) => ({ pad, idx })).filter(item => tracks.some(t => t.id === item.pad.trackId));
