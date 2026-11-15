@@ -489,6 +489,10 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
   async function handleImportFile(event) {
     const file = event.target.files && event.target.files[0];
     if (!file) return;
+    if (!confirm("Импорт заменит текущую музыку, папки и сценарии данными из архива. Перед продолжением убедитесь, что у вас есть резервная копия. Продолжить?")) {
+      event.target.value = "";
+      return;
+    }
     showProgress("Проверка архива...", 0);
     try {
       if (typeof JSZip === "undefined") throw new Error("Библиотека ZIP не загружена.");
@@ -497,7 +501,9 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
       const configFile = zip.file("config.json");
       if (!configFile) throw new Error("В архиве нет config.json.");
       const config = JSON.parse(await configFile.async("string"));
-      if (Array.isArray(config.folders)) { musicFolders = config.folders.filter(x => typeof x === "string" && x.trim()); localStorage.setItem("kk-player-folders", JSON.stringify(musicFolders)); }
+      const importedFolders = Array.isArray(config.folders)
+        ? config.folders.filter(x => typeof x === "string" && x.trim())
+        : null;
       if (!config || !Array.isArray(config.tracks) || !Array.isArray(config.scenarios)) {
         throw new Error("Неверный формат резервной копии.");
       }
@@ -573,6 +579,10 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
         tx.onerror = () => reject(tx.error || new Error("Не удалось записать данные."));
         tx.onabort = () => reject(tx.error || new Error("Импорт отменён: транзакция прервана."));
       });
+      if (importedFolders !== null) {
+        musicFolders = importedFolders;
+        localStorage.setItem("kk-player-folders", JSON.stringify(musicFolders));
+      }
       hideProgress();
       alert("Импорт завершён. Загружено треков: " + trackEntries.length + ", сценариев: " + config.scenarios.length + ".");
       window.location.reload();
