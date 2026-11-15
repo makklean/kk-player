@@ -249,7 +249,13 @@ header{background:#000!important;backdrop-filter:none!important}
   .folder-back-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 13px!important;border:1px solid #343434!important;border-radius:10px;background:#171717!important;color:#fff!important;font-size:13px;font-weight:750}
   .file-location{gap:10px;flex-wrap:wrap}
   .save-scenario-btn{background:linear-gradient(135deg,#315b49,#3b6b55)!important;border:1px solid rgba(130,190,155,.18);box-shadow:none;color:#e5f1e9}
-/* Ensure the pad screen remains vertically scrollable in standalone Android PWAs. */\nhtml,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:auto!important;-webkit-overflow-scrolling:touch}\n#mainContainer{height:auto!important;min-height:0;overflow:visible!important;padding-bottom:calc(230px + env(safe-area-inset-bottom))}\n#padsGrid{height:auto!important;max-height:none!important;overflow:visible!important;align-content:start}\n.tab-pill{white-space:nowrap}\n@media(max-width:380px){.tab-pill{font-size:15px;padding-left:8px;padding-right:8px;min-height:49px}}\n</style>
+/* Ensure the pad screen remains vertically scrollable in standalone Android PWAs. */
+html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:auto!important;-webkit-overflow-scrolling:touch}
+#mainContainer{height:auto!important;min-height:0;overflow:visible!important;padding-bottom:calc(230px + env(safe-area-inset-bottom))}
+#padsGrid{height:auto!important;max-height:none!important;overflow:visible!important;align-content:start}
+.tab-pill{white-space:nowrap}
+@media(max-width:380px){.tab-pill{font-size:15px;padding-left:8px;padding-right:8px;min-height:49px}}
+</style>
 </head>
 <body>
 
@@ -258,7 +264,18 @@ header{background:#000!important;backdrop-filter:none!important}
 <div id="progressOverlay"><div id="progressText">Подготовка...</div><div class="progress-bar-bg"><div id="progressBarFill"></div></div></div>
 <div class="locked-overlay" id="lockedOverlay" onclick="return false;"></div>
 
-<div class="modal-overlay" id="exitConfirmModal" role="dialog" aria-modal="true" aria-labelledby="exitConfirmTitle">\n  <div class="modal-box">\n    <h3 id="exitConfirmTitle">Выйти из приложения?</h3>\n    <p style="color:var(--text-muted);font-size:14px;line-height:1.5;margin:0 0 18px">Вы действительно хотите закрыть плеер?</p>\n    <div class="modal-btns">\n      <button class="m-btn" onclick="cancelExitConfirmation()">Остаться</button>\n      <button class="m-btn m-btn-primary" onclick="confirmExitApplication()">Выйти</button>\n    </div>\n  </div>\n</div>\n\n<header id="mainHeader">
+<div class="modal-overlay" id="exitConfirmModal" role="dialog" aria-modal="true" aria-labelledby="exitConfirmTitle">
+  <div class="modal-box">
+    <h3 id="exitConfirmTitle">Выйти из приложения?</h3>
+    <p style="color:var(--text-muted);font-size:14px;line-height:1.5;margin:0 0 18px">Вы действительно хотите закрыть плеер?</p>
+    <div class="modal-btns">
+      <button class="m-btn" onclick="cancelExitConfirmation()">Остаться</button>
+      <button class="m-btn m-btn-primary" onclick="confirmExitApplication()">Выйти</button>
+    </div>
+  </div>
+</div>
+
+<header id="mainHeader">
   <div class="header-top">
     <div class="brand"><h1 class="brand-title">ʞk</h1></div>
     <div class="header-actions">
