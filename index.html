@@ -281,6 +281,24 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
   .pad-mode-toolbar{display:flex;align-items:center;justify-content:flex-end;gap:9px}
   .pad-mode-toolbar .save-scenario-btn{float:none!important;margin:0!important;padding:9px 12px!important;white-space:nowrap}
   @media(max-width:600px){.pad-title{font-size:clamp(15px,4.4vw,19px)!important;line-height:1.12!important}}
+
+html,body{height:100%;height:100dvh;min-height:0!important;overflow:hidden!important;overscroll-behavior:none}
+body{display:flex;flex-direction:column;padding-bottom:0!important}
+#mainHeader{position:relative!important;top:auto!important;flex:0 0 auto;padding-top:calc(14px + env(safe-area-inset-top,0px))}
+#mainContainer{flex:1 1 auto;display:flex;flex-direction:column;min-height:0!important;height:auto!important;overflow:hidden!important;padding-bottom:0!important}
+#mainContainer>.music-list-scroll,#mainContainer>.scenario-library-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;touch-action:pan-y;padding-bottom:calc(200px + env(safe-area-inset-bottom,0px))}
+#mainContainer>.pads-scroll{flex:1 1 auto;min-height:0;height:auto!important;overflow-y:auto;overscroll-behavior-y:contain;padding-bottom:calc(200px + env(safe-area-inset-bottom,0px))}
+#mainContainer:has(>.pads-scroll){padding-bottom:0}
+.row-cover{display:flex!important;flex:0 0 42px;width:42px;height:42px;border-radius:12px;background:rgba(92,151,220,.13);color:#c8ddfa}
+.row-cover svg,.folder-entry-icon svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.folder-entry-icon{display:flex;align-items:center;color:#9fc5f5}
+.scenario-toolbar{display:flex;gap:8px;align-items:center;flex:0 0 auto}.scenario-toolbar .primary-action-btn{flex:1;min-width:0}
+.scenario-folder-filter{display:flex;gap:7px;overflow-x:auto;flex:0 0 auto;padding:8px 0 4px}
+.scenario-card .row-cover{color:#a9ceff}.scenario-card .row-subtitle{display:block!important;color:var(--text-muted);font-size:11px}
+.scenario-actions{display:flex;flex:0 0 auto;gap:2px;align-items:center}.scenario-actions .row-btn{width:30px;min-width:30px;height:32px}
+.scenario-order-controls{display:flex;flex-direction:column;gap:2px}.scenario-order-controls button{width:22px;height:16px;padding:0;border:0;border-radius:4px;background:#26364b;color:#c8ddfa;font-size:11px}
+@media(max-width:600px){#mainContainer>.music-list-scroll,#mainContainer>.scenario-library-scroll{padding-bottom:210px}.scenario-card{padding:8px}.scenario-actions .row-btn{width:27px;min-width:27px}.row-cover{flex-basis:36px;width:36px;height:36px}}
+
 </style>
 </head>
 <body>
@@ -425,6 +443,9 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
   let currentFolderFilter = "__all__", currentPadId = null, currentPadScenarioId = null, currentPlaybackMode = "music";
   let selectedTrackIds = new Set();
   let musicFolders = (() => { try { return JSON.parse(localStorage.getItem("kk-player-folders") || "[]"); } catch(e) { return []; } })();
+  let scenarioFolders = (() => { try { return JSON.parse(localStorage.getItem("kk-player-scenario-folders") || "[]"); } catch(e) { return []; } })();
+  let scenarioFolderFilter = "__all__";
+  let scenarioViewMode = "folders";
   let currentAudio = null, currentBlobUrl = null, currentTrackId = null, currentQueueIds = [];
   let editingTrackId = null, editingScenarioId = null, editingPadId = null;
   let isLocked = false, wakeLock = null, currentVolume = 1.0, playerHidden = false;
@@ -467,7 +488,7 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
     try {
       const zip = new JSZip();
       const audioFolder = zip.folder("audio");
-      const config = { version: 7, tracks: [], scenarios: [], folders: [...new Set([...musicFolders, ...tracks.map(t => t.folder).filter(Boolean)])] };
+      const config = { version: 8, tracks: [], scenarios: [], folders: [...new Set([...musicFolders, ...tracks.map(t => t.folder).filter(Boolean)])], scenarioFolders: [...new Set([...scenarioFolders, ...scenarios.map(s => s.folder).filter(Boolean)])] };
       
       for (let i = 0; i < tracks.length; i++) {
         const t = tracks[i];
@@ -479,7 +500,7 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
       }
 
       config.scenarios = scenarios.map(s => ({
-        name: s.name, description: s.description || "", order: s.order,
+        name: s.name, description: s.description || "", order: s.order, folder: s.folder || "",
         pads: (s.pads || []).map(p => ({
           title: p.title, icon: p.icon, color: p.color, order: p.order,
           trackFileName: tracks.find(t => t.id === p.trackId) ? `track_${p.trackId}.mp3` : null
@@ -513,6 +534,7 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
       const configFile = zip.file("config.json");
       if (!configFile) throw new Error("В архиве нет config.json.");
       const config = JSON.parse(await configFile.async("string"));
+      const importedScenarioFolders = Array.isArray(config.scenarioFolders) ? config.scenarioFolders.filter(x => typeof x === "string" && x.trim()) : [];
       const importedFolders = Array.isArray(config.folders)
         ? config.folders.filter(x => typeof x === "string" && x.trim())
         : null;
@@ -567,6 +589,7 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
           scenarioStore.add({
             name: String(scConfig.name || "Новый сценарий"),
             description: String(scConfig.description || ""),
+            folder: String(scConfig.folder || ""),
             order: Number.isFinite(scConfig.order) ? scConfig.order : scenarioIndex,
             pads
           });
@@ -595,6 +618,8 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
         musicFolders = importedFolders;
         localStorage.setItem("kk-player-folders", JSON.stringify(musicFolders));
       }
+      scenarioFolders = importedScenarioFolders;
+      persistScenarioFolders();
       hideProgress();
       alert("Импорт завершён. Загружено треков: " + trackEntries.length + ", сценариев: " + config.scenarios.length + ".");
       window.location.reload();
@@ -772,6 +797,27 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
     renderMoveFolderChoices();
   }
 
+
+function appIcon(type){const p={note:'<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',pads:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',folder:'<path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H10l2 2h6.5A2.5 2.5 0 0 1 21 9.5v8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/>'};return '<svg viewBox="0 0 24 24" aria-hidden="true">'+(p[type]||p.pads)+'</svg>'}
+function persistScenarioFolders(){localStorage.setItem("kk-player-scenario-folders",JSON.stringify(scenarioFolders))}
+function renderScenarioLibrary(host){
+ const names=[...new Set([...scenarioFolders,...scenarios.map(s=>s.folder).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,"ru")),inside=scenarioFolderFilter!=="__all__";
+ host.innerHTML='<div class="scenario-toolbar"><button class="primary-action-btn" onclick="openScenarioModal(null)">＋ Создать сценарий</button><button class="folder-add-btn" onclick="createScenarioFolder()">＋ Папка</button></div><div class="scenario-folder-filter"><button class="folder-chip '+(scenarioViewMode==="folders"?"active":"")+'" onclick="setScenarioView(\'folders\')">Папки</button><button class="folder-chip '+(scenarioViewMode==="all"?"active":"")+'" onclick="setScenarioView(\'all\')">Все сценарии</button></div>'+(inside?'<div class="file-location"><button class="folder-back-btn" onclick="exitScenarioFolder()">← Назад</button><span>Сценарии / '+escapeHtml(scenarioFolderFilter)+'</span></div>':'')+'<div class="scenario-library-scroll"><div class="items-list" id="itemsList"></div></div>';
+ const list=host.querySelector("#itemsList");
+ if(!inside&&scenarioViewMode==="folders")names.forEach(n=>{const e=document.createElement("div");e.className="folder-entry";e.innerHTML='<button class="folder-open"><span class="folder-entry-icon">'+appIcon("folder")+'</span><span class="folder-entry-name"></span><span class="folder-entry-count">'+scenarios.filter(s=>s.folder===n).length+'</span></button><div class="folder-actions"><button>✎</button><button>✕</button></div>';e.querySelector(".folder-entry-name").textContent=n;e.querySelector(".folder-open").onclick=()=>{scenarioFolderFilter=n;renderCurrentView()};const b=e.querySelectorAll(".folder-actions button");b[0].onclick=()=>renameScenarioFolder(n);b[1].onclick=()=>deleteScenarioFolder(n);list.appendChild(e)});
+ const visible=scenarios.filter(s=>inside?s.folder===scenarioFolderFilter:scenarioViewMode==="all"||!s.folder).sort((x,y)=>(x.order??x.id)-(y.order??y.id));
+ if(!visible.length){list.innerHTML+='<div class="empty-state">В этой папке пока нет сценариев.</div>';return}
+ visible.forEach(s=>{const e=document.createElement("div");e.className="list-row scenario-card";e.innerHTML='<div class="row-cover">'+appIcon("pads")+'</div><div class="row-info"><div class="row-title"></div><div class="scenario-description"></div><div class="row-subtitle"></div></div><div class="scenario-actions"><div class="scenario-order-controls"><button title="Выше">▲</button><button title="Ниже">▼</button></div><button class="row-btn" title="Папка">▣</button><button class="row-btn" title="Дублировать">⧉</button><button class="row-btn" title="Редактировать">✎</button><button class="row-btn delete-btn" title="Удалить">✕</button></div>';e.querySelector(".row-title").textContent=s.name;e.querySelector(".scenario-description").textContent=s.description||"";e.querySelector(".row-subtitle").textContent="Пэдов: "+(s.pads||[]).length;e.onclick=x=>{if(!x.target.closest(".scenario-actions"))openScenario(s.id)};const b=e.querySelectorAll(".scenario-actions button");b[0].onclick=()=>reorderScenario(s.id,-1);b[1].onclick=()=>reorderScenario(s.id,1);b[2].onclick=()=>moveScenarioToFolder(s.id);b[3].onclick=()=>duplicateScenario(s.id);b[4].onclick=x=>editScenarioAction(x,s.id);b[5].onclick=x=>deleteScenarioAction(x,s.id);list.appendChild(e)});
+}
+function setScenarioView(v){scenarioViewMode=v;scenarioFolderFilter="__all__";renderCurrentView()}
+function exitScenarioFolder(){scenarioFolderFilter="__all__";renderCurrentView()}
+function createScenarioFolder(){const v=prompt("Название папки сценариев:");if(v===null)return;const n=v.trim();if(!n)return alert("Введите название.");if(scenarioFolders.includes(n)||scenarios.some(s=>s.folder===n))return alert("Такая папка уже существует.");scenarioFolders.push(n);persistScenarioFolders();scenarioFolderFilter=n;renderCurrentView()}
+function renameScenarioFolder(old){const v=prompt("Новое название папки:",old);if(v===null)return;const n=v.trim();if(!n)return alert("Введите название.");if(n!==old&&(scenarioFolders.includes(n)||scenarios.some(s=>s.folder===n)))return alert("Такая папка уже существует.");scenarioFolders=scenarioFolders.map(x=>x===old?n:x);persistScenarioFolders();const tx=db.transaction("scenarios","readwrite"),st=tx.objectStore("scenarios");scenarios.filter(s=>s.folder===old).forEach(s=>st.put({...s,folder:n}));tx.oncomplete=()=>{scenarioFolderFilter=n;loadAllData()}}
+function deleteScenarioFolder(n){if(!confirm("Удалить папку? Сценарии останутся в общем списке."))return;scenarioFolders=scenarioFolders.filter(x=>x!==n);persistScenarioFolders();const tx=db.transaction("scenarios","readwrite"),st=tx.objectStore("scenarios");scenarios.filter(s=>s.folder===n).forEach(s=>{const c={...s};delete c.folder;st.put(c)});tx.oncomplete=()=>{scenarioFolderFilter="__all__";loadAllData()}}
+function moveScenarioToFolder(id){const s=scenarios.find(x=>x.id===id);if(!s)return;const ns=[...new Set([...scenarioFolders,...scenarios.map(x=>x.folder).filter(Boolean)])],v=prompt("Папка (пусто — в корень):\n"+ns.join("\n"),s.folder||"");if(v===null)return;const n=v.trim();if(n&&!ns.includes(n)){if(!confirm("Создать папку "+n+"?"))return;scenarioFolders.push(n);persistScenarioFolders()}const c={...s};if(n)c.folder=n;else delete c.folder;const tx=db.transaction("scenarios","readwrite");tx.objectStore("scenarios").put(c);tx.oncomplete=loadAllData}
+function duplicateScenario(id){const s=scenarios.find(x=>x.id===id);if(!s)return;const tx=db.transaction("scenarios","readwrite"),st=tx.objectStore("scenarios");scenarios.filter(x=>(x.order??0)>(s.order??0)).forEach(x=>st.put({...x,order:x.order+1}));const c={...s,name:s.name+" (копия)",order:(s.order??0)+1,pads:(s.pads||[]).map((p,i)=>({...p,id:Date.now()+i}))};delete c.id;st.add(c);tx.oncomplete=loadAllData}
+function reorderScenario(id,d){const v=scenarios.filter(s=>scenarioFolderFilter!=="__all__"?s.folder===scenarioFolderFilter:scenarioViewMode==="all"||!s.folder).sort((x,y)=>(x.order??x.id)-(y.order??y.id)),i=v.findIndex(s=>s.id===id),o=v[i+d];if(i<0||!o)return;const tx=db.transaction("scenarios","readwrite"),st=tx.objectStore("scenarios");st.put({...v[i],order:o.order??o.id});st.put({...o,order:v[i].order??v[i].id});tx.oncomplete=loadAllData}
+
   // ============ RENDER ============
   function renderCurrentView() {
     const container = document.getElementById("mainContainer");
@@ -779,12 +825,12 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
     if (activeSection === "all") {
       const inFolder = currentFolderFilter !== "__all__";
       const folderNames = [...new Set([...musicFolders, ...tracks.map(t => t.folder).filter(Boolean)])].sort((a,b) => a.localeCompare(b,"ru"));
-      container.innerHTML = '<div class="music-toolbar"><button class="primary-action-btn" onclick="openTrackModal(null)">＋ Добавить треки</button><button class="folder-add-btn" onclick="createMusicFolder()">＋ Создать папку</button></div><div class="music-view-tabs"><button class="folder-chip ' + (musicViewMode === "folders" ? "active" : "") + '" onclick="setMusicView(\'folders\')">Папки</button><button class="folder-chip ' + (musicViewMode === "allTracks" ? "active" : "") + '" onclick="setMusicView(\'allTracks\')">Вся музыка</button></div><input class="music-search" type="search" placeholder="Поиск по названию трека…" value="' + escapeHtml(musicSearchQuery) + '" oninput="filterMusicList(this.value)"><div class="file-location">' + (inFolder ? '<button class="folder-back-btn" onclick="exitMusicFolder()">← Назад</button><span>Музыка / ' + escapeHtml(currentFolderFilter) + '</span>' : '<span>' + (musicViewMode === "allTracks" ? "Вся музыка" : "Музыка") + '</span>') + '</div>' + (selectedTrackIds.size ? '<div class="selection-toolbar"><span id="selectedCount">Выбрано: ' + selectedTrackIds.size + '</span><button class="folder-add-btn" onclick="moveSelectedTracksToFolder()">Переместить в папку</button></div>' : '') + '<div class="items-list" id="itemsList"></div>';
+      container.innerHTML = '<div class="music-toolbar"><button class="primary-action-btn" onclick="openTrackModal(null)">＋ Добавить треки</button><button class="folder-add-btn" onclick="createMusicFolder()">＋ Создать папку</button></div><div class="music-view-tabs"><button class="folder-chip ' + (musicViewMode === "folders" ? "active" : "") + '" onclick="setMusicView(\'folders\')">Папки</button><button class="folder-chip ' + (musicViewMode === "allTracks" ? "active" : "") + '" onclick="setMusicView(\'allTracks\')">Вся музыка</button></div><input class="music-search" type="search" placeholder="Поиск по названию трека…" value="' + escapeHtml(musicSearchQuery) + '" oninput="filterMusicList(this.value)"><div class="file-location">' + (inFolder ? '<button class="folder-back-btn" onclick="exitMusicFolder()">← Назад</button><span>Музыка / ' + escapeHtml(currentFolderFilter) + '</span>' : '<span>' + (musicViewMode === "allTracks" ? "Вся музыка" : "Музыка") + '</span>') + '</div>' + (selectedTrackIds.size ? '<div class="selection-toolbar"><span id="selectedCount">Выбрано: ' + selectedTrackIds.size + '</span><button class="folder-add-btn" onclick="moveSelectedTracksToFolder()">Переместить в папку</button></div>' : '') + '<div class="music-list-scroll"><div class="items-list" id="itemsList"></div></div>';
       const listEl = document.getElementById("itemsList");
       if (!inFolder && musicViewMode === "folders") folderNames.forEach(name => {
         const count = tracks.filter(t => t.folder === name).length;
         const folderRow = document.createElement("div"); folderRow.className = "folder-entry";
-        folderRow.innerHTML = '<button class="folder-open" type="button"><span class="folder-entry-icon">▰</span><span class="folder-entry-name"></span><span class="folder-entry-count">' + count + '</span></button><div class="folder-actions"><button type="button" aria-label="Переименовать папку">✎</button><button type="button" aria-label="Удалить папку">✕</button></div>';
+        folderRow.innerHTML = '<button class="folder-open" type="button"><span class="folder-entry-icon">' + appIcon("folder") + '</span><span class="folder-entry-name"></span><span class="folder-entry-count">' + count + '</span></button><div class="folder-actions"><button type="button" aria-label="Переименовать папку">✎</button><button type="button" aria-label="Удалить папку">✕</button></div>';
         folderRow.querySelector(".folder-entry-name").textContent = name;
         folderRow.querySelector(".folder-open").onclick = () => { currentFolderFilter = name; renderCurrentView(); };
         const actions = folderRow.querySelectorAll(".folder-actions button");
@@ -800,7 +846,7 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
       if (!tracks.length && !folderNames.length) { listEl.innerHTML = '<div class="empty-state">Библиотека пуста. Добавьте аудиофайлы или создайте папку.</div>'; return; }
       visibleTracks.forEach(track => {
         const row = document.createElement("div"); row.className = "list-row"; row.dataset.trackId = String(track.id);
-        row.innerHTML = '<div class="track-select ' + (selectedTrackIds.has(track.id) ? "selected" : "") + '" role="checkbox" aria-checked="' + selectedTrackIds.has(track.id) + '" onclick="toggleTrackSelection(event,' + track.id + ')">' + (selectedTrackIds.has(track.id) ? "✓" : "") + '</div><div class="row-info"><div class="row-title"></div></div><div class="row-actions"><button class="row-btn" onclick="editTrackAction(event,' + track.id + ')">✎</button><button class="row-btn delete-btn" onclick="deleteTrackAction(event,' + track.id + ')">✕</button></div>';
+        row.innerHTML = '<div class="row-cover music-row-icon">' + appIcon("note") + '</div><div class="track-select ' + (selectedTrackIds.has(track.id) ? "selected" : "") + '" role="checkbox" aria-checked="' + selectedTrackIds.has(track.id) + '" onclick="toggleTrackSelection(event,' + track.id + ')">' + (selectedTrackIds.has(track.id) ? "✓" : "") + '</div><div class="row-info"><div class="row-title"></div></div><div class="row-actions"><button class="row-btn" onclick="editTrackAction(event,' + track.id + ')">✎</button><button class="row-btn delete-btn" onclick="deleteTrackAction(event,' + track.id + ')">✕</button></div>';
         row.querySelector(".row-title").textContent = track.name;
         row.classList.toggle("track-selected", selectedTrackIds.has(track.id));
         row.classList.toggle("track-playing", currentTrackId === track.id && !!currentAudio && !currentAudio.paused);
@@ -812,21 +858,7 @@ html,body{height:auto!important;min-height:100%;overflow-x:hidden;overflow-y:aut
       filterMusicList(musicSearchQuery);
       return;
     }
-    if (activeSection === "scenarios" && openedScenarioId === null) {
-      container.innerHTML = '<button class="primary-action-btn" onclick="openScenarioModal(null)">＋ Создать сценарий</button><div class="items-list" id="itemsList"></div>';
-      const listEl = document.getElementById("itemsList");
-      if (!scenarios.length) { listEl.innerHTML = '<div class="empty-state">Сценариев пока нет.</div>'; return; }
-      scenarios.forEach(sc => {
-        const row = document.createElement("div"); row.className = "list-row scenario-card";
-        row.innerHTML = '<div class="row-cover">🎛️</div><div class="row-info"><div class="row-title"></div><div class="scenario-description"></div><div class="row-subtitle"></div></div><div class="row-actions"><button class="row-btn" onclick="editScenarioAction(event,' + sc.id + ')">✎</button><button class="row-btn delete-btn" onclick="deleteScenarioAction(event,' + sc.id + ')">✕</button></div>';
-        row.querySelector(".row-title").textContent = sc.name;
-        row.querySelector(".scenario-description").textContent = sc.description || "";
-        row.querySelector(".row-subtitle").textContent = "Пэдов: " + (sc.pads || []).length;
-        row.onclick = e => { if (!e.target.closest(".row-actions")) openScenario(sc.id); };
-        listEl.appendChild(row);
-      });
-      return;
-    }
+    if (activeSection === "scenarios" && openedScenarioId === null) { renderScenarioLibrary(container); return; }
     if (activeSection === "scenarios" && openedScenarioId !== null) {
       const scenario = scenarios.find(s => s.id === openedScenarioId);
       if (!scenario) { openedScenarioId = null; renderCurrentView(); return; }
