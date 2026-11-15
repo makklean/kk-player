@@ -1,6 +1,6 @@
 {
-  "name": "ʞk Player",
-  "short_name": "ʞk Player",
+  "name": "KK Player",
+  "short_name": "KK Player",
   "description": "Персональный аудиоплеер и звуковые сценарии",
   "lang": "ru",
   "start_url": "./",
@@ -11,13 +11,13 @@
   "theme_color": "#080b12",
   "icons": [
     {
-      "src": "./icon-192.png",
+      "src": "./icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icon-512.png",
+      "src": "./icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
