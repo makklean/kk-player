@@ -238,7 +238,8 @@ header{background:#000!important;backdrop-filter:none!important}
 
 /* Shared floating player controls */
 .player-hide-btn{flex:0 0 34px;width:34px;height:34px;border:1px solid rgba(255,255,255,.18);border-radius:11px;background:rgba(255,255,255,.08);color:#fff;font-size:23px;line-height:1;display:flex;align-items:center;justify-content:center}
-.player-bar.user-hidden{transform:translate(-50%,calc(150% + 24px))!important;pointer-events:none}
+.player-bar.user-hidden{transform:translateX(-50%) translateY(calc(150% + 24px))!important;pointer-events:none}
+@media(max-width:720px){.player-bar.user-hidden{transform:translateY(calc(150% + 24px))!important}}
 .player-launcher{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:31;display:none;align-items:center;gap:7px;padding:12px 16px;border:1px solid rgba(133,177,235,.3);border-radius:999px;background:rgba(22,43,72,.96);color:#fff;font-size:14px;font-weight:750;box-shadow:0 8px 28px rgba(0,0,0,.45);backdrop-filter:blur(18px)}
 .player-launcher.visible{display:flex}
 </style>
@@ -952,6 +953,7 @@ header{background:#000!important;backdrop-filter:none!important}
   }
 
   function playTrack(trackId, scenarioId = null) {
+    playerHidden = false;
     const track = tracks.find(t => t.id === trackId);
     if (!track) return;
     currentPlaybackMode = "music"; currentPadId = null;
@@ -966,6 +968,7 @@ header{background:#000!important;backdrop-filter:none!important}
   }
 
   function playPad(padId, scenarioId) {
+    playerHidden = false;
     const sc = scenarios.find(s => s.id === scenarioId);
     if (!sc) return;
     const pad = (sc.pads || []).find(p => p.id === padId);
