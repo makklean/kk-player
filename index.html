@@ -242,6 +242,12 @@ header{background:#000!important;backdrop-filter:none!important}
 @media(max-width:720px){.player-bar.user-hidden{transform:translateY(calc(150% + 24px))!important}}
 .player-launcher{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:31;display:none;align-items:center;gap:7px;padding:12px 16px;border:1px solid rgba(133,177,235,.3);border-radius:999px;background:rgba(22,43,72,.96);color:#fff;font-size:14px;font-weight:750;box-shadow:0 8px 28px rgba(0,0,0,.45);backdrop-filter:blur(18px)}
 .player-launcher.visible{display:flex}
+  .player-hide-btn{flex:0 0 38px;width:38px;height:38px;border:1px solid rgba(148,178,220,.24);border-radius:13px;background:rgba(255,255,255,.07);color:#dce9fb;display:flex;align-items:center;justify-content:center;transition:background .18s ease,transform .18s ease,border-color .18s ease}
+  .player-hide-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .player-hide-btn:active{background:rgba(110,168,255,.18);border-color:rgba(148,178,220,.45);transform:scale(.94)}
+  .folder-back-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 13px!important;border:1px solid #343434!important;border-radius:10px;background:#171717!important;color:#fff!important;font-size:13px;font-weight:750}
+  .file-location{gap:10px;flex-wrap:wrap}
+  .save-scenario-btn{background:linear-gradient(135deg,#315b49,#3b6b55)!important;border:1px solid rgba(130,190,155,.18);box-shadow:none;color:#e5f1e9}
 </style>
 </head>
 <body>
@@ -278,7 +284,7 @@ header{background:#000!important;backdrop-filter:none!important}
       <div class="player-title" id="playerTitle">Название трека</div>
       <div class="player-sub" id="playerSub">Назначение</div>
     </div>
-    <button class="player-hide-btn" type="button" aria-label="Скрыть плеер" onclick="hidePlayer()">⌄</button>
+    <button class="player-hide-btn" type="button" aria-label="Свернуть плеер" title="Свернуть плеер" onclick="hidePlayer()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
   </div>
   <div class="seek-container">
     <span class="time-txt" id="timeCurrent">0:00</span>
@@ -372,7 +378,7 @@ header{background:#000!important;backdrop-filter:none!important}
   // ============ STATE ============
   let db = null, tracks = [], scenarios = [];
   let activeSection = "all", openedScenarioId = null;
-  let currentFolderFilter = "__all__", currentPadId = null, currentPlaybackMode = "music";
+  let currentFolderFilter = "__all__", currentPadId = null, currentPadScenarioId = null, currentPlaybackMode = "music";
   let selectedTrackIds = new Set();
   let musicFolders = (() => { try { return JSON.parse(localStorage.getItem("kk-player-folders") || "[]"); } catch(e) { return []; } })();
   let currentAudio = null, currentBlobUrl = null, currentTrackId = null, currentQueueIds = [];
@@ -610,6 +616,7 @@ header{background:#000!important;backdrop-filter:none!important}
     localStorage.setItem("kk-player-folders", JSON.stringify(musicFolders));
     moveSelectedTracksInto(clean);
   }
+  function exitMusicFolder() { currentFolderFilter = "__all__"; selectedTrackIds.clear(); renderCurrentView(); }
   function createMusicFolder() {
     const name = prompt("Название новой папки:");
     if (name === null) return;
@@ -635,7 +642,7 @@ header{background:#000!important;backdrop-filter:none!important}
     const container = document.getElementById("mainContainer");
     if (isLocked) { container.innerHTML = '<div class="empty-state" style="padding-top:80px">🔒 Экран заблокирован</div>'; return; }
     if (activeSection === "all") {
-      container.innerHTML = '<div class="music-toolbar"><button class="primary-action-btn" onclick="openTrackModal(null)">＋ Добавить треки</button><button class="folder-add-btn" onclick="createMusicFolder()">＋ Создать папку</button></div><div class="file-location"><button onclick="currentFolderFilter=\'__all__\';renderCurrentView()">Музыка</button>' + (currentFolderFilter !== "__all__" ? ' / ' + escapeHtml(currentFolderFilter || "Без папки") : "") + '</div><div class="selection-toolbar"><span id="selectedCount">Выберите треки</span><button class="folder-add-btn" onclick="moveSelectedTracksToFolder()">Переместить в папку</button></div><div class="items-list" id="itemsList"></div>';
+      container.innerHTML = '<div class="music-toolbar"><button class="primary-action-btn" onclick="openTrackModal(null)">＋ Добавить треки</button><button class="folder-add-btn" onclick="createMusicFolder()">＋ Создать папку</button></div><div class="file-location">' + (currentFolderFilter !== "__all__" ? '<button class="folder-back-btn" onclick="exitMusicFolder()">← Назад</button><span>Музыка / ' + escapeHtml(currentFolderFilter || "Без папки") + '</span>' : '<span>Музыка</span>') + '</div><div class="selection-toolbar"><span id="selectedCount">Выберите треки</span><button class="folder-add-btn" onclick="moveSelectedTracksToFolder()">Переместить в папку</button></div><div class="items-list" id="itemsList"></div>';
       const listEl = document.getElementById("itemsList");
       const folderNames = [...new Set([...musicFolders, ...tracks.map(t => t.folder).filter(Boolean)])].sort((a,b) => a.localeCompare(b,"ru"));
       if (currentFolderFilter === "__all__") folderNames.forEach(name => {
@@ -956,7 +963,7 @@ header{background:#000!important;backdrop-filter:none!important}
     playerHidden = false;
     const track = tracks.find(t => t.id === trackId);
     if (!track) return;
-    currentPlaybackMode = "music"; currentPadId = null;
+    currentPlaybackMode = "music"; currentPadId = null; currentPadScenarioId = null;
     syncPlayerVisibility();
     if (scenarioId) {
       const sc = scenarios.find(s => s.id === scenarioId);
@@ -976,7 +983,7 @@ header{background:#000!important;backdrop-filter:none!important}
     const track = tracks.find(t => t.id === pad.trackId);
     if (!track) return;
     currentQueueIds = (sc.pads || []).map(p => p.trackId).filter(Boolean);
-    currentPlaybackMode = "pad"; currentPadId = padId;
+    currentPlaybackMode = "pad"; currentPadId = padId; currentPadScenarioId = scenarioId;
     syncPlayerVisibility();
     startTrackAudio(track, pad, scenarioId);
   }
@@ -987,7 +994,7 @@ header{background:#000!important;backdrop-filter:none!important}
     const pads = sc.pads || [], index = pads.findIndex(p => p.id === padId);
     const next = pads.slice(index + 1).find(p => tracks.some(t => t.id === p.trackId));
     if (next) playPad(next.id, scenarioId);
-    else { currentPadId = null; currentPlaybackMode = "pad"; refreshPadPlaybackUI(); }
+    else { currentPadId = null; currentPadScenarioId = null; currentPlaybackMode = "pad"; refreshPadPlaybackUI(); }
   }
 
   function togglePadPlayback(padId, scenarioId) {
@@ -1062,16 +1069,29 @@ header{background:#000!important;backdrop-filter:none!important}
   }
   function restartCurrent() { if (currentAudio) currentAudio.currentTime = 0; }
   function playNextTrack() {
+    if (currentPlaybackMode === "pad" && currentPadId !== null) { playAdjacentPad(1); return; }
     if (!currentQueueIds.length) return;
     const idx = currentQueueIds.indexOf(currentTrackId);
     const next = currentQueueIds[idx + 1];
     if (next) playTrack(next, openedScenarioId);
   }
   function playPrevTrack() {
+    if (currentPlaybackMode === "pad" && currentPadId !== null) { playAdjacentPad(-1); return; }
     if (!currentQueueIds.length) return;
     const idx = currentQueueIds.indexOf(currentTrackId);
     const prev = currentQueueIds[idx - 1];
     if (prev) playTrack(prev, openedScenarioId);
+  }
+
+  function playAdjacentPad(direction) {
+    const sc = scenarios.find(s => s.id === currentPadScenarioId);
+    if (!sc) return;
+    const pads = sc.pads || [];
+    const currentIndex = pads.findIndex(p => p.id === currentPadId);
+    if (currentIndex < 0) return;
+    for (let i = currentIndex + direction; i >= 0 && i < pads.length; i += direction) {
+      if (tracks.some(t => t.id === pads[i].trackId)) { playPad(pads[i].id, sc.id); return; }
+    }
   }
 
   const seekControl = document.getElementById("seekSlider");
