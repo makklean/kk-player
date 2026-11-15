@@ -682,10 +682,11 @@ header{background:#000!important;backdrop-filter:none!important}
     if (activeSection === "scenarios" && openedScenarioId !== null) {
       const scenario = scenarios.find(s => s.id === openedScenarioId);
       if (!scenario) { openedScenarioId = null; renderCurrentView(); return; }
-      container.innerHTML = '<div class="playlist-sub-header"><button class="back-btn" onclick="closeOpenedScenario()">← Назад</button><div class="sub-header-title"></div><button class="row-btn" onclick="openScenarioModal(' + scenario.id + ')">✎</button></div><div class="pad-mode-toolbar"><span>' + (padEditMode ? "Перетаскивайте пэды за маркер" : "Каждый пэд — отдельный мини-плеер") + '</span><button class="edit-mode-btn ' + (padEditMode ? "active" : "") + '" style="display:flex;width:auto;height:40px;border-radius:12px;padding:0 14px;font-size:13px" onclick="togglePadEditMode()">' + (padEditMode ? "✓ Готово" : "✎ Редактировать") + '</button></div><div class="pads-grid ' + (padEditMode ? "edit-mode" : "") + '" id="padsGrid"></div><button class="save-scenario-btn ' + (hasUnsavedChanges ? "visible" : "") + '" onclick="saveScenarioState()">💾 Сохранить порядок</button>';
+      container.innerHTML = '<div class="playlist-sub-header"><button class="back-btn" onclick="closeOpenedScenario()">← Назад</button><div class="sub-header-title"></div><button class="row-btn" onclick="openScenarioModal(' + scenario.id + ')">✎</button></div><div class="pad-mode-toolbar"><span>' + (hasUnsavedChanges ? "" : (padEditMode ? "Перетаскивайте пэды за маркер" : "Каждый пэд — отдельный мини-плеер")) + '</span>' + (hasUnsavedChanges ? '<button class="save-scenario-btn visible" style="float:none;margin:0;padding:9px 14px" onclick="saveScenarioState()">💾 Сохранить порядок</button>' : '') + '<button class="edit-mode-btn ' + (padEditMode ? "active" : "") + '" style="display:flex;width:auto;height:40px;border-radius:12px;padding:0 14px;font-size:13px" onclick="togglePadEditMode()">' + (padEditMode ? "✓ Готово" : "✎ Редактировать") + '</button></div><div class="pads-grid ' + (padEditMode ? "edit-mode" : "") + '" id="padsGrid"></div>';
       container.querySelector(".sub-header-title").textContent = scenario.name;
       const grid = document.getElementById("padsGrid");
-      (scenario.pads || []).forEach((pad, idx) => {
+      const visiblePads = (scenario.pads || []).map((pad, idx) => ({ pad, idx })).filter(item => tracks.some(t => t.id === item.pad.trackId));
+      visiblePads.forEach(({ pad, idx }) => {
         const track = tracks.find(t => t.id === pad.trackId);
         const current = currentPlaybackMode === "pad" && currentPadId === pad.id && !!currentAudio;
         const playing = current && !currentAudio.paused;
