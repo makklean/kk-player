@@ -143,6 +143,51 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 @media(max-width:380px){header{padding-left:12px;padding-right:12px}.content-container{padding-left:12px;padding-right:12px}.player-controls{gap:5px}.p-ctrl{min-width:36px}.pads-grid{gap:9px}.pad{min-height:128px;padding:11px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
+
+/* Mobile layout, folder library and drum-machine pads */
+*,*::before,*::after{box-sizing:border-box}
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+body{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
+.content-container{width:100%;max-width:900px;min-width:0;padding-left:clamp(10px,3.5vw,22px);padding-right:clamp(10px,3.5vw,22px);overflow-x:clip}
+.list-row{width:100%;min-width:0;max-width:100%;display:flex;gap:8px;padding:9px;overflow:hidden}
+.row-cover{flex:0 0 40px;width:40px;height:40px}
+.row-info{flex:1 1 0;min-width:0;overflow:hidden}
+.row-title{min-width:0;overflow-wrap:anywhere;word-break:break-word;white-space:normal}
+.row-actions{flex:0 0 auto;display:flex;gap:2px}
+.row-btn{flex:0 0 30px;width:30px;height:36px;padding:0;font-size:13px}
+.music-toolbar{display:flex;gap:8px;align-items:stretch;min-width:0}
+.music-toolbar .primary-action-btn{flex:1 1 auto;min-width:0;width:auto}
+.folder-add-btn{flex:0 0 auto;padding:0 12px;border:1px solid var(--border-subtle);border-radius:14px;background:#18263a;color:#fff;font-weight:700}
+.folder-filter{display:flex;gap:7px;overflow-x:auto;padding:12px 0 4px;max-width:100%}
+.folder-chip{flex:0 0 auto;border:1px solid var(--border-subtle);border-radius:99px;padding:8px 12px;background:rgba(255,255,255,.05);color:#cbd8e9;font-size:12px}
+.folder-chip.active{background:#245b9b;border-color:#5b9ce8;color:white}
+.folder-heading{margin:17px 2px 8px;color:#a9c8ef;font-size:13px;font-weight:800}
+.player-bar{left:8px!important;right:8px!important;bottom:calc(8px + env(safe-area-inset-bottom))!important;width:auto!important;max-width:700px!important;min-width:0!important;margin:0 auto!important;transform:translateY(150%);padding:10px 12px 9px!important;overflow:hidden}
+.player-bar.visible{transform:translateY(0)}
+.player-top,.seek-container,.player-controls,.player-meta{min-width:0;max-width:100%}
+.player-meta{flex:1 1 0;overflow:hidden}
+.player-controls{gap:clamp(0px,1vw,5px)}
+.p-ctrl{flex:1 1 0;width:auto;min-width:0;height:44px}
+.p-ctrl-main{flex:0 0 54px;width:54px;height:54px}
+.seek-container{gap:5px}.time-txt{min-width:30px;font-size:10px}.seek-slider{min-width:0;width:0}
+.pad-mode-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 14px;color:var(--text-muted);font-size:12px}
+.pads-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;min-width:0}
+.pad{min-width:0;width:100%;aspect-ratio:1/1;padding:10px 8px 8px;border-radius:18px;touch-action:pan-y}
+.pad-title{font-size:clamp(14px,4vw,19px);max-width:100%;overflow-wrap:anywhere}
+.pad-icon{font-size:clamp(26px,8vw,40px)}.pad-trackname{font-size:10px}
+.pad-controls{display:flex;gap:7px;margin-top:8px;align-items:center;justify-content:center}
+.pad-controls button{width:34px;height:32px;border:1px solid rgba(255,255,255,.34);border-radius:10px;background:rgba(0,0,0,.2);color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.pad-controls .pad-play-btn{width:42px;background:rgba(0,0,0,.35)}
+.pads-grid.edit-mode .pad-controls{opacity:.35;pointer-events:none}
+.pads-grid.edit-mode .pad-handle{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:rgba(0,0,0,.38);touch-action:none;cursor:grab}
+.pad.move-ready{outline:1px dashed rgba(255,255,255,.35);outline-offset:-5px}
+.pad.dragging{opacity:.55;transform:scale(.96)}.pad.drag-over{outline:3px solid #fff;outline-offset:2px}
+.pad.playing{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.15),0 0 24px rgba(255,255,255,.5);animation:padPulse 1.4s ease-in-out infinite}
+.pad.paused{border-color:rgba(255,255,255,.8);filter:saturate(.8)}
+@keyframes padPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.22)}}
+@media(max-width:390px){.row-cover{flex-basis:36px;width:36px;height:36px}.row-btn{flex-basis:27px;width:27px}.list-row{gap:6px;padding:8px}.player-bar{left:6px!important;right:6px!important}.pads-grid{gap:8px}.pad{padding:8px 6px 7px}.pad-controls{gap:5px}.pad-controls button{width:29px;height:29px}.pad-controls .pad-play-btn{width:36px}}
+@media(min-width:620px){.pads-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
 </style>
 </head>
 <body>
@@ -165,7 +210,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     </div>
   </div>
   <div class="main-tabs">
-    <button class="tab-pill active" id="tabAllMusic" onclick="switchSection('all')">Вся музыка</button>
+    <button class="tab-pill active" id="tabAllMusic" onclick="switchSection('all')">Музыка</button>
     <button class="tab-pill" id="tabScenarios" onclick="switchSection('scenarios')">Сценарии</button>
   </div>
 </header>
@@ -266,6 +311,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   // ============ STATE ============
   let db = null, tracks = [], scenarios = [];
   let activeSection = "all", openedScenarioId = null;
+  let currentFolderFilter = "__all__", currentPadId = null, currentPlaybackMode = "music";
   let currentAudio = null, currentBlobUrl = null, currentTrackId = null, currentQueueIds = [];
   let editingTrackId = null, editingScenarioId = null, editingPadId = null;
   let isLocked = false, wakeLock = null, currentVolume = 1.0;
