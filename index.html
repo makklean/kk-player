@@ -108,6 +108,41 @@
   #progressText { color: #fff; font-size: 18px; font-weight: 700; margin-bottom: 16px; }
   .progress-bar-bg { width: 80%; max-width: 300px; height: 8px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; }
   #progressBarFill { height: 100%; background: var(--success); width: 0%; transition: width 0.3s; }
+
+/* ʞk Player 2.0 — responsive visual system */
+:root{--bg-main:#080b12;--bg-pill:#151d2b;--accent-blue:#6ea8ff;--player-blue:#172d50;--player-blue-light:#2e6ed1;--text-muted:#9aa9bf;--border-subtle:rgba(148,178,220,.15);--surface:rgba(20,29,44,.88);--surface-strong:#121b2a;--success:#4ade80}
+body{background:radial-gradient(ellipse at 50% -18%,rgba(38,93,164,.24),transparent 48%),var(--bg-main);padding-bottom:230px;letter-spacing:.01em}
+header{background:rgba(8,11,18,.88);border-bottom-color:rgba(148,178,220,.13);box-shadow:0 8px 30px rgba(0,0,0,.16)}
+.brand-title{letter-spacing:-.045em;font-size:26px}
+.icon-btn,.tab-pill,.row-btn,.back-btn,.p-ctrl,.edit-mode-btn{transition:transform .18s ease,background .18s ease,border-color .18s ease,opacity .18s ease}
+button{font:inherit;cursor:pointer;touch-action:manipulation}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent-blue);outline-offset:3px}
+.content-container{width:min(100%,900px);margin:0 auto;padding:18px 16px 30px}
+.primary-action-btn{width:100%;min-height:52px;border:1px solid rgba(110,168,255,.32);border-radius:17px;background:linear-gradient(135deg,#1d4d88,#2569ba);box-shadow:0 10px 28px rgba(20,83,155,.22);font-weight:750;letter-spacing:.01em}
+.items-list{display:grid;gap:10px;margin-top:16px}
+.list-row{min-height:72px;border:1px solid var(--border-subtle);border-radius:18px;background:linear-gradient(145deg,rgba(25,37,56,.94),rgba(15,23,36,.96));box-shadow:0 5px 18px rgba(0,0,0,.12);padding:11px 12px;gap:12px}
+.list-row:active,.choice-card:active,.pad:active{transform:scale(.985)}
+.row-cover{width:48px;height:48px;border-radius:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+.row-title{font-size:15px;font-weight:700;line-height:1.3;overflow-wrap:anywhere}
+.row-subtitle,.row-trackname{color:var(--text-muted)}
+.row-btn{width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.055)}
+.row-btn:active,.icon-btn:active,.p-ctrl:active{transform:scale(.92)}
+.main-tabs{gap:8px}.tab-pill{border:1px solid var(--border-subtle);background:rgba(255,255,255,.045);padding:10px 16px}.tab-pill.active{background:linear-gradient(135deg,#245b9b,#347bd0);border-color:transparent;box-shadow:0 5px 18px rgba(27,91,164,.22)}
+.pads-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.pad{min-height:142px;border:1px solid rgba(255,255,255,.16);border-radius:20px;box-shadow:0 10px 22px rgba(0,0,0,.18);padding:14px;overflow:hidden}
+.pad.playing{outline:2px solid #8cc0ff;outline-offset:2px;box-shadow:0 0 0 5px rgba(110,168,255,.12),0 12px 28px rgba(0,0,0,.2)}
+.pad-icon{font-size:30px}.pad-title{font-weight:800;line-height:1.2;overflow-wrap:anywhere}.pad-trackname{font-size:11px;opacity:.78;overflow-wrap:anywhere}
+.player-bar{width:min(calc(100% - 20px),720px);left:50%;transform:translateX(-50%);bottom:max(10px,env(safe-area-inset-bottom));border:1px solid rgba(133,177,235,.22);border-radius:22px;background:rgba(14,23,37,.94);backdrop-filter:blur(24px);box-shadow:0 18px 55px rgba(0,0,0,.48);padding:14px 16px 12px}
+.player-bar.visible{display:block}.player-cover{border-radius:14px}.player-title{font-weight:800}.seek-slider{accent-color:#78adff}.p-ctrl{border-radius:13px}.p-ctrl-main{background:linear-gradient(135deg,#357dd6,#5a9cf1);box-shadow:0 6px 18px rgba(50,120,210,.3)}
+.modal-overlay{padding:16px;backdrop-filter:blur(8px)}.modal-box{width:min(100%,480px);max-height:min(88dvh,760px);overflow-y:auto;border:1px solid rgba(148,178,220,.18);border-radius:24px;background:linear-gradient(155deg,#19263a,#101826);box-shadow:0 24px 80px rgba(0,0,0,.55);padding:22px}
+.modal-input,.modal-select{min-height:46px;border-radius:13px;background:#0c1421;border:1px solid var(--border-subtle);color:#fff;padding:10px 12px}
+.choice-card{border:1px solid var(--border-subtle);border-radius:16px;background:rgba(255,255,255,.045);padding:14px;transition:transform .18s ease,background .18s ease}
+.m-btn{min-height:42px;border-radius:12px}.m-btn-primary{background:linear-gradient(135deg,#2865ad,#3985df)}
+.empty-state{color:var(--text-muted);border:1px dashed var(--border-subtle);border-radius:18px;padding:30px 18px;text-align:center}
+@media(min-width:620px){.pads-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.content-container{padding-top:24px}.player-bar{bottom:18px}}
+@media(max-width:380px){header{padding-left:12px;padding-right:12px}.content-container{padding-left:12px;padding-right:12px}.player-controls{gap:5px}.p-ctrl{min-width:36px}.pads-grid{gap:9px}.pad{min-height:128px;padding:11px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
 </style>
 </head>
 <body>
@@ -280,7 +315,7 @@
         const fileName = `track_${t.id}.mp3`; 
         const blob = new Blob([t.data], { type: t.mimeType || "audio/mpeg" });
         audioFolder.file(fileName, blob);
-        config.tracks.push({ fileName: fileName, name: t.name, tag: t.tag, order: t.order });
+        config.tracks.push({ id: t.id, fileName, name: t.name, tag: t.tag, order: t.order, mimeType: t.mimeType || "audio/mpeg" });
         if (i % 2 === 0) { showProgress(`Сборка... ${i}/${tracks.length}`, Math.round((i / tracks.length) * 100)); await new Promise(r => setTimeout(r, 10)); }
       }
 
@@ -288,7 +323,7 @@
         name: s.name, duration: s.duration, order: s.order,
         pads: (s.pads || []).map(p => ({
           title: p.title, icon: p.icon, color: p.color, order: p.order,
-          trackFileName: tracks.find(t => t.id === p.trackId)?.fileName || null
+          trackFileName: tracks.find(t => t.id === p.trackId) ? `track_${p.trackId}.mp3` : null
         }))
       }));
 
@@ -305,48 +340,89 @@
   function triggerImportBackup() { closeModal('settingsModal'); document.getElementById("importFileInput").value = ""; document.getElementById("importFileInput").click(); }
 
   async function handleImportFile(event) {
-    const file = event.target.files[0]; if (!file) return;
-    showProgress("Чтение архива...", 0);
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    showProgress("Проверка архива...", 0);
     try {
+      if (typeof JSZip === "undefined") throw new Error("Библиотека ZIP не загружена.");
+      if (!db) throw new Error("База данных ещё не готова.");
       const zip = await JSZip.loadAsync(file);
       const configFile = zip.file("config.json");
-      if (!configFile) throw new Error("Не найден файл конфигурации.");
+      if (!configFile) throw new Error("В архиве нет config.json.");
       const config = JSON.parse(await configFile.async("string"));
-      
-      const txClear = db.transaction(["tracks", "scenarios"], "readwrite");
-      txClear.objectStore("tracks").clear(); txClear.objectStore("scenarios").clear();
-      await new Promise((resolve, reject) => { txClear.oncomplete = resolve; txClear.onerror = reject; });
-
-      const trackIdMap = {}; 
-      const trackEntries = Object.values(zip.files).filter(f => f.name.startsWith("audio/") && !f.dir);
-      for (let i = 0; i < trackEntries.length; i++) {
-        const zipEntry = trackEntries[i];
-        const fileName = zipEntry.name.replace("audio/", "");
-        const arrayBuffer = await zipEntry.async("arraybuffer");
-        const meta = config.tracks.find(t => t.fileName === fileName);
-        const tx = db.transaction("tracks", "readwrite");
-        const addReq = tx.objectStore("tracks").add({ name: meta ? meta.name : fileName, tag: meta ? meta.tag : "linear-gradient(135deg,#1565c0,#42a5f5)|🎵", order: i, data: arrayBuffer, mimeType: "audio/mpeg" });
-        await new Promise((resolve, reject) => { addReq.onsuccess = (e) => { trackIdMap[fileName] = e.target.result; resolve(); }; addReq.onerror = reject; });
-        showProgress(`Загрузка треков... ${i+1}/${trackEntries.length}`, Math.round(((i+1) / trackEntries.length) * 80));
+      if (!config || !Array.isArray(config.tracks) || !Array.isArray(config.scenarios)) {
+        throw new Error("Неверный формат резервной копии.");
       }
 
-      showProgress("Восстановление сценариев...", 85);
-      for (const scConfig of config.scenarios) {
-        const newPads = [];
-        if (scConfig.pads) {
-          for (const pConfig of scConfig.pads) {
-            if (pConfig.trackFileName && trackIdMap[pConfig.trackFileName]) {
-              newPads.push({ id: Date.now() + Math.random(), trackId: trackIdMap[pConfig.trackFileName], title: pConfig.title, icon: pConfig.icon, color: pConfig.color, order: pConfig.order !== undefined ? pConfig.order : newPads.length });
-            }
-          }
+      // Сначала полностью читаем и проверяем архив в памяти. База не меняется,
+      // пока каждый аудиофайл и конфигурация не готовы к записи.
+      const trackEntries = [];
+      for (let i = 0; i < config.tracks.length; i++) {
+        const meta = config.tracks[i];
+        if (!meta || typeof meta.fileName !== "string" || !meta.fileName) {
+          throw new Error("В конфигурации найден трек без имени файла.");
         }
-        newPads.sort((a,b) => a.order - b.order);
-        const tx = db.transaction("scenarios", "readwrite");
-        tx.objectStore("scenarios").add({ name: scConfig.name, duration: scConfig.duration, order: scConfig.order, pads: newPads });
-        await new Promise(r => setTimeout(r, 10));
+        const entry = zip.file("audio/" + meta.fileName);
+        if (!entry) throw new Error("Не найден аудиофайл: " + meta.fileName);
+        const data = await entry.async("arraybuffer");
+        if (!data || !data.byteLength) throw new Error("Пустой аудиофайл: " + meta.fileName);
+        trackEntries.push({
+          fileName: meta.fileName,
+          record: {
+            name: String(meta.name || meta.fileName),
+            tag: meta.tag || "linear-gradient(135deg,#1565c0,#42a5f5)|🎵",
+            order: Number.isFinite(meta.order) ? meta.order : i,
+            data,
+            mimeType: meta.mimeType || "audio/mpeg"
+          }
+        });
+        showProgress("Проверка аудио... " + (i + 1) + "/" + config.tracks.length,
+          Math.round(((i + 1) / Math.max(config.tracks.length, 1)) * 65));
       }
-      hideProgress(); alert("Импорт завершен!"); window.location.reload();
-    } catch (err) { hideProgress(); alert("Ошибка импорта: " + err.message); }
+
+      const trackIdMap = new Map();
+      const tx = db.transaction(["tracks", "scenarios"], "readwrite");
+      const trackStore = tx.objectStore("tracks");
+      const scenarioStore = tx.objectStore("scenarios");
+      trackStore.clear();
+      scenarioStore.clear();
+
+      trackEntries.forEach((item) => {
+        const request = trackStore.add(item.record);
+        request.onsuccess = () => trackIdMap.set(item.fileName, request.result);
+      });
+
+      config.scenarios.forEach((scConfig, scenarioIndex) => {
+        const pads = (Array.isArray(scConfig.pads) ? scConfig.pads : []).map((p, padIndex) => ({
+          id: p.id || (Date.now() + scenarioIndex * 1000 + padIndex),
+          trackId: p.trackFileName ? (trackIdMap.get(p.trackFileName) || null) : null,
+          title: p.title || "",
+          icon: p.icon || "🎵",
+          color: p.color || "linear-gradient(135deg,#1565c0,#42a5f5)",
+          order: Number.isFinite(p.order) ? p.order : padIndex
+        })).sort((a, b) => a.order - b.order);
+        scenarioStore.add({
+          name: String(scConfig.name || "Новый сценарий"),
+          duration: scConfig.duration || "30",
+          order: Number.isFinite(scConfig.order) ? scConfig.order : scenarioIndex,
+          pads
+        });
+      });
+
+      await new Promise((resolve, reject) => {
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error || new Error("Не удалось записать данные."));
+        tx.onabort = () => reject(tx.error || new Error("Импорт отменён: транзакция прервана."));
+      });
+      hideProgress();
+      alert("Импорт завершён. Загружено треков: " + trackEntries.length + ", сценариев: " + config.scenarios.length + ".");
+      window.location.reload();
+    } catch (err) {
+      hideProgress();
+      alert("Импорт не выполнен: " + (err && err.message ? err.message : err));
+    } finally {
+      event.target.value = "";
+    }
   }
 
   // ============ SETTINGS ============
@@ -638,45 +714,104 @@
     openAddSourceModal();
   }
 
-  // ============ PLAYBACK (ИСПРАВЛЕНО) ============
+  // ============ PLAYBACK ============
+  function disposeCurrentAudio() {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.removeAttribute("src");
+      currentAudio.load();
+      currentAudio = null;
+    }
+    if (currentBlobUrl) {
+      URL.revokeObjectURL(currentBlobUrl);
+      currentBlobUrl = null;
+    }
+  }
+
+  async function startTrackAudio(track, pad = null) {
+    if (!track || !track.data) return;
+    disposeCurrentAudio();
+    currentBlobUrl = URL.createObjectURL(new Blob([track.data], { type: track.mimeType || "audio/mpeg" }));
+    const audio = new Audio();
+    currentAudio = audio;
+    audio.preload = "auto";
+    audio.src = currentBlobUrl;
+    audio.volume = currentVolume;
+    currentTrackId = track.id;
+
+    audio.addEventListener("loadedmetadata", () => {
+      const duration = document.getElementById("timeDuration");
+      if (duration) duration.textContent = formatTime(audio.duration);
+    });
+    audio.addEventListener("timeupdate", () => {
+      if (currentAudio !== audio) return;
+      const current = document.getElementById("timeCurrent");
+      const slider = document.getElementById("seekSlider");
+      if (current) current.textContent = formatTime(audio.currentTime);
+      if (slider && Number.isFinite(audio.duration) && audio.duration > 0) {
+        slider.value = String(Math.round((audio.currentTime / audio.duration) * 1000));
+      }
+    });
+    audio.addEventListener("play", () => {
+      const btn = document.getElementById("playPauseBtn");
+      if (btn) btn.innerHTML = '<svg width="26" height="26" viewBox="0 0 24 24"><path d="M7 5h4v14H7zM15 5h4v14h-4z"/></svg>';
+    });
+    audio.addEventListener("pause", () => {
+      const btn = document.getElementById("playPauseBtn");
+      if (btn) btn.innerHTML = '<svg width="26" height="26" viewBox="0 0 24 24"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z"/></svg>';
+    });
+    audio.addEventListener("ended", () => {
+      if (currentAudio === audio) playNextTrack();
+    });
+    audio.addEventListener("error", () => {
+      if (currentAudio === audio) {
+        const btn = document.getElementById("playPauseBtn");
+        if (btn) btn.innerHTML = '<svg width="26" height="26" viewBox="0 0 24 24"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z"/></svg>';
+      }
+    });
+
+    updatePlayerUI(track, pad);
+    const slider = document.getElementById("seekSlider");
+    if (slider) slider.value = "0";
+    const time = document.getElementById("timeCurrent");
+    if (time) time.textContent = "0:00";
+    try {
+      await audio.play();
+      requestWakeLock();
+    } catch (error) {
+      if (error && error.name !== "AbortError") {
+        alert("Не удалось запустить аудио. Попробуйте нажать воспроизведение ещё раз.");
+      }
+    }
+  }
+
   function playTrack(trackId, scenarioId = null) {
-    const track = tracks.find(t => t.id === trackId); if (!track) return;
-    if (currentAudio) { currentAudio.pause(); currentAudio.src = ""; }
-    if (scenarioId) { const sc = scenarios.find(s => s.id === scenarioId); if (sc) currentQueueIds = sc.pads.map(p => p.trackId); }
-    else { currentQueueIds = tracks.map(t => t.id); }
-    
-    currentBlobUrl = URL.createObjectURL(new Blob([track.data], { type: track.mimeType }));
-    currentAudio = new Audio(currentBlobUrl);
-    currentTrackId = trackId; currentAudio.volume = currentVolume;
-    
-    currentAudio.play(); requestWakeLock();
-    updatePlayerUI(track, null);
+    const track = tracks.find(t => t.id === trackId);
+    if (!track) return;
+    if (scenarioId) {
+      const sc = scenarios.find(s => s.id === scenarioId);
+      if (sc) currentQueueIds = (sc.pads || []).map(p => p.trackId).filter(Boolean);
+    } else {
+      currentQueueIds = tracks.map(t => t.id);
+    }
+    startTrackAudio(track, null);
   }
 
   function playPad(padId, scenarioId) {
     const sc = scenarios.find(s => s.id === scenarioId);
     if (!sc) return;
-    const pad = sc.pads.find(p => p.id === padId);
+    const pad = (sc.pads || []).find(p => p.id === padId);
     if (!pad) return;
     const track = tracks.find(t => t.id === pad.trackId);
     if (!track) return;
-    
-    if (currentAudio) { currentAudio.pause(); currentAudio.src = ""; }
-    
-    currentQueueIds = sc.pads.map(p => p.trackId);
-    currentBlobUrl = URL.createObjectURL(new Blob([track.data], { type: track.mimeType }));
-    currentAudio = new Audio(currentBlobUrl);
-    currentTrackId = track.id; currentAudio.volume = currentVolume;
-    
-    currentAudio.play(); requestWakeLock();
-    updatePlayerUI(track, pad);
+    currentQueueIds = (sc.pads || []).map(p => p.trackId).filter(Boolean);
+    startTrackAudio(track, pad);
   }
 
   function updatePlayerUI(track, pad) {
     if (!track) return;
     const bar = document.getElementById("playerBar");
     const cover = document.getElementById("playerCover");
-    
     if (pad) {
       const [bg] = pad.color ? pad.color.split("|") : (track.tag || "#333").split("|");
       cover.style.background = bg;
@@ -693,11 +828,35 @@
     bar.classList.add("visible");
   }
 
-  function togglePauseCurrent() { if (currentAudio) { currentAudio.paused ? currentAudio.play() : currentAudio.pause(); } }
-  function stopAndReset() { if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; } }
-  function restartCurrent() { if (currentAudio) { currentAudio.currentTime = 0; } }
-  function playNextTrack() { if (!currentQueueIds.length) return; const idx = currentQueueIds.indexOf(currentTrackId); const next = currentQueueIds[idx + 1]; if (next) { const sc = openedScenarioId; playTrack(next, sc); } }
-  function playPrevTrack() { if (!currentQueueIds.length) return; const idx = currentQueueIds.indexOf(currentTrackId); const prev = currentQueueIds[idx - 1]; if (prev) { const sc = openedScenarioId; playTrack(prev, sc); } }
+  function togglePauseCurrent() {
+    if (!currentAudio) return;
+    if (currentAudio.paused) currentAudio.play().catch(() => alert("Не удалось продолжить воспроизведение."));
+    else currentAudio.pause();
+  }
+  function stopAndReset() {
+    if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
+    releaseWakeLock();
+  }
+  function restartCurrent() { if (currentAudio) currentAudio.currentTime = 0; }
+  function playNextTrack() {
+    if (!currentQueueIds.length) return;
+    const idx = currentQueueIds.indexOf(currentTrackId);
+    const next = currentQueueIds[idx + 1];
+    if (next) playTrack(next, openedScenarioId);
+  }
+  function playPrevTrack() {
+    if (!currentQueueIds.length) return;
+    const idx = currentQueueIds.indexOf(currentTrackId);
+    const prev = currentQueueIds[idx - 1];
+    if (prev) playTrack(prev, openedScenarioId);
+  }
+
+  const seekControl = document.getElementById("seekSlider");
+  if (seekControl) seekControl.addEventListener("input", () => {
+    if (currentAudio && Number.isFinite(currentAudio.duration) && currentAudio.duration > 0) {
+      currentAudio.currentTime = (Number(seekControl.value) / 1000) * currentAudio.duration;
+    }
+  });
 
   document.getElementById("playPauseBtn").innerHTML = `<svg width="26" height="26" viewBox="0 0 24 24"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z"/></svg>`;
   if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(() => {}); }
