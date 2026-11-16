@@ -350,6 +350,14 @@ html,body{height:100%;height:100dvh;min-height:0!important;overflow:hidden!impor
 .scenario-actions,.row-actions{gap:9px!important;flex:0 0 auto}.scenario-actions .row-btn,.row-actions .row-btn{width:34px!important;min-width:34px!important;height:38px!important;border-radius:11px;background:transparent!important;font-size:16px!important}.scenario-actions .delete-btn,.row-actions .delete-btn{color:#df9298}
 .pad.playing,.pad.paused{outline:none!important;border:2px solid rgba(245,249,255,.96)!important;box-shadow:none!important;filter:none!important}.pad.playing{animation:padPlayingPulse 1.8s ease-in-out infinite;will-change:transform}.pad.paused{animation:none!important}
 @media(max-width:600px){#mainContainer>.music-list-scroll,#mainContainer>.scenario-library-scroll,#mainContainer>.pads-scroll{padding-bottom:calc(260px + env(safe-area-inset-bottom,0px))!important}.scenario-actions,.row-actions{gap:8px!important}.scenario-actions .row-btn,.row-actions .row-btn{width:32px!important;min-width:32px!important}}
+/* Only reserve space for the floating player while it is actually visible. */
+#mainContainer>.music-list-scroll,#mainContainer>.scenario-library-scroll,#mainContainer>.pads-scroll{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))!important;scroll-padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))!important}
+body.player-visible #mainContainer>.music-list-scroll,body.player-visible #mainContainer>.scenario-library-scroll,body.player-visible #mainContainer>.pads-scroll{padding-bottom:calc(188px + env(safe-area-inset-bottom,0px))!important;scroll-padding-bottom:calc(188px + env(safe-area-inset-bottom,0px))!important}
+.delete-confirm-box{max-width:390px!important;padding:24px!important}
+.delete-confirm-icon{width:46px;height:46px;display:grid;place-items:center;margin-bottom:14px;border-radius:15px;background:rgba(229,57,53,.13);color:#ff8580}
+.delete-confirm-icon svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.delete-confirm-message{margin:0 0 20px;color:var(--text-muted);font-size:14px;line-height:1.5}
+.delete-confirm-box .m-btn-danger{background:linear-gradient(135deg,#b93639,#e34d50);box-shadow:0 6px 18px rgba(190,48,52,.2)}
 </style>
 </head>
 <body>
@@ -366,6 +374,18 @@ html,body{height:100%;height:100dvh;min-height:0!important;overflow:hidden!impor
     <div class="modal-btns">
       <button class="m-btn" onclick="cancelExitConfirmation()">Остаться</button>
       <button class="m-btn m-btn-primary" onclick="confirmExitApplication()">Выйти</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="deleteConfirmModal" role="dialog" aria-modal="true" aria-labelledby="deleteConfirmTitle" onclick="if(event.target===this)cancelDeleteConfirmation()">
+  <div class="modal-box delete-confirm-box">
+    <div class="delete-confirm-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6m4-6v6M5 7l1 14h12l1-14M9 7V4h6v3"/></svg></div>
+    <h3 id="deleteConfirmTitle">Подтвердите удаление</h3>
+    <p class="delete-confirm-message" id="deleteConfirmMessage">Вы действительно хотите удалить этот элемент?</p>
+    <div class="modal-btns">
+      <button class="m-btn" type="button" onclick="cancelDeleteConfirmation()">Отмена</button>
+      <button class="m-btn m-btn-danger" type="button" onclick="confirmDeleteAction()">Удалить</button>
     </div>
   </div>
 </div>
@@ -464,7 +484,6 @@ html,body{height:100%;height:100dvh;min-height:0!important;overflow:hidden!impor
     <div class="choice-card" onclick="exportBackup()" style="margin-top:10px; border: 1px solid var(--accent-blue);"><div style="font-size:24px">📤</div><div><div style="font-weight:700;font-size:15px; color:#64b5f6;">Экспортировать всё (ZIP)</div><div style="font-size:12px;color:var(--text-muted)">Скачать треки и сценарии</div></div></div>
     <div class="choice-card" onclick="triggerImportBackup()"><div style="font-size:24px">📥</div><div><div style="font-weight:700;font-size:15px">Импортировать из архива (ZIP)</div><div style="font-size:12px;color:var(--text-muted)">Загрузить треки и сценарии</div></div></div>
     <input type="file" id="importFileInput" accept=".zip" style="display:none;" onchange="handleImportFile(event)">
-    <div class="choice-card" onclick="forceAppUpdate()" style="margin-top:10px;"><div style="font-size:24px">🔄</div><div><div style="font-weight:700;font-size:15px">Проверить обновления</div><div style="font-size:12px;color:var(--text-muted)">Скачать новую версию</div></div></div>
     <div style="margin-top:16px; text-align:center; font-size:11px; color:var(--text-muted);">Версия: <strong>v20</strong> • База: IndexedDB v9</div>
     <div class="modal-btns" style="margin-top:16px"><button class="m-btn" onclick="closeModal('settingsModal')">Закрыть</button></div>
   </div>
@@ -474,6 +493,7 @@ html,body{height:100%;height:100dvh;min-height:0!important;overflow:hidden!impor
 
   // ============ STATE ============
   let db = null, tracks = [], scenarios = [];
+  let pendingDeleteAction = null;
   let activeSection = "all", openedScenarioId = null;
   let currentPadId = null, currentPadScenarioId = null, currentPlaybackMode = "music";
   let musicSearchQuery = "", scenarioSearchQuery = "";
@@ -664,11 +684,6 @@ html,body{height:100%;height:100dvh;min-height:0!important;overflow:hidden!impor
   }
 
   // ============ SETTINGS ============
-  function forceAppUpdate() {
-    closeModal('settingsModal');
-    if ('serviceWorker' in navigator) { navigator.serviceWorker.getRegistrations().then(registrations => { for (let registration of registrations) registration.update(); setTimeout(() => window.location.reload(true), 1000); }); }
-    else window.location.reload(true);
-  }
 
   // ============ ANDROID BACK NAVIGATION ============
   // Use an in-app confirmation: native dialogs can be suppressed in installed PWAs.
@@ -878,7 +893,30 @@ function reorderVisibleItems(type,movingId,targetId,dropY,rect){const track=type
   }
 
   function editTrackAction(e, id) { e.stopPropagation(); openTrackModal(id); }
-  function deleteTrackAction(e, id) { e.stopPropagation(); if(confirm("Удалить трек?")) { const tx = db.transaction("tracks", "readwrite"); tx.objectStore("tracks").delete(id); tx.oncomplete = loadAllData; } }
+  function showDeleteConfirmation(message, action) {
+    const modal=document.getElementById("deleteConfirmModal");
+    document.getElementById("deleteConfirmMessage").textContent=message;
+    pendingDeleteAction=action;
+    modal.style.display="flex";
+  }
+  function cancelDeleteConfirmation() {
+    pendingDeleteAction=null;
+    const modal=document.getElementById("deleteConfirmModal");
+    if(modal)modal.style.display="none";
+  }
+  function confirmDeleteAction() {
+    const action=pendingDeleteAction;
+    cancelDeleteConfirmation();
+    if(typeof action==="function")action();
+  }
+  function deleteTrackAction(e, id) {
+    e.stopPropagation();
+    showDeleteConfirmation("Трек будет удалён из музыкальной библиотеки. Продолжить?",()=>{
+      const tx=db.transaction("tracks","readwrite");
+      tx.objectStore("tracks").delete(id);
+      tx.oncomplete=loadAllData;
+    });
+  }
   
   function openScenarioModal(id = null) {
     editingScenarioId = id;
@@ -892,7 +930,14 @@ function reorderVisibleItems(type,movingId,targetId,dropY,rect){const track=type
   function saveScenario(){const name=document.getElementById("inputScName").value.trim();if(!name)return alert("Введите название!");const description=document.getElementById("inputScDescription").value.trim(),tx=db.transaction("scenarios","readwrite"),store=tx.objectStore("scenarios");let newId=null;if(editingScenarioId){const old=scenarios.find(x=>x.id===editingScenarioId),{duration,...rest}=old;store.put({...rest,name,description})}else{const req=store.add({name,description,order:scenarios.length,pads:[]});req.onsuccess=()=>{newId=req.result}}tx.oncomplete=()=>{closeModal("scenarioModal");if(newId!==null){openedScenarioId=newId;activeSection="scenarios";padEditMode=false;hasUnsavedChanges=false;document.getElementById("tabAllMusic").classList.remove("active");document.getElementById("tabScenarios").classList.add("active")}loadAllData()}}
 
    function editScenarioAction(e, id) { e.stopPropagation(); openScenarioModal(id); }
-  function deleteScenarioAction(e, id) { e.stopPropagation(); if(confirm("Удалить сценарий?")) { const tx = db.transaction("scenarios", "readwrite"); tx.objectStore("scenarios").delete(id); tx.oncomplete = loadAllData; } }
+  function deleteScenarioAction(e, id) {
+    e.stopPropagation();
+    showDeleteConfirmation("Сценарий и все его пэды будут удалены. Продолжить?",()=>{
+      const tx=db.transaction("scenarios","readwrite");
+      tx.objectStore("scenarios").delete(id);
+      tx.oncomplete=loadAllData;
+    });
+  }
   
   function saveScenarioState() {
     const sc = scenarios.find(s => s.id === openedScenarioId); if (!sc) return;
@@ -953,7 +998,25 @@ function reorderVisibleItems(type,movingId,targetId,dropY,rect){const track=type
 
   function savePad(){const trackId=Number(document.getElementById("inputPadTrackId").value),title=document.getElementById("inputPadTitle").value.trim(),icon=document.getElementById("inputPadIcon").value,sc=scenarios.find(s=>s.id===openedScenarioId);if(!sc.pads)sc.pads=[];if(editingPadId){const pad=sc.pads.find(p=>p.id===editingPadId);if(!pad)return;pad.trackId=trackId;pad.title=title;pad.icon=icon;pad.color=selectedPadColor}else sc.pads.push({id:Date.now(),trackId,title,icon,color:selectedPadColor,order:sc.pads.length});const tx=db.transaction("scenarios","readwrite");tx.objectStore("scenarios").put(sc);tx.oncomplete=()=>{closeModal("padModal");padTrackChangeMode=false;activeSection="scenarios";document.getElementById("tabAllMusic").classList.remove("active");document.getElementById("tabScenarios").classList.add("active");hasUnsavedChanges=true;renderCurrentView()}}
 
-   function deletePad(){if(!editingPadId)return;const sc=scenarios.find(s=>s.id===openedScenarioId),pad=(sc.pads||[]).find(p=>p.id===editingPadId);if(!pad)return;pad.trackId=null;pad.title="";pad.icon="";const tx=db.transaction("scenarios","readwrite");tx.objectStore("scenarios").put(sc);tx.oncomplete=()=>{closeModal("padModal");editingPadId=null;hasUnsavedChanges=true;renderCurrentView()}}
+   function deletePad(){
+    if(!editingPadId)return;
+    const sc=scenarios.find(s=>s.id===openedScenarioId);
+    if(!sc)return;
+    showDeleteConfirmation("Пэд будет удалён. Остальные пэды сдвинутся на его место, сохранив свой порядок и цвета.",()=>{
+      const padIndex=(sc.pads||[]).findIndex(p=>p.id===editingPadId);
+      if(padIndex<0)return;
+      sc.pads.splice(padIndex,1);
+      sc.pads.forEach((pad,index)=>{pad.order=index});
+      const tx=db.transaction("scenarios","readwrite");
+      tx.objectStore("scenarios").put(sc);
+      tx.oncomplete=()=>{
+        closeModal("padModal");
+        editingPadId=null;
+        hasUnsavedChanges=true;
+        renderCurrentView();
+      };
+    });
+  }
 
    function changePadTrack() {
     padTrackChangeMode = true;
@@ -1098,6 +1161,7 @@ function preloadScenarioAudio(sc){[...new Set((sc.pads||[]).map(p=>p.trackId).fi
       bar.classList.toggle("user-hidden", hasTrack && playerHidden);
     }
     if (launcher) launcher.classList.toggle("visible", hasTrack && playerHidden);
+    document.body.classList.toggle("player-visible",hasTrack&&!playerHidden);
   }
   function hidePlayer() { playerHidden = true; syncPlayerVisibility(); }
   function showPlayer() { playerHidden = false; syncPlayerVisibility(); }
