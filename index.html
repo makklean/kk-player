@@ -341,6 +341,15 @@ header{border:0;box-shadow:none;background:rgba(11,16,24,.84)}
 .list-dragging{opacity:.58;transform:scale(.985)}
 .list-drop-target{outline:2px solid #75adfa;outline-offset:3px;background:rgba(65,125,205,.18)!important}
 @media(prefers-reduced-motion:no-preference){.list-row,.scenario-card,.pad,.choice-card{transition:transform .18s ease,background .18s ease}}
+/* Final Android interaction pass: isolated scroll areas, player clearance and single-item drag. */
+html,body{height:100%;height:100dvh;min-height:0!important;overflow:hidden!important}body{display:flex;flex-direction:column;padding-bottom:0!important}#mainContainer{flex:1 1 auto;display:flex;flex-direction:column;min-height:0!important;height:auto!important;overflow:hidden!important;padding-bottom:0!important}
+#mainContainer>.music-list-scroll,#mainContainer>.scenario-library-scroll,#mainContainer>.pads-scroll{flex:1 1 0;min-height:0;height:auto!important;max-height:none!important;overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;touch-action:pan-y;scrollbar-width:none;padding-bottom:calc(260px + env(safe-area-inset-bottom,0px))!important;scroll-padding-bottom:calc(260px + env(safe-area-inset-bottom,0px))}
+#mainContainer>.scenario-library-scroll{padding-top:2px!important}#mainContainer>.pads-scroll{padding:12px 2px calc(260px + env(safe-area-inset-bottom,0px))!important}#mainContainer>.pads-scroll>.pads-grid{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;align-content:start;touch-action:pan-y}#mainContainer:has(>.pads-scroll){padding-bottom:0!important}
+.list-row,.scenario-card{position:relative;min-width:0}.list-row.drag-ready,.scenario-card.drag-ready{padding-left:27px!important}.list-drag-dot{position:absolute;z-index:7;top:9px;left:9px;width:8px;height:8px;min-width:8px;min-height:8px;padding:0;border:0;border-radius:50%;background:#a9cfff;box-shadow:0 0 0 4px rgba(110,168,255,.13);touch-action:none;cursor:grab}.list-row.list-dragging,.scenario-card.list-dragging{opacity:.62;transform:scale(.985)}.list-row.list-drop-target,.scenario-card.list-drop-target{outline:2px solid #75adfa;outline-offset:2px;background:rgba(65,125,205,.18)!important}
+.row-cover{display:flex!important;flex:0 0 32px!important;width:32px!important;height:32px!important;padding:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:#a9ceff!important}.row-cover svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.scenario-actions,.row-actions{gap:9px!important;flex:0 0 auto}.scenario-actions .row-btn,.row-actions .row-btn{width:34px!important;min-width:34px!important;height:38px!important;border-radius:11px;background:transparent!important;font-size:16px!important}.scenario-actions .delete-btn,.row-actions .delete-btn{color:#df9298}
+.pad.playing,.pad.paused{outline:none!important;border:2px solid rgba(245,249,255,.96)!important;box-shadow:none!important;filter:none!important}.pad.playing{animation:padPlayingPulse 1.8s ease-in-out infinite;will-change:transform}.pad.paused{animation:none!important}
+@media(max-width:600px){#mainContainer>.music-list-scroll,#mainContainer>.scenario-library-scroll,#mainContainer>.pads-scroll{padding-bottom:calc(260px + env(safe-area-inset-bottom,0px))!important}.scenario-actions,.row-actions{gap:8px!important}.scenario-actions .row-btn,.row-actions .row-btn{width:32px!important;min-width:32px!important}}
 </style>
 </head>
 <body>
@@ -462,15 +471,15 @@ header{border:0;box-shadow:none;background:rgba(11,16,24,.84)}
 </div>
 
 <script>
+
   // ============ STATE ============
   let db = null, tracks = [], scenarios = [];
   let activeSection = "all", openedScenarioId = null;
   let currentPadId = null, currentPadScenarioId = null, currentPlaybackMode = "music";
-  let selectedTrackIds = new Set();
-  let selectedScenarioIds = new Set();
   let musicSearchQuery = "", scenarioSearchQuery = "";
   try { localStorage.removeItem("kk-player-folders"); localStorage.removeItem("kk-player-scenario-folders"); } catch(e) {}
   let currentAudio = null, currentBlobUrl = null, currentTrackId = null, currentQueueIds = [];
+  const audioCache = new Map();
   let editingTrackId = null, editingScenarioId = null, editingPadId = null;
   let wakeLock = null, currentVolume = 1.0, playerHidden = false;
   let padEditMode = false, hasUnsavedChanges = false;
@@ -716,105 +725,54 @@ header{border:0;box-shadow:none;background:rgba(11,16,24,.84)}
   // ============ LOCK MODE ============
    // ============ NAV ============
   function switchSection(section) {
-     activeSection = section; if (section === "all") { openedScenarioId = null; selectedScenarioIds.clear(); } else selectedTrackIds.clear(); hasUnsavedChanges = false;
-    syncPlayerVisibility();
-    document.getElementById("tabAllMusic").classList.toggle("active", section === "all");
-    selectedTrackIds.clear();
-    document.getElementById("tabScenarios").classList.toggle("active", section === "scenarios");
-    renderCurrentView();
-  }
-  function openScenario(id) { openedScenarioId = id; hasUnsavedChanges = false; renderCurrentView(); }
+     activeSection = section;
+     if (section === "all") openedScenarioId = null;
+     hasUnsavedChanges = false;
+     syncPlayerVisibility();
+     document.getElementById("tabAllMusic").classList.toggle("active", section === "all");
+     document.getElementById("tabScenarios").classList.toggle("active", section === "scenarios");
+     renderCurrentView();
+   }
+   function openScenario(id) { openedScenarioId = id; hasUnsavedChanges = false; renderCurrentView(); }
   function closeOpenedScenario() { openedScenarioId = null; hasUnsavedChanges = false; renderCurrentView(); }
   function togglePadEditMode() { padEditMode = !padEditMode; renderCurrentView(); }
 
   function escapeHtml(value) { return String(value).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch])); }
-  function clearListSelection(type) {
-    if (type === "tracks") selectedTrackIds.clear(); else selectedScenarioIds.clear();
-    renderCurrentView();
-  }
   function filterMusicList(value) {
     musicSearchQuery = String(value || "").toLocaleLowerCase("ru").trim();
     document.querySelectorAll("#itemsList [data-search]").forEach(el => { el.style.display = el.dataset.search.includes(musicSearchQuery) ? "" : "none"; });
   }
 
-  function appIcon(type){const p={note:'<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',pads:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',folder:'<path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H10l2 2h6.5A2.5 2.5 0 0 1 21 9.5v8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/>'};return '<svg viewBox="0 0 24 24" aria-hidden="true">'+(p[type]||p.pads)+'</svg>'}
+  function appIcon(type){const p={note:'<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',pads:'<rect x="3" y="3" width="7" height="7" rx="1.5" fill="currentColor" stroke="none"/><rect x="14" y="3" width="7" height="7" rx="1.5" fill="currentColor" stroke="none"/><rect x="3" y="14" width="7" height="7" rx="1.5" fill="currentColor" stroke="none"/><rect x="14" y="14" width="7" height="7" rx="1.5" fill="none" stroke="currentColor"/>',folder:'<path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H10l2 2h6.5A2.5 2.5 0 0 1 21 9.5v8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/>'};return '<svg viewBox="0 0 24 24" aria-hidden="true">'+(p[type]||p.pads)+'</svg>'}
 function renderScenarioLibrary(host){
- host.innerHTML='<div class="scenario-toolbar"><button class="primary-action-btn" onclick="openScenarioModal(null)">＋ Создать сценарий</button></div>'+
- '<input class="music-search scenario-search" type="search" placeholder="Поиск по названию и описанию сценария…" value="'+escapeHtml(scenarioSearchQuery)+'" oninput="filterScenarioList(this.value)">'+
- (selectedScenarioIds.size?'<div class="selection-toolbar"><span>Выбрано: '+selectedScenarioIds.size+'</span><button class="m-btn" onclick="clearListSelection(&quot;scenarios&quot;)">Снять выделение</button></div>':'')+
- '<div class="scenario-library-scroll"><div class="items-list" id="itemsList"></div></div>';
- const list=host.querySelector("#itemsList");
- scenarios.slice().sort((a,b)=>(a.order??a.id)-(b.order??b.id)).forEach(sc=>{
-  const e=document.createElement("div");e.className="list-row scenario-card"+(selectedScenarioIds.has(sc.id)?" scenario-selected":"");e.dataset.itemId=String(sc.id);e.dataset.search=(sc.name+" "+(sc.description||"")).toLocaleLowerCase("ru");
-  e.innerHTML='<div class="selection-check scenario-check '+(selectedScenarioIds.has(sc.id)?"selected":"")+'" onclick="event.stopPropagation();toggleScenarioSelection('+sc.id+')">'+(selectedScenarioIds.has(sc.id)?"✓":"")+'</div>' + (selectedScenarioIds.has(sc.id) ? '<button class="drag-handle list-drag-handle" aria-label="Перетащить" type="button">⠿</button>' : '') + '<div class="row-cover">'+appIcon("pads")+'</div><div class="row-info"><div class="row-title"></div><div class="scenario-description"></div><div class="row-subtitle"></div></div><div class="scenario-actions"><button class="row-btn" title="Дублировать">⧉</button><button class="row-btn" title="Редактировать">✎</button><button class="row-btn delete-btn" title="Удалить">✕</button></div>';
-  e.querySelector(".row-title").textContent=sc.name;e.querySelector(".scenario-description").textContent=sc.description||"";e.querySelector(".row-subtitle").textContent="Пэдов: "+(sc.pads||[]).length;
-  e.onclick=ev=>{if(ev.target.closest(".scenario-actions")||ev.target.closest(".scenario-check"))return;if(selectedScenarioIds.size){toggleScenarioSelection(sc.id);return}openScenario(sc.id)};
-  const b=e.querySelectorAll(".scenario-actions button");b[0].onclick=ev=>{ev.stopPropagation();duplicateScenario(sc.id)};b[1].onclick=ev=>editScenarioAction(ev,sc.id);b[2].onclick=ev=>deleteScenarioAction(ev,sc.id);
-  attachLongPressSelection(e,"scenario",sc.id);list.appendChild(e);
- });
- if(!scenarios.length){const empty=document.createElement("div");empty.className="empty-state";empty.textContent="Сценариев пока нет. Создайте первый сценарий.";list.appendChild(empty)}
- filterScenarioList(scenarioSearchQuery);
+ host.innerHTML='<div class="scenario-toolbar"><button class="primary-action-btn" onclick="openScenarioModal(null)">＋ Создать сценарий</button></div>'+'<input class="music-search scenario-search" type="search" placeholder="Поиск по названию и описанию сценария…" value="'+escapeHtml(scenarioSearchQuery)+'" oninput="filterScenarioList(this.value)">'+'<div class="scenario-library-scroll"><div class="items-list" id="itemsList"></div></div>';
+ const list=host.querySelector("#itemsList");scenarios.slice().sort((a,b)=>(a.order??a.id)-(b.order??b.id)).forEach(sc=>{const e=document.createElement("div");e.className="list-row scenario-card";e.dataset.itemId=String(sc.id);e.dataset.search=(sc.name+" "+(sc.description||"")).toLocaleLowerCase("ru");e.innerHTML='<div class="row-cover">'+appIcon("pads")+'</div><div class="row-info"><div class="row-title"></div><div class="scenario-description"></div><div class="row-subtitle"></div></div><div class="scenario-actions"><button class="row-btn delete-btn" title="Удалить">✕</button><button class="row-btn" title="Дублировать">⧉</button><button class="row-btn" title="Редактировать">✎</button></div>';e.querySelector(".row-title").textContent=sc.name;e.querySelector(".scenario-description").textContent=sc.description||"";e.querySelector(".row-subtitle").textContent="Пэдов: "+(sc.pads||[]).length;e.onclick=ev=>{if(ev.target.closest(".scenario-actions")||ev.target.closest(".list-drag-dot"))return;if(e.dataset.suppressClick==="1"){delete e.dataset.suppressClick;return}openScenario(sc.id)};const bs=e.querySelectorAll(".scenario-actions button");bs[0].onclick=ev=>deleteScenarioAction(ev,sc.id);bs[1].onclick=ev=>{ev.stopPropagation();duplicateScenario(sc.id)};bs[2].onclick=ev=>editScenarioAction(ev,sc.id);attachLongPressDrag(e,"scenario",sc.id);list.appendChild(e)});if(!scenarios.length){const empty=document.createElement("div");empty.className="empty-state";empty.textContent="Сценариев пока нет. Создайте первый сценарий.";list.appendChild(empty)}filterScenarioList(scenarioSearchQuery);
 }
+
 function filterScenarioList(value){
  scenarioSearchQuery=String(value||"").toLocaleLowerCase("ru").trim();
  document.querySelectorAll("#itemsList [data-search]").forEach(el=>el.style.display=el.dataset.search.includes(scenarioSearchQuery)?"":"none");
 }
 function duplicateScenario(id){const s=scenarios.find(x=>x.id===id);if(!s)return;const tx=db.transaction("scenarios","readwrite"),st=tx.objectStore("scenarios");scenarios.filter(x=>(x.order??0)>(s.order??0)).forEach(x=>st.put({...x,order:x.order+1}));const c={...s,name:s.name+" (копия)",order:(s.order??0)+1,pads:(s.pads||[]).map((p,i)=>({...p,id:Date.now()+i}))};delete c.id;st.add(c);tx.oncomplete=loadAllData}
-function toggleScenarioSelection(id){if(selectedScenarioIds.has(id))selectedScenarioIds.delete(id);else selectedScenarioIds.add(id);renderCurrentView()}
-function toggleTrackSelection(event,id){if(event&&event.stopPropagation)event.stopPropagation();if(selectedTrackIds.has(id))selectedTrackIds.delete(id);else selectedTrackIds.add(id);renderCurrentView()}
-function attachLongPressSelection(row,type,id){
- let timer=null;
- row.addEventListener("pointerdown",e=>{
-  if(e.target.closest("button")||e.target.closest(".track-select")||e.target.closest(".scenario-check"))return;
-  const x=e.clientX,y=e.clientY;
-  const cancel=ev=>{if(Math.abs(ev.clientX-x)>10||Math.abs(ev.clientY-y)>10){clearTimeout(timer);timer=null}};
-  const finish=()=>{clearTimeout(timer);timer=null;row.removeEventListener("pointermove",cancel);window.removeEventListener("pointerup",finish);window.removeEventListener("pointercancel",finish)};
-  timer=setTimeout(()=>{timer=null;if(type==="track")selectedTrackIds.add(id);else selectedScenarioIds.add(id);renderCurrentView()},520);
-  row.addEventListener("pointermove",cancel);window.addEventListener("pointerup",finish);window.addEventListener("pointercancel",finish);
- });
- const handle=row.querySelector(".list-drag-handle");
- if(handle)handle.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();startListDrag(row,type,id)});
-}
-function startListDrag(row,type,id){
- const selected=type==="track"?selectedTrackIds:selectedScenarioIds,draggingIds=selected.has(id)?new Set(selected):new Set([id]);row.classList.add("list-dragging");
- const selector=type==="track"?'[data-track-id]':'.scenario-card[data-item-id]';
- const move=ev=>{const target=document.elementFromPoint(ev.clientX,ev.clientY)?.closest(selector);document.querySelectorAll(".list-drop-target").forEach(x=>x.classList.remove("list-drop-target"));if(target&&target!==row)target.classList.add("list-drop-target")};
- const finish=ev=>{document.removeEventListener("pointermove",move);document.removeEventListener("pointerup",finish);document.removeEventListener("pointercancel",finish);row.classList.remove("list-dragging");const target=document.elementFromPoint(ev.clientX,ev.clientY)?.closest(selector);document.querySelectorAll(".list-drop-target").forEach(x=>x.classList.remove("list-drop-target"));if(!target||target===row)return;const targetId=Number(type==="track"?target.dataset.trackId:target.dataset.itemId);if(draggingIds.has(targetId))return;reorderVisibleItems(type,draggingIds,targetId,ev.clientY,target.getBoundingClientRect())};
- document.addEventListener("pointermove",move);document.addEventListener("pointerup",finish);document.addEventListener("pointercancel",finish);
-}
-function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
- const isTrack=type==="track",all=(isTrack?tracks:scenarios).slice().sort((a,b)=>(a.order??a.id)-(b.order??b.id));
- const query=(isTrack?musicSearchQuery:scenarioSearchQuery).toLocaleLowerCase("ru").trim();
- const visible=all.filter(x=>!query||(isTrack?x.name:(x.name+" "+(x.description||""))).toLocaleLowerCase("ru").includes(query));
- const moving=visible.filter(x=>draggingIds.has(x.id));if(!moving.length||!visible.some(x=>x.id===targetId))return;
- const remaining=visible.filter(x=>!draggingIds.has(x.id));let at=remaining.findIndex(x=>x.id===targetId);if(at<0)return;
- if(targetRect&&dropY>targetRect.top+targetRect.height/2)at+=1;
- remaining.splice(at,0,...moving);
- const visibleIds=new Set(visible.map(x=>x.id));let cursor=0;
- const reordered=all.map(x=>visibleIds.has(x.id)?remaining[cursor++]:x);
- const tx=db.transaction(isTrack?"tracks":"scenarios","readwrite"),store=tx.objectStore(isTrack?"tracks":"scenarios");
- reordered.forEach((item,index)=>{const clean={...item,order:index};delete clean.folder;store.put(clean)});
- tx.oncomplete=()=>{if(isTrack)selectedTrackIds.clear();else selectedScenarioIds.clear();loadAllData()};
-}
+function attachLongPressDrag(row,type,id){let timer=null,x=0,y=0,pid=null;const add=()=>{row.classList.add("drag-ready");row.dataset.suppressClick="1";if(row.querySelector(".list-drag-dot"))return;const dot=document.createElement("button");dot.type="button";dot.className="list-drag-dot";dot.setAttribute("aria-label","Перетащить");dot.addEventListener("pointerdown",ev=>{ev.preventDefault();ev.stopPropagation();try{dot.setPointerCapture(ev.pointerId)}catch(_){}startListDrag(row,type,id)});row.appendChild(dot)};row.addEventListener("pointerdown",e=>{if(e.target.closest("button")||e.target.closest(".row-actions"))return;x=e.clientX;y=e.clientY;pid=e.pointerId;timer=setTimeout(()=>{timer=null;add();try{row.setPointerCapture(pid)}catch(_){}startListDrag(row,type,id)},480)});row.addEventListener("pointermove",e=>{if(timer&&Math.hypot(e.clientX-x,e.clientY-y)>9){clearTimeout(timer);timer=null}});const end=()=>{if(timer){clearTimeout(timer);timer=null}};row.addEventListener("pointerup",end);row.addEventListener("pointercancel",end)}
+function startListDrag(row,type,id){row.classList.add("list-dragging");const selector=type==="track"?"[data-track-id]":".scenario-card[data-item-id]",clear=()=>document.querySelectorAll(".list-drop-target").forEach(x=>x.classList.remove("list-drop-target")),move=e=>{e.preventDefault();const t=document.elementFromPoint(e.clientX,e.clientY)?.closest(selector);clear();if(t&&t!==row)t.classList.add("list-drop-target")},end=e=>{document.removeEventListener("pointermove",move);document.removeEventListener("pointerup",end);document.removeEventListener("pointercancel",end);row.classList.remove("list-dragging");clear();const t=document.elementFromPoint(e.clientX,e.clientY)?.closest(selector);if(!t||t===row)return;const tid=Number(type==="track"?t.dataset.trackId:t.dataset.itemId);if(tid!==id)reorderVisibleItems(type,id,tid,e.clientY,t.getBoundingClientRect())};document.addEventListener("pointermove",move,{passive:false});document.addEventListener("pointerup",end);document.addEventListener("pointercancel",end)}
+function reorderVisibleItems(type,movingId,targetId,dropY,rect){const track=type==="track",all=(track?tracks:scenarios).slice().sort((a,b)=>(a.order??a.id)-(b.order??b.id)),q=(track?musicSearchQuery:scenarioSearchQuery).toLocaleLowerCase("ru").trim(),visible=all.filter(x=>!q||(track?x.name:(x.name+" "+(x.description||""))).toLocaleLowerCase("ru").includes(q)),moving=visible.find(x=>x.id===movingId);if(!moving||!visible.some(x=>x.id===targetId))return;const rest=visible.filter(x=>x.id!==movingId);let at=rest.findIndex(x=>x.id===targetId);if(rect&&dropY>rect.top+rect.height/2)at++;rest.splice(at,0,moving);const ids=new Set(visible.map(x=>x.id));let n=0;const ordered=all.map(x=>ids.has(x.id)?rest[n++]:x),tx=db.transaction(track?"tracks":"scenarios","readwrite"),store=tx.objectStore(track?"tracks":"scenarios");ordered.forEach((x,i)=>{const item={...x,order:i};delete item.folder;store.put(item)});tx.oncomplete=loadAllData}
 
-  // ============ RENDER ============
+// ============ RENDER ============
   function renderCurrentView() {
     const container = document.getElementById("mainContainer");
      if (activeSection === "all") {
-      container.innerHTML = '<div class="music-toolbar"><button class="primary-action-btn" onclick="openTrackModal(null)">＋ Добавить треки</button></div><input class="music-search" type="search" placeholder="Поиск по названию трека…" value="' + escapeHtml(musicSearchQuery) + '" oninput="filterMusicList(this.value)">' + (selectedTrackIds.size ? '<div class="selection-toolbar"><span>Выбрано: ' + selectedTrackIds.size + '</span><button class="m-btn" onclick="clearListSelection(&quot;tracks&quot;)">Снять выделение</button></div>' : '') + '<div class="music-list-scroll"><div class="items-list" id="itemsList"></div></div>';
-      const listEl = document.getElementById("itemsList");
+      container.innerHTML = '<div class="music-toolbar"><button class="primary-action-btn" onclick="openTrackModal(null)">＋ Добавить треки</button></div><input class="music-search" type="search" placeholder="Поиск по названию трека…" value="' + escapeHtml(musicSearchQuery) + '" oninput="filterMusicList(this.value)"><div class="music-list-scroll"><div class="items-list" id="itemsList"></div></div>';
+       const listEl = document.getElementById("itemsList");
       if (!tracks.length) { listEl.innerHTML = '<div class="empty-state">Библиотека пуста. Добавьте аудиофайлы.</div>'; return; }
       tracks.slice().sort((a,b)=>(a.order??a.id)-(b.order??b.id)).forEach(track => {
         const row = document.createElement("div"); row.className = "list-row"; row.dataset.trackId = String(track.id);
-        row.innerHTML = '<div class="selection-check track-select ' + (selectedTrackIds.has(track.id) ? "selected" : "") + '" role="checkbox" aria-checked="' + selectedTrackIds.has(track.id) + '" onclick="toggleTrackSelection(event,' + track.id + ')">' + (selectedTrackIds.has(track.id) ? "✓" : "") + '</div>' + (selectedTrackIds.has(track.id) ? '<button class="drag-handle list-drag-handle" aria-label="Перетащить" type="button">⠿</button>' : '') + '<div class="row-cover music-row-icon">' + appIcon("note") + '</div><div class="row-info"><div class="row-title"></div></div><div class="row-actions"><button class="row-btn" onclick="editTrackAction(event,' + track.id + ')">✎</button><button class="row-btn delete-btn" onclick="deleteTrackAction(event,' + track.id + ')">✕</button></div>';
-        row.querySelector(".row-title").textContent = track.name;
-        row.classList.toggle("track-selected", selectedTrackIds.has(track.id));
+        row.innerHTML = '<div class="row-cover music-row-icon">' + appIcon("note") + '</div><div class="row-info"><div class="row-title"></div></div><div class="row-actions"><button class="row-btn" onclick="editTrackAction(event,' + track.id + ')">✎</button><button class="row-btn delete-btn" onclick="deleteTrackAction(event,' + track.id + ')">✕</button></div>';
+         row.querySelector(".row-title").textContent = track.name;
         row.classList.toggle("track-playing", currentTrackId === track.id && !!currentAudio && !currentAudio.paused);
-        row.classList.toggle("track-paused", currentTrackId === track.id && !!currentAudio && currentAudio.paused);
-        row.dataset.search = track.name.toLocaleLowerCase("ru");
-        row.onclick = e => { if (e.target.closest(".row-actions") || e.target.closest(".track-select") || e.target.closest(".list-drag-handle")) return; if (padTrackChangeMode) { selectTrackForPad(track.id); return; } if (selectedTrackIds.size) { toggleTrackSelection(null,track.id); return; } playTrack(track.id); };
-        attachLongPressSelection(row,"track",track.id);
-        listEl.appendChild(row);
+         row.classList.toggle("track-paused", currentTrackId === track.id && !!currentAudio && currentAudio.paused);
+         row.dataset.search = track.name.toLocaleLowerCase("ru");row.onclick=e=>{if(e.target.closest(".row-actions")||e.target.closest(".list-drag-dot"))return;if(row.dataset.suppressClick==="1"){delete row.dataset.suppressClick;return}if(padTrackChangeMode){selectTrackForPad(track.id);return}toggleTrackFromList(track.id)};attachLongPressDrag(row,"track",track.id);
+         listEl.appendChild(row);
       });
       filterMusicList(musicSearchQuery);
       return;
@@ -827,7 +785,7 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
       container.querySelector(".sub-header-title").textContent = scenario.name;
       container.querySelector(".sub-header-heading .scenario-description").textContent = scenario.description || "";
       const grid = document.getElementById("padsGrid");
-      const visiblePads = (scenario.pads || []).map((pad, idx) => ({ pad, idx })).filter(item => tracks.some(t => t.id === item.pad.trackId));
+      const visiblePads = (scenario.pads || []).map((pad, idx) => ({ pad, idx }));
       visiblePads.forEach(({ pad, idx }) => {
         const track = tracks.find(t => t.id === pad.trackId);
         const current = currentPlaybackMode === "pad" && currentPadId === pad.id && !!currentAudio;
@@ -836,8 +794,8 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
         tile.className = "pad drum-pad" + (playing ? " playing" : "") + (current && !playing ? " paused" : "") + (track ? "" : " empty");
         tile.dataset.index = idx;
         if (!track) {
-          tile.innerHTML = '<div class="pad-add">+</div>';
-          if (!padEditMode) tile.onclick = () => { editingPadId = null; openAddSourceModal(); };
+          tile.innerHTML = '<div class="pad-handle">⠿</div><div class="pad-add">+</div>';
+          if (!padEditMode) tile.onclick = () => { editingPadId = pad.id; openAddSourceModal(); };
         } else {
           const bg = pad.color ? pad.color.split("|")[0] : (track.tag || "#333").split("|")[0];
           tile.style.background = bg;
@@ -853,6 +811,7 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
       if (!padEditMode) add.onclick = () => { editingPadId = null; openAddSourceModal(); };
       grid.appendChild(add);
       if (padEditMode) grid.querySelectorAll(".pad[data-index]").forEach(attachPadDragEvents);
+       preloadScenarioAudio(scenario);
     }
   }
 
@@ -930,22 +889,9 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
     document.getElementById("scenarioModal").style.display = "flex";
   }
   
-  function saveScenario() {
-    const name = document.getElementById("inputScName").value.trim();
-    if (!name) return alert("Введите название!");
-    const description = document.getElementById("inputScDescription").value.trim();
-    const tx = db.transaction("scenarios", "readwrite"); const store = tx.objectStore("scenarios");
-    if (editingScenarioId) {
-      const old = scenarios.find(x => x.id === editingScenarioId);
-      const { duration, ...scenarioWithoutDuration } = old;
-      store.put({ ...scenarioWithoutDuration, name, description });
-    } else {
-      store.add({ name, description, order: scenarios.length, pads: [] });
-    }
-    tx.oncomplete = () => { closeModal("scenarioModal"); loadAllData(); };
-  }
-  
-  function editScenarioAction(e, id) { e.stopPropagation(); openScenarioModal(id); }
+  function saveScenario(){const name=document.getElementById("inputScName").value.trim();if(!name)return alert("Введите название!");const description=document.getElementById("inputScDescription").value.trim(),tx=db.transaction("scenarios","readwrite"),store=tx.objectStore("scenarios");let newId=null;if(editingScenarioId){const old=scenarios.find(x=>x.id===editingScenarioId),{duration,...rest}=old;store.put({...rest,name,description})}else{const req=store.add({name,description,order:scenarios.length,pads:[]});req.onsuccess=()=>{newId=req.result}}tx.oncomplete=()=>{closeModal("scenarioModal");if(newId!==null){openedScenarioId=newId;activeSection="scenarios";padEditMode=false;hasUnsavedChanges=false;document.getElementById("tabAllMusic").classList.remove("active");document.getElementById("tabScenarios").classList.add("active")}loadAllData()}}
+
+   function editScenarioAction(e, id) { e.stopPropagation(); openScenarioModal(id); }
   function deleteScenarioAction(e, id) { e.stopPropagation(); if(confirm("Удалить сценарий?")) { const tx = db.transaction("scenarios", "readwrite"); tx.objectStore("scenarios").delete(id); tx.oncomplete = loadAllData; } }
   
   function saveScenarioState() {
@@ -955,8 +901,8 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
   }
 
   function openAddSourceModal() { document.getElementById("addSourceModal").style.display = "flex"; }
-  function openLibraryPicker() { closeModal("addSourceModal"); padTrackChangeMode = true; activeSection = "all"; document.getElementById("tabAllMusic").classList.add("active"); document.getElementById("tabScenarios").classList.remove("active"); selectedTrackIds.clear(); renderCurrentView(); }
-  function renderPickerList(q) {
+  function openLibraryPicker() { closeModal("addSourceModal"); padTrackChangeMode = true; activeSection = "all"; document.getElementById("tabAllMusic").classList.add("active"); document.getElementById("tabScenarios").classList.remove("active"); renderCurrentView(); }
+   function renderPickerList(q) {
     const listEl = document.getElementById("libraryPickList"); listEl.innerHTML = "";
     tracks.filter(t => t.name.toLowerCase().includes(q.toLowerCase())).forEach(t => {
       const item = document.createElement("div"); item.className = "pick-item"; item.innerHTML = `<div style="font-weight:600;font-size:14px">${t.name}</div>`;
@@ -965,11 +911,9 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
     });
   }
   function filterPickerList() { renderPickerList(document.getElementById("pickerSearch").value); }
-  function selectTrackForPad(trackId) {
-    if (editingPadId) { const sc = scenarios.find(s => s.id === openedScenarioId); const pad = sc && (sc.pads || []).find(p => p.id === editingPadId); if (pad) { pad.trackId = trackId; delete pad.color; const tx = db.transaction("scenarios", "readwrite"); tx.objectStore("scenarios").put(sc); tx.oncomplete = () => { padTrackChangeMode = false; activeSection = "scenarios"; renderCurrentView(); }; return; } }
-    padTrackChangeMode = false; openPadEditor(trackId);
-  }
-  function addFromDeviceToPad() {
+  function selectTrackForPad(trackId) {const sc=scenarios.find(s=>s.id===openedScenarioId),pad=editingPadId&&sc&&(sc.pads||[]).find(p=>p.id===editingPadId);if(pad&&!pad.trackId){padTrackChangeMode=false;openPadEditor(trackId);return}if(pad){pad.trackId=trackId;const tx=db.transaction("scenarios","readwrite");tx.objectStore("scenarios").put(sc);tx.oncomplete=()=>{padTrackChangeMode=false;activeSection="scenarios";document.getElementById("tabAllMusic").classList.remove("active");document.getElementById("tabScenarios").classList.add("active");renderCurrentView()};return}padTrackChangeMode=false;openPadEditor(trackId)}
+
+   function addFromDeviceToPad() {
     closeModal("addSourceModal");
     const input = document.createElement('input'); input.type = 'file'; input.accept = 'audio/*';
     input.onchange = (e) => {
@@ -978,7 +922,7 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
       reader.onload = (ev) => {
         const tx = db.transaction("tracks", "readwrite");
         const addReq = tx.objectStore("tracks").add({ name: file.name.replace(/\.[^/.]+$/, ""), tag: "linear-gradient(135deg,#1565c0,#42a5f5)|🎵", order: tracks.length, data: ev.target.result, mimeType: file.type });
-        addReq.onsuccess = (res) => { const newTrackId = res.target.result; loadAllData(() => { editingPadId = null; openPadEditor(newTrackId); }); };
+        addReq.onsuccess = (res) => { const newTrackId = res.target.result; loadAllData(() => { openPadEditor(newTrackId); }); };
       };
       reader.readAsArrayBuffer(file);
     };
@@ -992,7 +936,7 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
     const sc = scenarios.find(s => s.id === openedScenarioId);
     const existingPad = editingPadId ? sc.pads.find(p => p.id === editingPadId) : null;
     if (existingPad) {
-      document.getElementById("inputPadTrackId").value = existingPad.trackId;
+      document.getElementById("inputPadTrackId").value = trackId || existingPad.trackId;
       document.getElementById("inputPadTitle").value = existingPad.title || "";
       document.getElementById("inputPadIcon").value = existingPad.icon;
       selectedPadColor = existingPad.color || PAD_COLORS[0];
@@ -1007,27 +951,11 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
     document.getElementById("padModal").style.display = "flex";
   }
 
-  function savePad() {
-    const trackId = Number(document.getElementById("inputPadTrackId").value);
-    const title = document.getElementById("inputPadTitle").value.trim();
-    const icon = document.getElementById("inputPadIcon").value;
-    const sc = scenarios.find(s => s.id === openedScenarioId);
-    if (!sc.pads) sc.pads = [];
-    if (editingPadId) { const pad = sc.pads.find(p => p.id === editingPadId); pad.trackId = trackId; pad.title = title; pad.icon = icon; pad.color = selectedPadColor; }
-    else { sc.pads.push({ id: Date.now(), trackId, title, icon, color: selectedPadColor, order: sc.pads.length }); }
-    const tx = db.transaction("scenarios", "readwrite"); tx.objectStore("scenarios").put(sc);
-    tx.oncomplete = () => { closeModal("padModal"); hasUnsavedChanges = true; renderCurrentView(); };
-  }
+  function savePad(){const trackId=Number(document.getElementById("inputPadTrackId").value),title=document.getElementById("inputPadTitle").value.trim(),icon=document.getElementById("inputPadIcon").value,sc=scenarios.find(s=>s.id===openedScenarioId);if(!sc.pads)sc.pads=[];if(editingPadId){const pad=sc.pads.find(p=>p.id===editingPadId);if(!pad)return;pad.trackId=trackId;pad.title=title;pad.icon=icon;pad.color=selectedPadColor}else sc.pads.push({id:Date.now(),trackId,title,icon,color:selectedPadColor,order:sc.pads.length});const tx=db.transaction("scenarios","readwrite");tx.objectStore("scenarios").put(sc);tx.oncomplete=()=>{closeModal("padModal");padTrackChangeMode=false;activeSection="scenarios";document.getElementById("tabAllMusic").classList.remove("active");document.getElementById("tabScenarios").classList.add("active");hasUnsavedChanges=true;renderCurrentView()}}
 
-  function deletePad() {
-    if (!editingPadId) return;
-    const sc = scenarios.find(s => s.id === openedScenarioId);
-    sc.pads = sc.pads.filter(p => p.id !== editingPadId);
-    const tx = db.transaction("scenarios", "readwrite"); tx.objectStore("scenarios").put(sc);
-    tx.oncomplete = () => { closeModal("padModal"); hasUnsavedChanges = true; renderCurrentView(); };
-  }
-  
-  function changePadTrack() {
+   function deletePad(){if(!editingPadId)return;const sc=scenarios.find(s=>s.id===openedScenarioId),pad=(sc.pads||[]).find(p=>p.id===editingPadId);if(!pad)return;pad.trackId=null;pad.title="";pad.icon="";const tx=db.transaction("scenarios","readwrite");tx.objectStore("scenarios").put(sc);tx.oncomplete=()=>{closeModal("padModal");editingPadId=null;hasUnsavedChanges=true;renderCurrentView()}}
+
+   function changePadTrack() {
     padTrackChangeMode = true;
     closeModal('padModal');
     openAddSourceModal();
@@ -1072,101 +1000,23 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
   setupMediaSession();
 
   // ============ PLAYBACK ============
-  function disposeCurrentAudio() {
-    if (currentAudio) {
-      currentAudio.pause();
-      currentAudio.removeAttribute("src");
-      currentAudio.load();
-      currentAudio = null;
-    }
-    if (currentBlobUrl) {
-      URL.revokeObjectURL(currentBlobUrl);
-      currentBlobUrl = null;
-    }
-  }
+  function disposeCurrentAudio(){if(currentAudio)currentAudio.pause();currentAudio=null}
+function getCachedTrackAudio(track){let item=audioCache.get(track.id);if(item){audioCache.delete(track.id);audioCache.set(track.id,item);return item.audio}const url=URL.createObjectURL(new Blob([track.data],{type:track.mimeType||"audio/mpeg"})),audio=new Audio();audio.preload="auto";audio.src=url;audio.volume=currentVolume;audio.addEventListener("loadedmetadata",()=>{if(currentAudio!==audio)return;const d=document.getElementById("timeDuration");if(d)d.textContent=formatTime(audio.duration)});audio.addEventListener("timeupdate",()=>{if(currentAudio!==audio)return;const c=document.getElementById("timeCurrent"),sl=document.getElementById("seekSlider");if(c)c.textContent=formatTime(audio.currentTime);if(sl&&Number.isFinite(audio.duration)&&audio.duration>0)sl.value=String(Math.round(audio.currentTime/audio.duration*1000))});audio.addEventListener("play",()=>{if(currentAudio!==audio)return;refreshMusicPlaybackUI();refreshPadPlaybackUI();updateMediaSessionPlaybackState();const btn=document.getElementById("playPauseBtn");if(btn)btn.innerHTML='<svg width="26" height="26" viewBox="0 0 24 24"><path d="M7 5h4v14H7zM15 5h4v14h-4z"/></svg>'});audio.addEventListener("pause",()=>{if(currentAudio!==audio)return;refreshMusicPlaybackUI();refreshPadPlaybackUI();updateMediaSessionPlaybackState();const btn=document.getElementById("playPauseBtn");if(btn)btn.innerHTML='<svg width="26" height="26" viewBox="0 0 24 24"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86z"/></svg>'});audio.addEventListener("ended",()=>{if(currentAudio!==audio)return;if(currentPlaybackMode==="pad"&&currentPadId!==null)playNextPadInScenario(currentPadId,currentPadScenarioId);else playNextTrack();updateMediaSessionPlaybackState()});audio.addEventListener("error",()=>{if(currentAudio!==audio)return;const btn=document.getElementById("playPauseBtn");if(btn)btn.innerHTML='<svg width="26" height="26" viewBox="0 0 24 24"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86z"/></svg>'});audio.load();audioCache.set(track.id,{audio,url});while(audioCache.size>4){const key=audioCache.keys().next().value,old=audioCache.get(key);if(old.audio===currentAudio){audioCache.delete(key);audioCache.set(key,old);continue}old.audio.pause();old.audio.removeAttribute("src");old.audio.load();URL.revokeObjectURL(old.url);audioCache.delete(key)}return audio}
+function preloadScenarioAudio(sc){[...new Set((sc.pads||[]).map(p=>p.trackId).filter(Boolean))].slice(0,3).forEach(id=>{const t=tracks.find(x=>x.id===id);if(t)getCachedTrackAudio(t)})}
 
-  async function startTrackAudio(track, pad = null, padScenarioId = null) {
-    if (!track || !track.data) return;
-    disposeCurrentAudio();
-    currentBlobUrl = URL.createObjectURL(new Blob([track.data], { type: track.mimeType || "audio/mpeg" }));
-    const audio = new Audio();
-    currentAudio = audio;
-    audio.preload = "auto";
-    audio.src = currentBlobUrl;
-    audio.volume = currentVolume;
-    currentTrackId = track.id;
+   async function startTrackAudio(track,pad=null,padScenarioId=null){if(!track||!track.data)return;disposeCurrentAudio();const audio=getCachedTrackAudio(track);currentAudio=audio;audio.pause();try{audio.currentTime=0}catch(_){}audio.volume=currentVolume;currentTrackId=track.id;refreshMusicPlaybackUI();refreshPadPlaybackUI();updatePlayerUI(track,pad);const seek=document.getElementById("seekSlider"),time=document.getElementById("timeCurrent");if(seek)seek.value="0";if(time)time.textContent="0:00";try{await audio.play();requestWakeLock()}catch(err){if(err&&err.name!=="AbortError")alert("Не удалось запустить аудио. Попробуйте нажать воспроизведение ещё раз.")}}
 
-    audio.addEventListener("loadedmetadata", () => {
-      const duration = document.getElementById("timeDuration");
-      if (duration) duration.textContent = formatTime(audio.duration);
-    });
-    audio.addEventListener("timeupdate", () => {
-      if (currentAudio !== audio) return;
-      const current = document.getElementById("timeCurrent");
-      const slider = document.getElementById("seekSlider");
-      if (current) current.textContent = formatTime(audio.currentTime);
-      if (slider && Number.isFinite(audio.duration) && audio.duration > 0) {
-        slider.value = String(Math.round((audio.currentTime / audio.duration) * 1000));
-      }
-    });
-    audio.addEventListener("play", () => {
-      refreshMusicPlaybackUI();
-      refreshPadPlaybackUI();
-      updateMediaSessionPlaybackState();
-      const btn = document.getElementById("playPauseBtn");
-      if (btn) btn.innerHTML = '<svg width="26" height="26" viewBox="0 0 24 24"><path d="M7 5h4v14H7zM15 5h4v14h-4z"/></svg>';
-    });
-    audio.addEventListener("pause", () => {
-      refreshMusicPlaybackUI();
-      refreshPadPlaybackUI();
-      updateMediaSessionPlaybackState();
-      const btn = document.getElementById("playPauseBtn");
-      if (btn) btn.innerHTML = '<svg width="26" height="26" viewBox="0 0 24 24"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z"/></svg>';
-    });
-    audio.addEventListener("ended", () => {
-      if (currentAudio !== audio) return;
-      if (currentPlaybackMode === "pad" && pad) playNextPadInScenario(pad.id, padScenarioId);
-      else playNextTrack();
-      updateMediaSessionPlaybackState();
-    });
-    audio.addEventListener("error", () => {
-      if (currentAudio === audio) {
-        const btn = document.getElementById("playPauseBtn");
-        if (btn) btn.innerHTML = '<svg width="26" height="26" viewBox="0 0 24 24"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z"/></svg>';
-      }
-    });
+   function toggleTrackFromList(id){if(currentTrackId===id&&currentAudio){if(currentAudio.paused){if(currentAudio.ended)currentAudio.currentTime=0;currentAudio.play().then(()=>requestWakeLock()).catch(()=>alert("Не удалось продолжить воспроизведение."))}else{currentAudio.pause();releaseWakeLock()}refreshMusicPlaybackUI();refreshPadPlaybackUI();return}playTrack(id)}
 
-    updatePlayerUI(track, pad);
-    const slider = document.getElementById("seekSlider");
-    if (slider) slider.value = "0";
-    const time = document.getElementById("timeCurrent");
-    if (time) time.textContent = "0:00";
-    try {
-      await audio.play();
-      requestWakeLock();
-    } catch (error) {
-      if (error && error.name !== "AbortError") {
-        alert("Не удалось запустить аудио. Попробуйте нажать воспроизведение ещё раз.");
-      }
-    }
-  }
+   function playTrack(trackId, scenarioId = null) {
+     playerHidden = false;
+     const track = tracks.find(t => t.id === trackId); if (!track) return;
+     currentPlaybackMode = "music"; currentPadId = null; currentPadScenarioId = null; syncPlayerVisibility();
+     if (scenarioId) { const sc = scenarios.find(s => s.id === scenarioId); if (sc) currentQueueIds = (sc.pads || []).map(p => p.trackId).filter(Boolean); } else currentQueueIds = tracks.map(t => t.id);
+     startTrackAudio(track, null);
+   }
 
-  function playTrack(trackId, scenarioId = null) {
-    playerHidden = false;
-    const track = tracks.find(t => t.id === trackId);
-    if (!track) return;
-    currentPlaybackMode = "music"; currentPadId = null; currentPadScenarioId = null;
-    syncPlayerVisibility();
-    if (scenarioId) {
-      const sc = scenarios.find(s => s.id === scenarioId);
-      if (sc) currentQueueIds = (sc.pads || []).map(p => p.trackId).filter(Boolean);
-    } else {
-      currentQueueIds = tracks.map(t => t.id);
-    }
-    startTrackAudio(track, null);
-  }
-
-  function playPad(padId, scenarioId) {
+   function playPad(padId, scenarioId) {
     playerHidden = false;
     const sc = scenarios.find(s => s.id === scenarioId);
     if (!sc) return;
@@ -1189,16 +1039,9 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
     else { currentPadId = null; currentPadScenarioId = null; currentPlaybackMode = "pad"; refreshPadPlaybackUI(); }
   }
 
-  function togglePadPlayback(padId, scenarioId) {
-    if (currentPlaybackMode === "pad" && currentPadId === padId && currentAudio) {
-      if (currentAudio.paused) currentAudio.play().catch(() => alert("Не удалось продолжить воспроизведение."));
-      else currentAudio.pause();
-      refreshPadPlaybackUI(); return;
-    }
-    playPad(padId, scenarioId);
-  }
+  function togglePadPlayback(padId,scenarioId){if(currentPlaybackMode==="pad"&&currentPadId===padId&&currentAudio){if(currentAudio.paused){if(currentAudio.ended)currentAudio.currentTime=0;currentAudio.play().then(()=>requestWakeLock()).catch(()=>alert("Не удалось продолжить воспроизведение."))}else{currentAudio.pause();releaseWakeLock()}refreshPadPlaybackUI();return}playPad(padId,scenarioId)}
 
-  function refreshMusicPlaybackUI() {
+   function refreshMusicPlaybackUI() {
     document.querySelectorAll(".list-row[data-track-id]").forEach(row => {
       const active = Number(row.dataset.trackId) === currentTrackId && !!currentAudio;
       row.classList.toggle("track-playing", active && !currentAudio.paused);
@@ -1304,6 +1147,7 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
 
   document.getElementById("playPauseBtn").innerHTML = `<svg width="26" height="26" viewBox="0 0 24 24"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z"/></svg>`;
   if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(() => {}); }
+
 </script>
 </body>
 </html>
