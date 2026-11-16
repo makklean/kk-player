@@ -786,6 +786,17 @@ let folderModalContext="tracks",folderModalMode="create",folderModalOriginal="",
     };
   }
   function createFolderAndMoveSelection() { openFolderNameModal(moveFolderContext,"create","","move"); }
+  let musicViewMode = "folders";
+  let musicSearchQuery = "";
+  function persistMusicFolders() { localStorage.setItem("kk-player-folders", JSON.stringify(musicFolders)); }
+  function exitMusicFolder() { currentFolderFilter = "__all__"; selectedTrackIds.clear(); renderCurrentView(); }
+  function deleteMusicFolder(name) {
+    if (!confirm('Удалить папку "' + name + '"? Треки останутся в библиотеке и будут перемещены в корень.')) return;
+    const tx = db.transaction("tracks", "readwrite"), store = tx.objectStore("tracks");
+    tracks.filter(t => t.folder === name).forEach(t => store.put({ ...t, folder: "" }));
+    musicFolders = musicFolders.filter(n => n !== name); persistMusicFolders();
+    tx.oncomplete = () => { if (currentFolderFilter === name) currentFolderFilter = "__all__"; selectedTrackIds.clear(); loadAllData(); };
+  }
   function setMusicView(mode) { musicViewMode = mode; currentFolderFilter = "__all__"; selectedTrackIds.clear(); renderCurrentView(); }
   function filterMusicList(value) {
     musicSearchQuery = value.toLocaleLowerCase("ru").trim();
@@ -823,7 +834,7 @@ function renderScenarioLibrary(host){
   const b=e.querySelectorAll(".scenario-actions button");b[0].onclick=ev=>{ev.stopPropagation();duplicateScenario(sc.id)};b[1].onclick=ev=>editScenarioAction(ev,sc.id);b[2].onclick=ev=>deleteScenarioAction(ev,sc.id);
   attachLongPressSelection(e,"scenario",sc.id);list.appendChild(e);
  });
- if(!visible.length)list.innerHTML+='<div class="empty-state">'+(inside?'В этой папке пока нет сценариев.':'Сценариев пока нет.')+'</div>';
+ if(!visible.length){const empty=document.createElement("div");empty.className="empty-state";empty.textContent=inside?'В этой папке пока нет сценариев.':'Сценариев пока нет.';list.appendChild(empty)}
  if(showAll)filterScenarioList(scenarioSearchQuery);
 }
 function filterScenarioList(value){scenarioSearchQuery=String(value||"").toLocaleLowerCase("ru").trim();document.querySelectorAll("#itemsList [data-search]").forEach(el=>el.style.display=el.dataset.search.includes(scenarioSearchQuery)?"":"none")}
