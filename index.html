@@ -543,7 +543,7 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
   async function handleImportFile(event) {
     const file = event.target.files && event.target.files[0];
     if (!file) return;
-    if (!confirm("Импорт заменит текущую музыку, папки и сценарии данными из архива. Перед продолжением убедитесь, что у вас есть резервная копия. Продолжить?")) {
+    if (!confirm("Импорт заменит текущую музыку и сценарии данными из архива. Перед продолжением убедитесь, что у вас есть резервная копия. Продолжить?")) {
       event.target.value = "";
       return;
     }
@@ -555,10 +555,6 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
       const configFile = zip.file("config.json");
       if (!configFile) throw new Error("В архиве нет config.json.");
       const config = JSON.parse(await configFile.async("string"));
-      const importedScenarioFolders = Array.isArray(config.scenarioFolders) ? config.scenarioFolders.filter(x => typeof x === "string" && x.trim()) : [];
-      const importedFolders = Array.isArray(config.folders)
-        ? config.folders.filter(x => typeof x === "string" && x.trim())
-        : null;
       if (!config || !Array.isArray(config.tracks) || !Array.isArray(config.scenarios)) {
         throw new Error("Неверный формат резервной копии.");
       }
@@ -580,7 +576,6 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
           record: {
             name: String(meta.name || meta.fileName),
             tag: meta.tag || "linear-gradient(135deg,#1565c0,#42a5f5)|🎵",
-            folder: String(meta.folder || ""),
             order: Number.isFinite(meta.order) ? meta.order : i,
             data,
             mimeType: meta.mimeType || "audio/mpeg"
@@ -610,7 +605,6 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
           scenarioStore.add({
             name: String(scConfig.name || "Новый сценарий"),
             description: String(scConfig.description || ""),
-            folder: String(scConfig.folder || ""),
             order: Number.isFinite(scConfig.order) ? scConfig.order : scenarioIndex,
             pads
           });
@@ -635,12 +629,6 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
         tx.onerror = () => reject(tx.error || new Error("Не удалось записать данные."));
         tx.onabort = () => reject(tx.error || new Error("Импорт отменён: транзакция прервана."));
       });
-      if (importedFolders !== null) {
-        musicFolders = importedFolders;
-        localStorage.setItem("kk-player-folders", JSON.stringify(musicFolders));
-      }
-      scenarioFolders = importedScenarioFolders;
-      persistScenarioFolders();
       hideProgress();
       alert("Импорт завершён. Загружено треков: " + trackEntries.length + ", сценариев: " + config.scenarios.length + ".");
       window.location.reload();
@@ -695,11 +683,6 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
         history.pushState({ kkPlayerBackGuard: true }, "", location.href);
         return;
       }
-      if (activeSection === "all" && currentFolderFilter !== "__all__") {
-        exitMusicFolder();
-        history.pushState({ kkPlayerBackGuard: true }, "", location.href);
-        return;
-      }
       if (activeSection === "scenarios" && openedScenarioId !== null) {
         closeOpenedScenario();
         history.pushState({ kkPlayerBackGuard: true }, "", location.href);
@@ -750,7 +733,6 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
   }
 
   function appIcon(type){const p={note:'<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',pads:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',folder:'<path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H10l2 2h6.5A2.5 2.5 0 0 1 21 9.5v8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/>'};return '<svg viewBox="0 0 24 24" aria-hidden="true">'+(p[type]||p.pads)+'</svg>'}
-function persistScenarioFolders(){localStorage.setItem("kk-player-scenario-folders",JSON.stringify(scenarioFolders))}
 function renderScenarioLibrary(host){
  host.innerHTML='<div class="scenario-toolbar"><button class="primary-action-btn" onclick="openScenarioModal(null)">＋ Создать сценарий</button></div>'+
  '<input class="music-search scenario-search" type="search" placeholder="Поиск по названию и описанию сценария…" value="'+escapeHtml(scenarioSearchQuery)+'" oninput="filterScenarioList(this.value)">'+
