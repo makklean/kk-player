@@ -442,6 +442,7 @@ header{border:0;box-shadow:none;background:rgba(11,16,24,.84)}
       <button class="m-btn" onclick="changePadTrack()" style="flex:none; padding:8px 12px; font-size:13px;">Сменить</button>
     </div>
     <label class="field-label">Название на пэде:</label><input type="text" class="modal-input" id="inputPadTitle" placeholder="Например: Смех">
+    <label class="field-label">Цвет пэда:</label><div class="color-palette" id="padColorPalette"></div>
     <input type="hidden" id="inputPadIcon" value="">
      <div class="modal-btns" style="margin-top:10px"><button class="m-btn" onclick="closeModal('padModal')">Отмена</button><button class="m-btn m-btn-primary" onclick="savePad()">Сохранить</button></div>
     <div class="modal-btns" style="margin-top:10px"><button class="m-btn m-btn-danger" onclick="deletePad()" id="deletePadBtn">Удалить пэд</button></div>
@@ -986,16 +987,21 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
 
   function openPadEditor(trackId = null) {
     const iconGrid = document.getElementById("padIconGrid"); if (iconGrid) iconGrid.innerHTML = "";
+    const palette = document.getElementById("padColorPalette");
+    if (palette) { palette.innerHTML = ""; PAD_COLORS.forEach(color => { const swatch = document.createElement("button"); swatch.type = "button"; swatch.className = "color-swatch"; swatch.style.background = color; swatch.setAttribute("aria-label", "Выбрать цвет пэда"); swatch.onclick = () => { selectedPadColor = color; palette.querySelectorAll(".color-swatch").forEach(el => el.classList.toggle("selected", el === swatch)); }; palette.appendChild(swatch); }); }
     const sc = scenarios.find(s => s.id === openedScenarioId);
     const existingPad = editingPadId ? sc.pads.find(p => p.id === editingPadId) : null;
     if (existingPad) {
       document.getElementById("inputPadTrackId").value = existingPad.trackId;
       document.getElementById("inputPadTitle").value = existingPad.title || "";
       document.getElementById("inputPadIcon").value = existingPad.icon;
+      selectedPadColor = existingPad.color || PAD_COLORS[0];
     } else {
       document.getElementById("inputPadTrackId").value = trackId;
       document.getElementById("inputPadTitle").value = ""; document.getElementById("inputPadIcon").value = "🎵";
+      selectedPadColor = PAD_COLORS[0];
     }
+    if (palette) palette.querySelectorAll(".color-swatch").forEach((el, i) => el.classList.toggle("selected", PAD_COLORS[i] === selectedPadColor));
     const tr = tracks.find(t => t.id === Number(document.getElementById("inputPadTrackId").value));
     document.getElementById("padCurrentTrackName").innerText = tr ? tr.name : "—";
     document.getElementById("padModal").style.display = "flex";
@@ -1007,8 +1013,8 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
     const icon = document.getElementById("inputPadIcon").value;
     const sc = scenarios.find(s => s.id === openedScenarioId);
     if (!sc.pads) sc.pads = [];
-    if (editingPadId) { const pad = sc.pads.find(p => p.id === editingPadId); pad.trackId = trackId; pad.title = title; pad.icon = icon; delete pad.color; }
-    else { sc.pads.push({ id: Date.now(), trackId, title, icon, order: sc.pads.length }); }
+    if (editingPadId) { const pad = sc.pads.find(p => p.id === editingPadId); pad.trackId = trackId; pad.title = title; pad.icon = icon; pad.color = selectedPadColor; }
+    else { sc.pads.push({ id: Date.now(), trackId, title, icon, color: selectedPadColor, order: sc.pads.length }); }
     const tx = db.transaction("scenarios", "readwrite"); tx.objectStore("scenarios").put(sc);
     tx.oncomplete = () => { closeModal("padModal"); hasUnsavedChanges = true; renderCurrentView(); };
   }
