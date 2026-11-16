@@ -49,7 +49,7 @@ jobs:
       - name: Lock Android app to portrait orientation
         run: node scripts/lock-portrait.js
 
-      - name: Set Android app version to 1.0
+      - name: Set Android app version to 1.1
         run: node scripts/set-android-release-version.js
 
       - name: Prepare exact KK Player logo for Android assets
@@ -62,19 +62,34 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Build debug APK
+      - name: Configure permanent Android signing key
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "::error::Add ANDROID_KEYSTORE_BASE64 and the three signing secrets in repository Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/kk-player-release.jks
+          node scripts/configure-android-signing.js
+
+      - name: Build signed release APK
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease
 
       - name: Rename APK for sharing
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/apk/debug/KK-Player-1.0.apk
+        run: cp android/app/build/outputs/apk/release/app-release.apk android/app/build/outputs/apk/release/KK-Player-1.1.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: kk-player-debug-apk
-          path: android/app/build/outputs/apk/debug/KK-Player-1.0.apk
+          path: android/app/build/outputs/apk/release/KK-Player-1.1.apk
           if-no-files-found: error
           retention-days: 14
