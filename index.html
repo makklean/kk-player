@@ -415,6 +415,26 @@ body.player-visible #mainContainer>.pads-scroll{padding-bottom:calc(20px + env(s
   scroll-padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))!important;
 }
 #mainContainer>.pads-scroll{padding-top:12px!important}
+
+/* Continuous long-press drag for music and scenario cards. */
+.list-row.list-drag-placeholder,.scenario-card.list-drag-placeholder{
+  height:var(--list-drag-height)!important;min-height:var(--list-drag-height)!important;
+  max-height:var(--list-drag-height)!important;box-sizing:border-box!important;
+  padding:0!important;border:2px dashed rgba(117,173,250,.78)!important;
+  border-radius:20px!important;background:rgba(65,125,205,.17)!important;
+  box-shadow:inset 0 0 0 1px rgba(117,173,250,.12)!important;
+  opacity:1!important;transform:none!important;overflow:hidden!important;
+}
+.list-row.list-drag-placeholder>*,.scenario-card.list-drag-placeholder>*{visibility:hidden!important}
+.list-drag-ghost{
+  pointer-events:none!important;box-shadow:0 18px 48px rgba(0,0,0,.48),0 0 0 2px rgba(117,173,250,.58)!important;
+  border:1px solid rgba(155,197,255,.34)!important;border-radius:20px!important;
+  filter:saturate(1.06);will-change:left,top,transform;contain:layout paint;
+}
+html.list-drag-active,html.list-drag-active *{-webkit-user-select:none!important;user-select:none!important;cursor:grabbing!important}
+.list-drag-dot,.drag-handle.list-drag-handle{display:none!important}
+.list-row.drag-ready,.scenario-card.drag-ready{padding-left:12px!important}
+
 </style>
 </head>
 <body>
@@ -834,29 +854,30 @@ function attachLongPressDrag(row,type,id){
   let touchState=null,pointerState=null;
   const blockedTarget=target=>!!(target.closest("button")||target.closest(".row-actions"));
   const clearTimer=state=>{if(state&&state.timer!==null){clearTimeout(state.timer);state.timer=null}};
+  const begin=(state)=>{
+    if(state.session)return;
+    state.session=createListDragSession(row,type,id,state.lastX,state.lastY);
+    markListRowClickSuppression(row);
+  };
   row.addEventListener("contextmenu",event=>event.preventDefault());
 
-  // Android touch path: ordinary swipes still scroll; after the hold delay,
-  // touchmove is cancelled and routed to the drag session until touchend.
+  // Android: allow normal scrolling until a stationary long press is confirmed.
   row.addEventListener("touchstart",event=>{
     if(event.touches.length!==1||blockedTarget(event.target)){touchState=null;return}
     const touch=event.changedTouches[0];
-    const state={identifier:touch.identifier,startX:touch.clientX,startY:touch.clientY,timer:null,session:null};
+    const state={identifier:touch.identifier,startX:touch.clientX,startY:touch.clientY,lastX:touch.clientX,lastY:touch.clientY,timer:null,session:null};
     touchState=state;
-    state.timer=setTimeout(()=>{
-      state.timer=null;
-      state.session=createListDragSession(row,type,id);
-      markListRowClickSuppression(row);
-    },holdDelay);
+    state.timer=setTimeout(()=>{state.timer=null;begin(state)},holdDelay);
   },{passive:true});
   row.addEventListener("touchmove",event=>{
     const state=touchState;if(!state)return;
     const touch=Array.from(event.touches).find(item=>item.identifier===state.identifier);
     if(!touch)return;
+    state.lastX=touch.clientX;state.lastY=touch.clientY;
     if(state.session){
       if(event.cancelable)event.preventDefault();
-      state.session.move(touch.clientX,touch.clientY);
-    }else if(Math.hypot(touch.clientX-state.startX,touch.clientY-state.startY)>moveThreshold){
+      state.session.move(state.lastX,state.lastY);
+    }else if(Math.hypot(state.lastX-state.startX,state.lastY-state.startY)>moveThreshold){
       clearTimer(state);touchState=null;
     }
   },{passive:false});
@@ -865,7 +886,7 @@ function attachLongPressDrag(row,type,id){
     const touch=Array.from(event.changedTouches).find(item=>item.identifier===state.identifier);
     clearTimer(state);
     if(state.session){
-      const point=touch||{clientX:state.startX,clientY:state.startY};
+      const point=touch||{clientX:state.lastX,clientY:state.lastY};
       state.session.finish(point.clientX,point.clientY,true);
     }
     touchState=null;
@@ -873,22 +894,18 @@ function attachLongPressDrag(row,type,id){
   row.addEventListener("touchcancel",()=>{
     const state=touchState;if(!state)return;
     clearTimer(state);
-    if(state.session)state.session.finish(state.startX,state.startY,false);
+    if(state.session)state.session.finish(state.lastX,state.lastY,false);
     touchState=null;
   },{passive:true});
 
-  // Mouse / pen path for desktop testing and stylus input.
+  // Mouse / pen support is kept for browser debugging; Android uses touch events above.
   row.addEventListener("pointerdown",event=>{
     if(event.pointerType==="touch"||!event.isPrimary||(event.pointerType==="mouse"&&event.button!==0)||blockedTarget(event.target))return;
-    const state={pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,timer:null,session:null};
+    const state={pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,lastX:event.clientX,lastY:event.clientY,timer:null,session:null};
     pointerState=state;
-    state.timer=setTimeout(()=>{
-      state.timer=null;
-      state.session=createListDragSession(row,type,id);
-      markListRowClickSuppression(row);
-    },holdDelay);
+    state.timer=setTimeout(()=>{state.timer=null;begin(state)},holdDelay);
     const cleanup=(ev,commit)=>{
-      if(!pointerState||pointerState!==state||ev.pointerId!==state.pointerId)return;
+      if(pointerState!==state||ev.pointerId!==state.pointerId)return;
       clearTimer(state);
       if(state.session)state.session.finish(ev.clientX,ev.clientY,commit);
       document.removeEventListener("pointermove",onMove);
@@ -898,8 +915,9 @@ function attachLongPressDrag(row,type,id){
     };
     const onMove=ev=>{
       if(pointerState!==state||ev.pointerId!==state.pointerId)return;
-      if(state.session){ev.preventDefault();state.session.move(ev.clientX,ev.clientY)}
-      else if(Math.hypot(ev.clientX-state.startX,ev.clientY-state.startY)>moveThreshold)clearTimer(state);
+      state.lastX=ev.clientX;state.lastY=ev.clientY;
+      if(state.session){ev.preventDefault();state.session.move(state.lastX,state.lastY)}
+      else if(Math.hypot(state.lastX-state.startX,state.lastY-state.startY)>moveThreshold)clearTimer(state);
     };
     const onUp=ev=>cleanup(ev,true);
     const onCancel=ev=>cleanup(ev,false);
@@ -908,44 +926,188 @@ function attachLongPressDrag(row,type,id){
     document.addEventListener("pointercancel",onCancel);
   });
 }
-function findListDropTarget(row,selector,x,y){
-  const own=row.getBoundingClientRect();
-  if(x>=own.left&&x<=own.right&&y>=own.top&&y<=own.bottom)return null;
-  const direct=document.elementFromPoint(x,y)?.closest(selector);
-  if(direct&&direct!==row&&row.parentElement.contains(direct))return direct;
-  const list=row.closest(".items-list");
-  if(!list)return null;
-  const candidates=Array.from(list.querySelectorAll(selector)).filter(el=>el!==row&&el.offsetParent!==null);
-  let best=null,bestDistance=Infinity;
-  candidates.forEach(el=>{
-    const rect=el.getBoundingClientRect();
-    const verticalDistance=y<rect.top?rect.top-y:(y>rect.bottom?y-rect.bottom:0);
-    const horizontalDistance=x<rect.left?rect.left-x:(x>rect.right?x-rect.right:0);
-    const distance=verticalDistance+horizontalDistance*1.5;
-    if(distance<bestDistance){bestDistance=distance;best=el}
-  });
-  return best;
+
+function listRowId(element,type){
+  if(!element)return null;
+  const raw=type==="track"?element.dataset.trackId:element.dataset.itemId;
+  return raw===undefined?null:Number(raw);
 }
-function createListDragSession(row,type,id){
+function persistListDrop(type,movingId,previousId,nextId,scrollTop){
+  const source=(type==="track"?tracks:scenarios).slice().sort((a,b)=>(a.order??a.id)-(b.order??b.id));
+  const moving=source.find(item=>item.id===movingId);
+  if(!moving)return;
+  const ordered=source.filter(item=>item.id!==movingId);
+  let insertAt=-1;
+  if(nextId!==null){
+    insertAt=ordered.findIndex(item=>item.id===nextId);
+  }
+  if(insertAt<0&&previousId!==null){
+    const previousIndex=ordered.findIndex(item=>item.id===previousId);
+    if(previousIndex>=0)insertAt=previousIndex+1;
+  }
+  if(insertAt<0)insertAt=Math.min(source.findIndex(item=>item.id===movingId),ordered.length);
+  ordered.splice(insertAt,0,moving);
+  const oldIds=source.map(item=>item.id),newIds=ordered.map(item=>item.id);
+  if(oldIds.every((value,index)=>value===newIds[index]))return;
+
+  const storeName=type==="track"?"tracks":"scenarios";
+  let tx;
+  try{
+    tx=db.transaction(storeName,"readwrite");
+    const store=tx.objectStore(storeName);
+    ordered.forEach((item,index)=>{
+      if(item.order!==index)store.put({...item,order:index});
+    });
+  }catch(error){
+    console.error("Не удалось сохранить порядок списка",error);
+    loadAllData(()=>restoreListScroll(type,scrollTop));
+    return;
+  }
+  let restored=false;
+  const restore=()=>{
+    if(restored)return;
+    restored=true;
+    loadAllData(()=>restoreListScroll(type,scrollTop));
+  };
+  tx.oncomplete=restore;
+  tx.onerror=restore;
+  tx.onabort=restore;
+}
+function restoreListScroll(type,scrollTop){
+  const selector=type==="track"?".music-list-scroll":".scenario-library-scroll";
+  const scroll=document.querySelector("#mainContainer "+selector);
+  if(scroll)scroll.scrollTop=scrollTop;
+}
+
+function createListDragSession(row,type,id,startX,startY){
   const selector=type==="track"?"[data-track-id]":".scenario-card[data-item-id]";
-  let finished=false;
-  const clear=()=>document.querySelectorAll(".list-drop-target").forEach(el=>el.classList.remove("list-drop-target"));
-  row.classList.add("list-dragging");
+  const list=row.closest(".items-list");
+  const scrollParent=row.closest(".music-list-scroll,.scenario-library-scroll");
+  if(!list||!scrollParent)return {move(){},finish(){}};
+
+  let finished=false,rafId=0,lastX=startX,lastY=startY;
+  const rect=row.getBoundingClientRect();
+  const originNextSibling=row.nextElementSibling;
+  const offsetX=startX-rect.left,offsetY=startY-rect.top;
+  const ghost=row.cloneNode(true);
+  ghost.classList.remove("list-dragging","list-drop-target","list-drag-placeholder");
+  ghost.classList.add("list-drag-ghost");
+  ghost.setAttribute("aria-hidden","true");
+  Object.assign(ghost.style,{
+    position:"fixed",left:(startX-offsetX)+"px",top:(startY-offsetY)+"px",
+    width:rect.width+"px",height:rect.height+"px",margin:"0",zIndex:"2147483000",
+    pointerEvents:"none",opacity:"0.97",transform:"scale(1.025)",transition:"none",
+    boxSizing:"border-box",willChange:"left,top"
+  });
+  document.body.appendChild(ghost);
+
+  row.classList.add("list-drag-placeholder");
+  row.style.setProperty("--list-drag-height",rect.height+"px");
+  document.documentElement.classList.add("list-drag-active");
+  const preventNativeScroll=event=>{if(event.cancelable)event.preventDefault()};
+  document.addEventListener("touchmove",preventNativeScroll,{passive:false});
+
+  const visiblePeers=()=>Array.from(list.querySelectorAll(selector)).filter(element=>
+    element!==row&&getComputedStyle(element).display!=="none"&&element.getClientRects().length>0
+  );
+  const nextVisible=()=>{
+    let element=row.nextElementSibling;
+    while(element){
+      if(element.matches(selector)&&getComputedStyle(element).display!=="none"&&element.getClientRects().length>0)return element;
+      element=element.nextElementSibling;
+    }
+    return null;
+  };
+  const previousVisible=()=>{
+    let element=row.previousElementSibling;
+    while(element){
+      if(element.matches(selector)&&getComputedStyle(element).display!=="none"&&element.getClientRects().length>0)return element;
+      element=element.previousElementSibling;
+    }
+    return null;
+  };
+  const animateReflow=(peers,before)=>{
+    requestAnimationFrame(()=>{
+      peers.forEach(element=>{
+        if(!element.isConnected)return;
+        const oldTop=before.get(element),newTop=element.getBoundingClientRect().top;
+        const delta=oldTop-newTop;
+        if(Math.abs(delta)>1&&typeof element.animate==="function"){
+          try{element.animate([{transform:"translateY("+delta+"px)"},{transform:"translateY(0)"}],{duration:155,easing:"cubic-bezier(.2,.75,.25,1)"})}catch(_){}
+        }
+      });
+    });
+  };
+  const movePlaceholder=(y)=>{
+    const peers=visiblePeers();
+    const before=peers.find(element=>{
+      const box=element.getBoundingClientRect();
+      return y<box.top+box.height/2;
+    })||null;
+    if(nextVisible()===before)return;
+    const positions=new Map(peers.map(element=>[element,element.getBoundingClientRect().top]));
+    if(before)list.insertBefore(row,before);
+    else list.appendChild(row);
+    animateReflow(peers,positions);
+  };
+  const updateGhost=(x,y)=>{
+    lastX=x;lastY=y;
+    ghost.style.left=(x-offsetX)+"px";
+    ghost.style.top=(y-offsetY)+"px";
+  };
+  const autoScrollTick=()=>{
+    rafId=0;
+    if(finished)return;
+    const bounds=scrollParent.getBoundingClientRect(),edge=70;
+    let delta=0;
+    if(lastY<bounds.top+edge&&scrollParent.scrollTop>0){
+      delta=-Math.min(18,Math.max(2,Math.ceil((bounds.top+edge-lastY)*0.24)));
+    }else if(lastY>bounds.bottom-edge&&scrollParent.scrollTop+scrollParent.clientHeight<scrollParent.scrollHeight-1){
+      delta=Math.min(18,Math.max(2,Math.ceil((lastY-(bounds.bottom-edge))*0.24)));
+    }
+    if(delta){
+      const previous=scrollParent.scrollTop;
+      scrollParent.scrollTop+=delta;
+      if(scrollParent.scrollTop!==previous){
+        movePlaceholder(lastY);
+        rafId=requestAnimationFrame(autoScrollTick);
+      }
+    }
+  };
+  const scheduleAutoScroll=()=>{if(!rafId)rafId=requestAnimationFrame(autoScrollTick)};
+  const cleanup=()=>{
+    if(rafId)cancelAnimationFrame(rafId);
+    rafId=0;
+    document.removeEventListener("touchmove",preventNativeScroll);
+    ghost.remove();
+    row.classList.remove("list-drag-placeholder");
+    row.style.removeProperty("--list-drag-height");
+    document.documentElement.classList.remove("list-drag-active");
+  };
+
   return {
     move(x,y){
       if(finished)return;
-      const target=findListDropTarget(row,selector,x,y);
-      clear();
-      if(target)target.classList.add("list-drop-target");
+      updateGhost(x,y);
+      movePlaceholder(y);
+      scheduleAutoScroll();
     },
     finish(x,y,commit){
       if(finished)return;
-      finished=true;row.classList.remove("list-dragging");clear();
-      if(!commit)return;
-      const target=findListDropTarget(row,selector,x,y);
-      if(!target)return;
-      const targetId=Number(type==="track"?target.dataset.trackId:target.dataset.itemId);
-      if(targetId!==id)reorderVisibleItems(type,id,targetId,y,target.getBoundingClientRect());
+      finished=true;
+      updateGhost(x,y);
+      if(commit)movePlaceholder(y);
+      let previousId=null,nextId=null;
+      if(commit){
+        previousId=listRowId(previousVisible(),type);
+        nextId=listRowId(nextVisible(),type);
+      }else if(row.parentElement===list){
+        if(originNextSibling&&originNextSibling.parentElement===list)list.insertBefore(row,originNextSibling);
+        else list.appendChild(row);
+      }
+      const finalScrollTop=scrollParent.scrollTop;
+      cleanup();
+      if(commit)persistListDrop(type,id,previousId,nextId,finalScrollTop);
     }
   };
 }
