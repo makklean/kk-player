@@ -789,6 +789,8 @@ let folderModalContext="tracks",folderModalMode="create",folderModalOriginal="",
   let musicViewMode = "folders";
   let musicSearchQuery = "";
   function persistMusicFolders() { localStorage.setItem("kk-player-folders", JSON.stringify(musicFolders)); }
+  function createMusicFolder() { openFolderNameModal("tracks"); }
+  function renameMusicFolder(oldName) { openFolderNameModal("tracks","rename",oldName); }
   function exitMusicFolder() { currentFolderFilter = "__all__"; selectedTrackIds.clear(); renderCurrentView(); }
   function deleteMusicFolder(name) {
     if (!confirm('Удалить папку "' + name + '"? Треки останутся в библиотеке и будут перемещены в корень.')) return;
