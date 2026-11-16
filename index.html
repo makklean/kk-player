@@ -725,14 +725,15 @@ html,body{height:100%;height:100dvh;min-height:0!important;overflow:hidden!impor
   // ============ LOCK MODE ============
    // ============ NAV ============
   function switchSection(section) {
-     activeSection = section; if (section === "all") { openedScenarioId = null; undefined } else  hasUnsavedChanges = false;
-    syncPlayerVisibility();
-    document.getElementById("tabAllMusic").classList.toggle("active", section === "all");
-    
-    document.getElementById("tabScenarios").classList.toggle("active", section === "scenarios");
-    renderCurrentView();
-  }
-  function openScenario(id) { openedScenarioId = id; hasUnsavedChanges = false; renderCurrentView(); }
+     activeSection = section;
+     if (section === "all") openedScenarioId = null;
+     hasUnsavedChanges = false;
+     syncPlayerVisibility();
+     document.getElementById("tabAllMusic").classList.toggle("active", section === "all");
+     document.getElementById("tabScenarios").classList.toggle("active", section === "scenarios");
+     renderCurrentView();
+   }
+   function openScenario(id) { openedScenarioId = id; hasUnsavedChanges = false; renderCurrentView(); }
   function closeOpenedScenario() { openedScenarioId = null; hasUnsavedChanges = false; renderCurrentView(); }
   function togglePadEditMode() { padEditMode = !padEditMode; renderCurrentView(); }
 
@@ -1005,7 +1006,7 @@ function preloadScenarioAudio(sc){[...new Set((sc.pads||[]).map(p=>p.trackId).fi
 
    async function startTrackAudio(track,pad=null,padScenarioId=null){if(!track||!track.data)return;disposeCurrentAudio();const audio=getCachedTrackAudio(track);currentAudio=audio;audio.pause();try{audio.currentTime=0}catch(_){}audio.volume=currentVolume;currentTrackId=track.id;refreshMusicPlaybackUI();refreshPadPlaybackUI();updatePlayerUI(track,pad);const seek=document.getElementById("seekSlider"),time=document.getElementById("timeCurrent");if(seek)seek.value="0";if(time)time.textContent="0:00";try{await audio.play();requestWakeLock()}catch(err){if(err&&err.name!=="AbortError")alert("Не удалось запустить аудио. Попробуйте нажать воспроизведение ещё раз.")}}
 
-   function toggleTrackFromList(id){if(currentTrackId===id&&currentAudio){if(currentAudio.paused)currentAudio.play().then(()=>requestWakeLock()).catch(()=>alert("Не удалось продолжить воспроизведение."));else{currentAudio.pause();releaseWakeLock()}refreshMusicPlaybackUI();refreshPadPlaybackUI();return}playTrack(id)}
+   function toggleTrackFromList(id){if(currentTrackId===id&&currentAudio){if(currentAudio.paused){if(currentAudio.ended)currentAudio.currentTime=0;currentAudio.play().then(()=>requestWakeLock()).catch(()=>alert("Не удалось продолжить воспроизведение."))}else{currentAudio.pause();releaseWakeLock()}refreshMusicPlaybackUI();refreshPadPlaybackUI();return}playTrack(id)}
 
    function playTrack(trackId, scenarioId = null) {
      playerHidden = false;
@@ -1038,7 +1039,7 @@ function preloadScenarioAudio(sc){[...new Set((sc.pads||[]).map(p=>p.trackId).fi
     else { currentPadId = null; currentPadScenarioId = null; currentPlaybackMode = "pad"; refreshPadPlaybackUI(); }
   }
 
-  function togglePadPlayback(padId,scenarioId){if(currentPlaybackMode==="pad"&&currentPadId===padId&&currentAudio){if(currentAudio.paused)currentAudio.play().then(()=>requestWakeLock()).catch(()=>alert("Не удалось продолжить воспроизведение."));else{currentAudio.pause();releaseWakeLock()}refreshPadPlaybackUI();return}playPad(padId,scenarioId)}
+  function togglePadPlayback(padId,scenarioId){if(currentPlaybackMode==="pad"&&currentPadId===padId&&currentAudio){if(currentAudio.paused){if(currentAudio.ended)currentAudio.currentTime=0;currentAudio.play().then(()=>requestWakeLock()).catch(()=>alert("Не удалось продолжить воспроизведение."))}else{currentAudio.pause();releaseWakeLock()}refreshPadPlaybackUI();return}playPad(padId,scenarioId)}
 
    function refreshMusicPlaybackUI() {
     document.querySelectorAll(".list-row[data-track-id]").forEach(row => {
