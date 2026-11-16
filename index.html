@@ -323,15 +323,32 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
 #mainContainer>.music-list-scroll{padding-top:5px}
 .pad.playing{border:3px solid #fff!important;box-shadow:0 0 0 2px rgba(130,190,255,.55),0 0 22px rgba(110,168,255,.48),inset 0 0 18px rgba(255,255,255,.12)!important;filter:brightness(1.12)!important}
 @media(max-width:600px){.scenario-toolbar .primary-action-btn,.scenario-toolbar .folder-add-btn{height:48px;min-height:48px}.scenario-toolbar .folder-add-btn{padding:0 12px}}
+
+/* KK Player 1.2 — calm, borderless surfaces and visible drag affordance */
+:root{--bg-main:#0b1018;--bg-pill:#151e2b;--surface:rgba(22,32,47,.72);--border-subtle:transparent;--text-muted:#9eacc0}
+header{border:0;box-shadow:none;background:rgba(11,16,24,.84)}
+.content-container{padding-top:20px}
+.list-row,.scenario-card{border:0!important;background:rgba(22,32,47,.72)!important;border-radius:20px;box-shadow:none!important}
+.list-row{padding:12px 14px;gap:10px}.scenario-card{padding:16px}
+.main-tabs{gap:8px}.tab-pill{border:0!important;border-radius:999px;background:rgba(255,255,255,.055);box-shadow:none!important}.tab-pill.active{background:#326fc0}
+.primary-action-btn{border:0;border-radius:18px;background:linear-gradient(135deg,#2865ad,#3985df);box-shadow:none}
+.modal-box{border:0!important;border-radius:26px;background:#172233;box-shadow:0 24px 70px rgba(0,0,0,.42)}
+.modal-input,.modal-select{border:0;border-radius:14px;background:#0e1724}
+.choice-card,.pick-item{border:0!important;border-radius:17px;background:rgba(255,255,255,.055)}
+.empty-state{border:0;border-radius:20px;background:rgba(255,255,255,.035)}
+.pad{border:0!important;border-radius:24px;box-shadow:0 12px 28px rgba(0,0,0,.2)}
+.drag-handle.list-drag-handle{display:flex;align-items:center;justify-content:center;flex:0 0 38px;width:38px;height:42px;padding:0;border:0;border-radius:13px;background:rgba(110,168,255,.16);color:#9fc5ff;font-size:23px;touch-action:none;cursor:grab}
+.list-dragging{opacity:.58;transform:scale(.985)}
+.list-drop-target{outline:2px solid #75adfa;outline-offset:3px;background:rgba(65,125,205,.18)!important}
+@media(prefers-reduced-motion:no-preference){.list-row,.scenario-card,.pad,.choice-card{transition:transform .18s ease,background .18s ease}}
 </style>
 </head>
 <body>
 
-<div id="appSplash" aria-label="KK Player загружается"><div class="app-splash-mark"><svg viewBox="0 0 1080 1080" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M513,870 L447,943 L513,1027Z M197,779 L154,815 L197,815Z M207,826 L254,826 L324,764 L235,764 L207,790Z M811,632 L811,689 L863,732 L923,732Z M157,347 L269,447 L269,390 L217,347Z M522,318 L462,386 L461,550 L290,395 L290,469 L416,583 L225,747 L312,747 L460,615 L461,902 L522,834Z M883,300 L926,264 L883,264Z M873,253 L827,253 L756,315 L845,315 L873,289Z M619,177 L558,245 L558,761 L618,693 L619,529 L790,684 L790,610 L664,496 L855,332 L768,332 L620,464Z M567,52 L567,209 L633,136Z"/></svg></div><div class="app-splash-name">KK PLAYER</div><div class="app-splash-caption">Музыка. Сценарии. Шоу.</div><div class="app-splash-loader"></div></div>
-<div class="lock-indicator" id="lockIndicator">🔒 ЗАБЛОКИРОВАНО</div>
+ 
 <div id="showTimer" style="display:none; position:fixed; top:10px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); color:white; padding:8px 18px; border-radius:99px; font-size:16px; font-weight:700; z-index:25; box-shadow:0 4px 12px rgba(0,0,0,0.5);">00:00</div>
 <div id="progressOverlay"><div id="progressText">Подготовка...</div><div class="progress-bar-bg"><div id="progressBarFill"></div></div></div>
-<div class="locked-overlay" id="lockedOverlay" onclick="return false;"></div>
+ 
 
 <div class="modal-overlay" id="exitConfirmModal" role="dialog" aria-modal="true" aria-labelledby="exitConfirmTitle">
   <div class="modal-box">
@@ -348,10 +365,7 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
   <div class="header-top">
     <div class="brand"><h1 class="brand-title">ʞk</h1></div>
     <div class="header-actions">
-      <button class="icon-btn" id="lockBtn" onclick="toggleLock()" style="pointer-events: auto !important; z-index: 100; position: relative;">
-        <svg id="lockIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-      </button>
-      <button class="icon-btn" onclick="openSettings()" id="settingsBtn">
+       <button class="icon-btn" onclick="openSettings()" id="settingsBtn">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       </button>
     </div>
@@ -395,8 +409,7 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
     <div id="addTrackFields"><label class="field-label">Аудиофайлы (можно несколько):</label><input type="file" class="modal-input" id="inputTrackFiles" accept="audio/*" multiple></div>
     <div id="editTrackFields" style="display:none">
       <label class="field-label">Название трека:</label><input type="text" class="modal-input" id="inputTrackName">
-      <label class="field-label">Обложка:</label>
-      <select class="modal-select" id="inputTrackTag"><option value="linear-gradient(135deg,#1565c0,#42a5f5)|🎵">Синий — Музыка</option><option value="linear-gradient(135deg,#2e7d32,#66bb6a)|🎺">Зелёный — Фанфары</option><option value="linear-gradient(135deg,#ef6c00,#ffa726)|📦">Оранжевый — Эффект</option><option value="linear-gradient(135deg,#ad1457,#ec407a)|💃">Розовый — Танцы</option><option value="linear-gradient(135deg,#4527a0,#7e57c2)|🔮">Фиолетовый — Тайна</option></select>
+   
     </div>
     <div class="modal-btns"><button class="m-btn" onclick="closeModal('trackModal')">Отмена</button><button class="m-btn m-btn-primary" id="saveTrackBtn" onclick="saveTrack()">Сохранить</button></div>
   </div>
@@ -420,14 +433,6 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
   </div>
 </div>
 
-<div class="modal-overlay" id="libraryPickerModal" onclick="if(event.target === this) closeModal('libraryPickerModal')">
-  <div class="modal-box">
-    <h3>Выберите трек</h3><input type="text" class="modal-input" id="pickerSearch" placeholder="Поиск..." oninput="filterPickerList()">
-    <div class="library-pick-list" id="libraryPickList"></div>
-    <div class="modal-btns"><button class="m-btn" onclick="closeModal('libraryPickerModal')">Отмена</button></div>
-  </div>
-</div>
-
 <div class="modal-overlay" id="padModal" onclick="if(event.target === this) closeModal('padModal')">
   <div class="modal-box">
     <h3 id="padModalHeading">Настроить пэд</h3>
@@ -438,8 +443,7 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
     </div>
     <label class="field-label">Название на пэде:</label><input type="text" class="modal-input" id="inputPadTitle" placeholder="Например: Смех">
     <input type="hidden" id="inputPadIcon" value="">
-    <label class="field-label">Цвет:</label><div class="color-palette" id="padColorPalette"></div>
-    <div class="modal-btns" style="margin-top:10px"><button class="m-btn" onclick="closeModal('padModal')">Отмена</button><button class="m-btn m-btn-primary" onclick="savePad()">Сохранить</button></div>
+     <div class="modal-btns" style="margin-top:10px"><button class="m-btn" onclick="closeModal('padModal')">Отмена</button><button class="m-btn m-btn-primary" onclick="savePad()">Сохранить</button></div>
     <div class="modal-btns" style="margin-top:10px"><button class="m-btn m-btn-danger" onclick="deletePad()" id="deletePadBtn">Удалить пэд</button></div>
   </div>
 </div>
@@ -467,7 +471,7 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
   try { localStorage.removeItem("kk-player-folders"); localStorage.removeItem("kk-player-scenario-folders"); } catch(e) {}
   let currentAudio = null, currentBlobUrl = null, currentTrackId = null, currentQueueIds = [];
   let editingTrackId = null, editingScenarioId = null, editingPadId = null;
-  let isLocked = false, wakeLock = null, currentVolume = 1.0, playerHidden = false;
+  let wakeLock = null, currentVolume = 1.0, playerHidden = false;
   let padEditMode = false, hasUnsavedChanges = false;
   let padTrackChangeMode = false;
 
@@ -709,25 +713,16 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
   document.addEventListener('visibilitychange', async () => { if (document.visibilityState === 'visible' && currentAudio && !currentAudio.paused) await requestWakeLock(); });
 
   // ============ LOCK MODE ============
-  function toggleLock() {
-    isLocked = !isLocked;
-    const btn = document.getElementById('lockBtn'); const indicator = document.getElementById('lockIndicator'); const overlay = document.getElementById('lockedOverlay');
-    btn.classList.toggle('active', isLocked); indicator.classList.toggle('visible', isLocked); overlay.classList.toggle('visible', isLocked);
-    if (isLocked) { btn.style.zIndex = '100'; btn.style.color = '#64b5f6'; } else { btn.style.zIndex = ''; btn.style.color = ''; }
-    renderCurrentView();
-  }
-
-  // ============ NAV ============
+   // ============ NAV ============
   function switchSection(section) {
-    if (isLocked) return;
-    activeSection = section; if (section === "all") { openedScenarioId = null; selectedScenarioIds.clear(); } else selectedTrackIds.clear(); hasUnsavedChanges = false;
+     activeSection = section; if (section === "all") { openedScenarioId = null; selectedScenarioIds.clear(); } else selectedTrackIds.clear(); hasUnsavedChanges = false;
     syncPlayerVisibility();
     document.getElementById("tabAllMusic").classList.toggle("active", section === "all");
     selectedTrackIds.clear();
     document.getElementById("tabScenarios").classList.toggle("active", section === "scenarios");
     renderCurrentView();
   }
-  function openScenario(id) { if (isLocked) return; openedScenarioId = id; hasUnsavedChanges = false; renderCurrentView(); }
+  function openScenario(id) { openedScenarioId = id; hasUnsavedChanges = false; renderCurrentView(); }
   function closeOpenedScenario() { openedScenarioId = null; hasUnsavedChanges = false; renderCurrentView(); }
   function togglePadEditMode() { padEditMode = !padEditMode; renderCurrentView(); }
 
@@ -750,7 +745,7 @@ function renderScenarioLibrary(host){
  const list=host.querySelector("#itemsList");
  scenarios.slice().sort((a,b)=>(a.order??a.id)-(b.order??b.id)).forEach(sc=>{
   const e=document.createElement("div");e.className="list-row scenario-card"+(selectedScenarioIds.has(sc.id)?" scenario-selected":"");e.dataset.itemId=String(sc.id);e.dataset.search=(sc.name+" "+(sc.description||"")).toLocaleLowerCase("ru");
-  e.innerHTML='<div class="selection-check scenario-check '+(selectedScenarioIds.has(sc.id)?"selected":"")+'" onclick="event.stopPropagation();toggleScenarioSelection('+sc.id+')">'+(selectedScenarioIds.has(sc.id)?"✓":"")+'</div><div class="row-cover">'+appIcon("pads")+'</div><div class="row-info"><div class="row-title"></div><div class="scenario-description"></div><div class="row-subtitle"></div></div><div class="scenario-actions"><button class="row-btn" title="Дублировать">⧉</button><button class="row-btn" title="Редактировать">✎</button><button class="row-btn delete-btn" title="Удалить">✕</button></div>';
+  e.innerHTML='<div class="selection-check scenario-check '+(selectedScenarioIds.has(sc.id)?"selected":"")+'" onclick="event.stopPropagation();toggleScenarioSelection('+sc.id+')">'+(selectedScenarioIds.has(sc.id)?"✓":"")+'</div>' + (selectedScenarioIds.has(sc.id) ? '<button class="drag-handle list-drag-handle" aria-label="Перетащить" type="button">⠿</button>' : '') + '<div class="row-cover">'+appIcon("pads")+'</div><div class="row-info"><div class="row-title"></div><div class="scenario-description"></div><div class="row-subtitle"></div></div><div class="scenario-actions"><button class="row-btn" title="Дублировать">⧉</button><button class="row-btn" title="Редактировать">✎</button><button class="row-btn delete-btn" title="Удалить">✕</button></div>';
   e.querySelector(".row-title").textContent=sc.name;e.querySelector(".scenario-description").textContent=sc.description||"";e.querySelector(".row-subtitle").textContent="Пэдов: "+(sc.pads||[]).length;
   e.onclick=ev=>{if(ev.target.closest(".scenario-actions")||ev.target.closest(".scenario-check"))return;if(selectedScenarioIds.size){toggleScenarioSelection(sc.id);return}openScenario(sc.id)};
   const b=e.querySelectorAll(".scenario-actions button");b[0].onclick=ev=>{ev.stopPropagation();duplicateScenario(sc.id)};b[1].onclick=ev=>editScenarioAction(ev,sc.id);b[2].onclick=ev=>deleteScenarioAction(ev,sc.id);
@@ -769,14 +764,15 @@ function toggleTrackSelection(event,id){if(event&&event.stopPropagation)event.st
 function attachLongPressSelection(row,type,id){
  let timer=null;
  row.addEventListener("pointerdown",e=>{
-  if(e.target.closest("button")||e.target.closest(".track-select"))return;
-  const selected=type==="track"?selectedTrackIds:selectedScenarioIds,delay=selected.size?260:480,x=e.clientX,y=e.clientY;
-  timer=setTimeout(()=>{timer=null;if(selected.size&&selected.has(id))startListDrag(row,type,id);else if(type==="track"){selectedTrackIds.add(id);renderCurrentView()}else{selectedScenarioIds.add(id);renderCurrentView()}},delay);
-  const cancel=ev=>{if(Math.abs(ev.clientX-x)>12||Math.abs(ev.clientY-y)>12){clearTimeout(timer);timer=null;row.removeEventListener("pointermove",cancel)}};
-  row.addEventListener("pointermove",cancel);
+  if(e.target.closest("button")||e.target.closest(".track-select")||e.target.closest(".scenario-check"))return;
+  const x=e.clientX,y=e.clientY;
+  const cancel=ev=>{if(Math.abs(ev.clientX-x)>10||Math.abs(ev.clientY-y)>10){clearTimeout(timer);timer=null}};
   const finish=()=>{clearTimeout(timer);timer=null;row.removeEventListener("pointermove",cancel);window.removeEventListener("pointerup",finish);window.removeEventListener("pointercancel",finish)};
-  window.addEventListener("pointerup",finish);window.addEventListener("pointercancel",finish);
+  timer=setTimeout(()=>{timer=null;if(type==="track")selectedTrackIds.add(id);else selectedScenarioIds.add(id);renderCurrentView()},520);
+  row.addEventListener("pointermove",cancel);window.addEventListener("pointerup",finish);window.addEventListener("pointercancel",finish);
  });
+ const handle=row.querySelector(".list-drag-handle");
+ if(handle)handle.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();startListDrag(row,type,id)});
 }
 function startListDrag(row,type,id){
  const selected=type==="track"?selectedTrackIds:selectedScenarioIds,draggingIds=selected.has(id)?new Set(selected):new Set([id]);row.classList.add("list-dragging");
@@ -803,20 +799,19 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
   // ============ RENDER ============
   function renderCurrentView() {
     const container = document.getElementById("mainContainer");
-    if (isLocked) { container.innerHTML = '<div class="empty-state" style="padding-top:80px">🔒 Экран заблокирован</div>'; return; }
-    if (activeSection === "all") {
+     if (activeSection === "all") {
       container.innerHTML = '<div class="music-toolbar"><button class="primary-action-btn" onclick="openTrackModal(null)">＋ Добавить треки</button></div><input class="music-search" type="search" placeholder="Поиск по названию трека…" value="' + escapeHtml(musicSearchQuery) + '" oninput="filterMusicList(this.value)">' + (selectedTrackIds.size ? '<div class="selection-toolbar"><span>Выбрано: ' + selectedTrackIds.size + '</span><button class="m-btn" onclick="clearListSelection(&quot;tracks&quot;)">Снять выделение</button></div>' : '') + '<div class="music-list-scroll"><div class="items-list" id="itemsList"></div></div>';
       const listEl = document.getElementById("itemsList");
       if (!tracks.length) { listEl.innerHTML = '<div class="empty-state">Библиотека пуста. Добавьте аудиофайлы.</div>'; return; }
       tracks.slice().sort((a,b)=>(a.order??a.id)-(b.order??b.id)).forEach(track => {
         const row = document.createElement("div"); row.className = "list-row"; row.dataset.trackId = String(track.id);
-        row.innerHTML = '<div class="selection-check track-select ' + (selectedTrackIds.has(track.id) ? "selected" : "") + '" role="checkbox" aria-checked="' + selectedTrackIds.has(track.id) + '" onclick="toggleTrackSelection(event,' + track.id + ')">' + (selectedTrackIds.has(track.id) ? "✓" : "") + '</div><div class="row-cover music-row-icon">' + appIcon("note") + '</div><div class="row-info"><div class="row-title"></div></div><div class="row-actions"><button class="row-btn" onclick="editTrackAction(event,' + track.id + ')">✎</button><button class="row-btn delete-btn" onclick="deleteTrackAction(event,' + track.id + ')">✕</button></div>';
+        row.innerHTML = '<div class="selection-check track-select ' + (selectedTrackIds.has(track.id) ? "selected" : "") + '" role="checkbox" aria-checked="' + selectedTrackIds.has(track.id) + '" onclick="toggleTrackSelection(event,' + track.id + ')">' + (selectedTrackIds.has(track.id) ? "✓" : "") + '</div>' + (selectedTrackIds.has(track.id) ? '<button class="drag-handle list-drag-handle" aria-label="Перетащить" type="button">⠿</button>' : '') + '<div class="row-cover music-row-icon">' + appIcon("note") + '</div><div class="row-info"><div class="row-title"></div></div><div class="row-actions"><button class="row-btn" onclick="editTrackAction(event,' + track.id + ')">✎</button><button class="row-btn delete-btn" onclick="deleteTrackAction(event,' + track.id + ')">✕</button></div>';
         row.querySelector(".row-title").textContent = track.name;
         row.classList.toggle("track-selected", selectedTrackIds.has(track.id));
         row.classList.toggle("track-playing", currentTrackId === track.id && !!currentAudio && !currentAudio.paused);
         row.classList.toggle("track-paused", currentTrackId === track.id && !!currentAudio && currentAudio.paused);
         row.dataset.search = track.name.toLocaleLowerCase("ru");
-        row.onclick = e => { if (e.target.closest(".row-actions") || e.target.closest(".track-select")) return; if (selectedTrackIds.size) { toggleTrackSelection(null,track.id); return; } playTrack(track.id); };
+        row.onclick = e => { if (e.target.closest(".row-actions") || e.target.closest(".track-select") || e.target.closest(".list-drag-handle")) return; if (padTrackChangeMode) { selectTrackForPad(track.id); return; } if (selectedTrackIds.size) { toggleTrackSelection(null,track.id); return; } playTrack(track.id); };
         attachLongPressSelection(row,"track",track.id);
         listEl.appendChild(row);
       });
@@ -894,7 +889,7 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
     document.getElementById("addTrackFields").style.display = t ? "none" : "block";
     document.getElementById("editTrackFields").style.display = t ? "block" : "none";
     document.getElementById("trackModalHeading").innerText = t ? "Редактировать трек" : "Добавить треки";
-    if (t) { document.getElementById("inputTrackName").value = t.name; document.getElementById("inputTrackTag").value = t.tag; }
+    if (t) { document.getElementById("inputTrackName").value = t.name; }
     document.getElementById("trackModal").style.display = "flex";
   }
   
@@ -903,8 +898,7 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
     if (editingTrackId) {
       const t = tracks.find(x => x.id === editingTrackId);
       const name = document.getElementById("inputTrackName").value.trim() || t.name;
-      const tag = document.getElementById("inputTrackTag").value;
-      const tx = db.transaction("tracks", "readwrite"); tx.objectStore("tracks").put({ ...t, name, tag });
+      const tx = db.transaction("tracks", "readwrite"); tx.objectStore("tracks").put({ ...t, name });
       tx.oncomplete = () => { closeModal("trackModal"); loadAllData(); };
     } else {
       const files = document.getElementById("inputTrackFiles").files;
@@ -960,16 +954,20 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
   }
 
   function openAddSourceModal() { document.getElementById("addSourceModal").style.display = "flex"; }
-  function openLibraryPicker() { closeModal("addSourceModal"); renderPickerList(""); document.getElementById("libraryPickerModal").style.display = "flex"; }
+  function openLibraryPicker() { closeModal("addSourceModal"); activeSection = "all"; document.getElementById("tabAllMusic").classList.add("active"); document.getElementById("tabScenarios").classList.remove("active"); selectedTrackIds.clear(); renderCurrentView(); }
   function renderPickerList(q) {
     const listEl = document.getElementById("libraryPickList"); listEl.innerHTML = "";
     tracks.filter(t => t.name.toLowerCase().includes(q.toLowerCase())).forEach(t => {
       const item = document.createElement("div"); item.className = "pick-item"; item.innerHTML = `<div style="font-weight:600;font-size:14px">${t.name}</div>`;
-      item.onclick = () => { closeModal("libraryPickerModal"); editingPadId = null; openPadEditor(t.id); };
+      item.onclick = () => selectTrackForPad(t.id);
       listEl.appendChild(item);
     });
   }
   function filterPickerList() { renderPickerList(document.getElementById("pickerSearch").value); }
+  function selectTrackForPad(trackId) {
+    if (editingPadId) { const sc = scenarios.find(s => s.id === openedScenarioId); const pad = sc && (sc.pads || []).find(p => p.id === editingPadId); if (pad) { pad.trackId = trackId; delete pad.color; const tx = db.transaction("scenarios", "readwrite"); tx.objectStore("scenarios").put(sc); tx.oncomplete = () => { padTrackChangeMode = false; activeSection = "scenarios"; renderCurrentView(); }; return; } }
+    padTrackChangeMode = false; openPadEditor(trackId);
+  }
   function addFromDeviceToPad() {
     closeModal("addSourceModal");
     const input = document.createElement('input'); input.type = 'file'; input.accept = 'audio/*';
@@ -987,22 +985,16 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
   }
 
   function openPadEditor(trackId = null) {
-    const paletteEl = document.getElementById("padColorPalette"); paletteEl.innerHTML = "";
-    PAD_COLORS.forEach(c => {
-      const s = document.createElement("div"); s.className = "color-swatch" + (selectedPadColor === c ? " selected" : ""); s.style.background = c;
-      s.onclick = () => { selectedPadColor = c; document.querySelectorAll(".color-swatch").forEach(el => el.classList.remove("selected")); s.classList.add("selected"); };
-      paletteEl.appendChild(s);
-    });
     const iconGrid = document.getElementById("padIconGrid"); if (iconGrid) iconGrid.innerHTML = "";
     const sc = scenarios.find(s => s.id === openedScenarioId);
     const existingPad = editingPadId ? sc.pads.find(p => p.id === editingPadId) : null;
     if (existingPad) {
       document.getElementById("inputPadTrackId").value = existingPad.trackId;
       document.getElementById("inputPadTitle").value = existingPad.title || "";
-      document.getElementById("inputPadIcon").value = existingPad.icon; selectedPadColor = existingPad.color;
+      document.getElementById("inputPadIcon").value = existingPad.icon;
     } else {
       document.getElementById("inputPadTrackId").value = trackId;
-      document.getElementById("inputPadTitle").value = ""; document.getElementById("inputPadIcon").value = "🎵"; selectedPadColor = PAD_COLORS[0];
+      document.getElementById("inputPadTitle").value = ""; document.getElementById("inputPadIcon").value = "🎵";
     }
     const tr = tracks.find(t => t.id === Number(document.getElementById("inputPadTrackId").value));
     document.getElementById("padCurrentTrackName").innerText = tr ? tr.name : "—";
@@ -1015,8 +1007,8 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
     const icon = document.getElementById("inputPadIcon").value;
     const sc = scenarios.find(s => s.id === openedScenarioId);
     if (!sc.pads) sc.pads = [];
-    if (editingPadId) { const pad = sc.pads.find(p => p.id === editingPadId); pad.trackId = trackId; pad.title = title; pad.icon = icon; pad.color = selectedPadColor; }
-    else { sc.pads.push({ id: Date.now(), trackId, title, icon, color: selectedPadColor, order: sc.pads.length }); }
+    if (editingPadId) { const pad = sc.pads.find(p => p.id === editingPadId); pad.trackId = trackId; pad.title = title; pad.icon = icon; delete pad.color; }
+    else { sc.pads.push({ id: Date.now(), trackId, title, icon, order: sc.pads.length }); }
     const tx = db.transaction("scenarios", "readwrite"); tx.objectStore("scenarios").put(sc);
     tx.oncomplete = () => { closeModal("padModal"); hasUnsavedChanges = true; renderCurrentView(); };
   }
@@ -1224,7 +1216,7 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
     const bar = document.getElementById("playerBar");
     const cover = document.getElementById("playerCover");
     if (pad) {
-      const [bg] = pad.color ? pad.color.split("|") : (track.tag || "#333").split("|");
+      const [bg] = (track.tag || "linear-gradient(135deg,#1565c0,#42a5f5)|🎵").split("|");
       cover.style.background = bg;
       cover.innerText = "";
       document.getElementById("playerTitle").innerText = pad.title || track.name;
