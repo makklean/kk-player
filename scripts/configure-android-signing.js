@@ -30,25 +30,25 @@ if (!buildTypes) throw new Error('Could not find buildTypes in generated Android
 let signingConfigs = findBlock(gradle, 'signingConfigs', android.open + 1, android.close);
 if (!signingConfigs) {
   gradle = gradle.slice(0, buildTypes.start) +
-    '    signingConfigs {\\n    }\\n\\n' +
+    '    signingConfigs {\n    }\n\n' +
     gradle.slice(buildTypes.start);
   android = findBlock(gradle, 'android');
   buildTypes = findBlock(gradle, 'buildTypes', android.open + 1, android.close);
   signingConfigs = findBlock(gradle, 'signingConfigs', android.open + 1, android.close);
 }
 
-let releaseSigning = findBlock(gradle, 'release', signingConfigs.open + 1, signingConfigs.close);
-const releaseConfig = [
+const releaseSigning = [
   '        release {',
   '            storeFile file("kk-player-release.jks")',
   '            storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")',
   '            keyAlias System.getenv("ANDROID_KEY_ALIAS")',
   '            keyPassword System.getenv("ANDROID_KEY_PASSWORD")',
   '        }'
-].join('\\n');
+].join('\n');
 
-if (!releaseSigning) {
-  gradle = gradle.slice(0, signingConfigs.close) + '\\n' + releaseConfig + '\\n    ' + gradle.slice(signingConfigs.close);
+const existingReleaseConfig = findBlock(gradle, 'release', signingConfigs.open + 1, signingConfigs.close);
+if (!existingReleaseConfig) {
+  gradle = gradle.slice(0, signingConfigs.close) + '\n' + releaseSigning + '\n    ' + gradle.slice(signingConfigs.close);
 }
 
 android = findBlock(gradle, 'android');
@@ -57,9 +57,9 @@ const releaseType = findBlock(gradle, 'release', buildTypes.open + 1, buildTypes
 if (!releaseType) throw new Error('Could not find release build type in generated Android build.gradle');
 
 const releaseBody = gradle.slice(releaseType.open + 1, releaseType.close);
-if (!/\\bsigningConfig\\s+signingConfigs\\.release\\b/.test(releaseBody)) {
+if (!/\bsigningConfig\s+signingConfigs\.release\b/.test(releaseBody)) {
   gradle = gradle.slice(0, releaseType.open + 1) +
-    '\\n            signingConfig signingConfigs.release' +
+    '\n            signingConfig signingConfigs.release' +
     gradle.slice(releaseType.open + 1);
 }
 
