@@ -7,7 +7,7 @@ const config: CapacitorConfig = {
   bundledWebRuntime: false,
   plugins: {
     SystemBars: { insetsHandling: 'css', style: 'DARK', hidden: false },
-    SplashScreen: { launchShowDuration: 1200, launchAutoHide: true, launchFadeOutDuration: 250, backgroundColor: '#080b12', showSpinner: false },
+    SplashScreen: { launchShowDuration: 1800, launchAutoHide: true, launchFadeOutDuration: 350, backgroundColor: '#080b12', showSpinner: false },
   },
 };
 
