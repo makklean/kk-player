@@ -789,6 +789,49 @@ let folderModalContext="tracks",folderModalMode="create",folderModalOriginal="",
   let musicViewMode = "folders";
   let musicSearchQuery = "";
   function persistMusicFolders() { localStorage.setItem("kk-player-folders", JSON.stringify(musicFolders)); }
+  function openFolderNameModal(context,mode="create",original="",afterSave=""){
+    folderModalContext=context;folderModalMode=mode;folderModalOriginal=original;folderModalAfterSave=afterSave;
+    document.getElementById("folderNameModalHeading").textContent=(mode==="rename"?"Переименовать":"Создать")+" папку";
+    document.getElementById("folderNameInput").value=mode==="rename"?original:"";
+    document.getElementById("folderNameModal").style.display="flex";
+    setTimeout(()=>document.getElementById("folderNameInput").focus(),80);
+  }
+  function saveFolderName(){
+    const name=document.getElementById("folderNameInput").value.trim();
+    if(!name)return alert("Введите название папки.");
+    const ctx=folderModalContext,mode=folderModalMode,old=folderModalOriginal;
+    const existing=ctx==="scenarios"
+      ? [...new Set([...scenarioFolders,...scenarios.map(x=>x.folder).filter(Boolean)])]
+      : [...new Set([...musicFolders,...tracks.map(x=>x.folder).filter(Boolean)])];
+    if(existing.includes(name)&&!(mode==="rename"&&name===old))return alert("Папка с таким названием уже существует.");
+    if(ctx==="scenarios"){
+      if(mode==="create"){
+        scenarioFolders.push(name);persistScenarioFolders();
+        if(folderModalAfterSave!=="move"){scenarioFolderFilter=name;scenarioViewMode="folders";}
+      }else{
+        scenarioFolders=[...new Set(scenarioFolders.map(x=>x===old?name:x))];persistScenarioFolders();
+        const tx=db.transaction("scenarios","readwrite"),st=tx.objectStore("scenarios");
+        scenarios.filter(x=>x.folder===old).forEach(x=>st.put({...x,folder:name}));
+        tx.oncomplete=()=>{if(scenarioFolderFilter===old)scenarioFolderFilter=name;closeModal("folderNameModal");loadAllData();};
+        return;
+      }
+    }else{
+      if(mode==="create"){
+        musicFolders.push(name);persistMusicFolders();
+        if(folderModalAfterSave!=="move"){currentFolderFilter=name;musicViewMode="folders";}
+      }else{
+        const tx=db.transaction("tracks","readwrite"),st=tx.objectStore("tracks");
+        tracks.filter(x=>x.folder===old).forEach(x=>st.put({...x,folder:name}));
+        musicFolders=[...new Set(musicFolders.map(x=>x===old?name:x))];persistMusicFolders();
+        tx.oncomplete=()=>{if(currentFolderFilter===old)currentFolderFilter=name;closeModal("folderNameModal");loadAllData();};
+        return;
+      }
+    }
+    if(folderModalAfterSave==="move"){
+      closeModal("folderNameModal");
+      if(ctx==="scenarios")moveSelectedScenariosInto(name);else moveSelectedTracksInto(name);
+    }else{closeModal("folderNameModal");renderCurrentView();}
+  }
   function createMusicFolder() { openFolderNameModal("tracks"); }
   function renameMusicFolder(oldName) { openFolderNameModal("tracks","rename",oldName); }
   function exitMusicFolder() { currentFolderFilter = "__all__"; selectedTrackIds.clear(); renderCurrentView(); }
