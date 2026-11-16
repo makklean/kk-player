@@ -488,10 +488,19 @@ body{display:flex;flex-direction:column;padding-bottom:0!important}
   setTimeout(hideAppSplash,6500);
 
   function loadAllData(callback) {
-    const tx = db.transaction(["tracks", "scenarios"], "readonly");
+    const tx = db.transaction(["tracks", "scenarios"], "readwrite");
     let loadedTracks = [], loadedScenarios = [];
-    tx.objectStore("tracks").getAll().onsuccess = (e) => { loadedTracks = (e.target.result || []).sort((a,b) => (a.order ?? a.id) - (b.order ?? b.id)); };
-    tx.objectStore("scenarios").getAll().onsuccess = (e) => { loadedScenarios = (e.target.result || []).sort((a,b) => (a.order ?? a.id) - (b.order ?? b.id)); };
+    const trackStore=tx.objectStore("tracks"),scenarioStore=tx.objectStore("scenarios");
+    trackStore.getAll().onsuccess = (e) => {
+      loadedTracks=(e.target.result||[]);
+      loadedTracks=loadedTracks.map(item=>{if(Object.prototype.hasOwnProperty.call(item,"folder")){const clean={...item};delete clean.folder;trackStore.put(clean);return clean}return item});
+      loadedTracks.sort((a,b)=>(a.order??a.id)-(b.order??b.id));
+    };
+    scenarioStore.getAll().onsuccess = (e) => {
+      loadedScenarios=(e.target.result||[]);
+      loadedScenarios=loadedScenarios.map(item=>{if(Object.prototype.hasOwnProperty.call(item,"folder")){const clean={...item};delete clean.folder;scenarioStore.put(clean);return clean}return item});
+      loadedScenarios.sort((a,b)=>(a.order??a.id)-(b.order??b.id));
+    };
     tx.oncomplete = () => { tracks = loadedTracks; scenarios = loadedScenarios; renderCurrentView(); hideAppSplash(); if (callback) callback(); };
   }
 
@@ -741,7 +750,7 @@ function renderScenarioLibrary(host){
  const list=host.querySelector("#itemsList");
  scenarios.slice().sort((a,b)=>(a.order??a.id)-(b.order??b.id)).forEach(sc=>{
   const e=document.createElement("div");e.className="list-row scenario-card"+(selectedScenarioIds.has(sc.id)?" scenario-selected":"");e.dataset.itemId=String(sc.id);e.dataset.search=(sc.name+" "+(sc.description||"")).toLocaleLowerCase("ru");
-  e.innerHTML='<div class="selection-check scenario-check '+(selectedScenarioIds.has(sc.id)?"selected":"")+'">'+(selectedScenarioIds.has(sc.id)?"✓":"")+'</div><div class="row-cover">'+appIcon("pads")+'</div><div class="row-info"><div class="row-title"></div><div class="scenario-description"></div><div class="row-subtitle"></div></div><div class="scenario-actions"><button class="row-btn" title="Дублировать">⧉</button><button class="row-btn" title="Редактировать">✎</button><button class="row-btn delete-btn" title="Удалить">✕</button></div>';
+  e.innerHTML='<div class="selection-check scenario-check '+(selectedScenarioIds.has(sc.id)?"selected":"")+'" onclick="event.stopPropagation();toggleScenarioSelection('+sc.id+')">'+(selectedScenarioIds.has(sc.id)?"✓":"")+'</div><div class="row-cover">'+appIcon("pads")+'</div><div class="row-info"><div class="row-title"></div><div class="scenario-description"></div><div class="row-subtitle"></div></div><div class="scenario-actions"><button class="row-btn" title="Дублировать">⧉</button><button class="row-btn" title="Редактировать">✎</button><button class="row-btn delete-btn" title="Удалить">✕</button></div>';
   e.querySelector(".row-title").textContent=sc.name;e.querySelector(".scenario-description").textContent=sc.description||"";e.querySelector(".row-subtitle").textContent="Пэдов: "+(sc.pads||[]).length;
   e.onclick=ev=>{if(ev.target.closest(".scenario-actions")||ev.target.closest(".scenario-check"))return;if(selectedScenarioIds.size){toggleScenarioSelection(sc.id);return}openScenario(sc.id)};
   const b=e.querySelectorAll(".scenario-actions button");b[0].onclick=ev=>{ev.stopPropagation();duplicateScenario(sc.id)};b[1].onclick=ev=>editScenarioAction(ev,sc.id);b[2].onclick=ev=>deleteScenarioAction(ev,sc.id);
