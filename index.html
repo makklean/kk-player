@@ -954,7 +954,7 @@ function reorderVisibleItems(type,draggingIds,targetId,dropY,targetRect){
   }
 
   function openAddSourceModal() { document.getElementById("addSourceModal").style.display = "flex"; }
-  function openLibraryPicker() { closeModal("addSourceModal"); activeSection = "all"; document.getElementById("tabAllMusic").classList.add("active"); document.getElementById("tabScenarios").classList.remove("active"); selectedTrackIds.clear(); renderCurrentView(); }
+  function openLibraryPicker() { closeModal("addSourceModal"); padTrackChangeMode = true; activeSection = "all"; document.getElementById("tabAllMusic").classList.add("active"); document.getElementById("tabScenarios").classList.remove("active"); selectedTrackIds.clear(); renderCurrentView(); }
   function renderPickerList(q) {
     const listEl = document.getElementById("libraryPickList"); listEl.innerHTML = "";
     tracks.filter(t => t.name.toLowerCase().includes(q.toLowerCase())).forEach(t => {
