@@ -49,12 +49,12 @@ jobs:
       - name: Lock Android app to portrait orientation
         run: node scripts/lock-portrait.js
 
-      - name: Set Android app version to 1.1
+      - name: Set Android app version to 1.2
         run: node scripts/set-android-release-version.js
 
-      - name: Prepare exact KK Player logo for Android assets
+      - name: Prepare Android icon and plain splash screen
         run: |
-          node -e "const sharp=require('sharp'); Promise.all([sharp('assets/logo.svg').resize(1024,1024).png().toFile('assets/icon-only.png'), sharp('assets/logo.svg').resize(1024,1024).png().toFile('assets/splash.png')]).catch(e=>{console.error(e);process.exit(1)})"
+          node -e "const sharp=require('sharp'); Promise.all([sharp('assets/logo.svg').resize(1024,1024).png().toFile('assets/icon-only.png'), sharp({create:{width:1,height:1,channels:4,background:'#080b12'}}).png().toFile('assets/splash.png')]).catch(e=>{console.error(e);process.exit(1)})"
 
       - name: Generate Android app icon and splash screen
         run: npx capacitor-assets generate --android --pwa --iconBackgroundColor "#080b12" --iconBackgroundColorDark "#080b12" --splashBackgroundColor "#080b12" --splashBackgroundColorDark "#080b12"
@@ -87,12 +87,12 @@ jobs:
           ./gradlew assembleRelease
 
       - name: Rename APK for sharing
-        run: cp android/app/build/outputs/apk/release/app-release.apk android/app/build/outputs/apk/release/KK-Player-1.1.apk
+        run: cp android/app/build/outputs/apk/release/app-release.apk android/app/build/outputs/apk/release/KK-Player-1.2.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: kk-player-debug-apk
-          path: android/app/build/outputs/apk/release/KK-Player-1.1.apk
+          path: android/app/build/outputs/apk/release/KK-Player-1.2.apk
           if-no-files-found: error
           retention-days: 14
