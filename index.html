@@ -249,8 +249,7 @@ header{background:#000!important;backdrop-filter:none!important}
 
 /* Shared floating player controls */
 .player-hide-btn{flex:0 0 34px;width:34px;height:34px;border:1px solid rgba(255,255,255,.18);border-radius:11px;background:rgba(255,255,255,.08);color:#fff;font-size:23px;line-height:1;display:flex;align-items:center;justify-content:center}
-.player-bar.user-hidden{transform:translateX(-50%) translateY(calc(150% + 24px))!important;pointer-events:none}
-@media(max-width:720px){.player-bar.user-hidden{transform:translateY(calc(150% + 24px))!important}}
+.player-bar.user-hidden{pointer-events:none;visibility:hidden;opacity:0}
 .player-launcher{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:31;display:none;align-items:center;gap:7px;padding:12px 16px;border:1px solid rgba(133,177,235,.3);border-radius:999px;background:rgba(22,43,72,.96);color:#fff;font-size:14px;font-weight:750;box-shadow:0 8px 28px rgba(0,0,0,.45);backdrop-filter:blur(18px)}
 .player-launcher.visible{display:flex}
   .player-hide-btn{flex:0 0 38px;width:38px;height:38px;border:1px solid rgba(148,178,220,.24);border-radius:13px;background:rgba(255,255,255,.07);color:#dce9fb;display:flex;align-items:center;justify-content:center;transition:background .18s ease,transform .18s ease,border-color .18s ease}
@@ -358,10 +357,13 @@ body.player-visible #mainContainer>.music-list-scroll,body.player-visible #mainC
 .delete-confirm-icon svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .delete-confirm-message{margin:0 0 20px;color:var(--text-muted);font-size:14px;line-height:1.5}
 .delete-confirm-box .m-btn-danger{background:linear-gradient(135deg,#b93639,#e34d50);box-shadow:0 6px 18px rgba(190,48,52,.2)}
-/* Keep the floating player fully off-screen unless it has a track and is shown. */
-.player-bar{transform:translateX(-50%) translateY(calc(150% + 24px))!important;pointer-events:none!important}
-.player-bar.visible{transform:translateX(-50%) translateY(0)!important;pointer-events:auto!important}
-.player-bar.user-hidden{transform:translateX(-50%) translateY(calc(150% + 24px))!important;pointer-events:none!important}
+/* Floating player overlays content only while visible; hidden states are inert. */
+.player-bar{transform:translateY(calc(100% + 32px))!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;transition:transform .28s ease,opacity .2s ease,visibility .28s ease}
+.player-bar.visible{transform:translateY(0)!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important}
+.player-bar.user-hidden{transform:translateY(calc(100% + 32px))!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+.pads-grid.edit-mode .pad-delete-corner{display:flex}
+.pad-delete-corner{display:none;position:absolute;top:7px;right:7px;z-index:8;width:34px;height:34px;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.4);border-radius:50%;background:rgba(133,28,34,.94);color:#fff;font-size:25px;line-height:1;font-weight:500;box-shadow:0 3px 12px rgba(0,0,0,.28)}
+.pad-delete-corner:active{transform:scale(.9);background:#e53935}
 </style>
 </head>
 <body>
@@ -478,7 +480,7 @@ body.player-visible #mainContainer>.music-list-scroll,body.player-visible #mainC
     <label class="field-label">Цвет пэда:</label><div class="color-palette" id="padColorPalette"></div>
     <input type="hidden" id="inputPadIcon" value="">
      <div class="modal-btns" style="margin-top:10px"><button class="m-btn" onclick="closeModal('padModal')">Отмена</button><button class="m-btn m-btn-primary" onclick="savePad()">Сохранить</button></div>
-    <div class="modal-btns" style="margin-top:10px"><button class="m-btn m-btn-danger" onclick="deletePad()" id="deletePadBtn">Удалить пэд</button></div>
+    <div class="modal-btns" style="margin-top:10px"><button class="m-btn m-btn-danger" 
   </div>
 </div>
 
@@ -813,17 +815,19 @@ function reorderVisibleItems(type,movingId,targetId,dropY,rect){const track=type
         tile.className = "pad drum-pad" + (playing ? " playing" : "") + (current && !playing ? " paused" : "") + (track ? "" : " empty");
         tile.dataset.index = idx;
         if (!track) {
-          tile.innerHTML = '<div class="pad-handle">⠿</div><div class="pad-add">+</div>';
+          tile.innerHTML = '<div class="pad-handle">⠿</div><button type="button" class="pad-delete-corner" aria-label="Удалить пэд">×</button><div class="pad-add">+</div>';
           if (!padEditMode) tile.onclick = () => { editingPadId = pad.id; openAddSourceModal(); };
         } else {
           const bg = pad.color ? pad.color.split("|")[0] : (track.tag || "#333").split("|")[0];
           tile.style.background = bg;
-          tile.innerHTML = '<div class="pad-handle">⠿</div><div class="pad-title"></div><div class="pad-trackname"></div><button class="pad-edit-text" aria-label="Редактировать пэд" onclick="event.stopPropagation();editingPadId=' + pad.id + ';openPadEditor()">✎</button>';
+          tile.innerHTML = '<div class="pad-handle">⠿</div><button type="button" class="pad-delete-corner" aria-label="Удалить пэд">×</button><div class="pad-title"></div><div class="pad-trackname"></div><button class="pad-edit-text" aria-label="Редактировать пэд" onclick="event.stopPropagation();editingPadId=' + pad.id + ';openPadEditor()">✎</button>';
           tile.onclick = e => { if (!padEditMode && !e.target.closest(".pad-edit-text") && !e.target.closest(".pad-handle")) togglePadPlayback(pad.id, scenario.id); };
           tile.querySelector(".pad-title").textContent = pad.title || track.name;
           tile.querySelector(".pad-trackname").textContent = track.name;
           if (padEditMode) tile.classList.add("move-ready");
         }
+        const deleteButton=tile.querySelector(".pad-delete-corner");
+        if(deleteButton)deleteButton.onclick=event=>{event.stopPropagation();deletePadById(pad.id)};
         grid.appendChild(tile);
       });
       const add = document.createElement("div"); add.className = "pad empty add-pad-tile"; add.innerHTML = '<div class="pad-add">+</div><div class="pad-trackname">Добавить пэд</div>';
@@ -1002,23 +1006,13 @@ function reorderVisibleItems(type,movingId,targetId,dropY,rect){const track=type
 
   function savePad(){const trackId=Number(document.getElementById("inputPadTrackId").value),title=document.getElementById("inputPadTitle").value.trim(),icon=document.getElementById("inputPadIcon").value,sc=scenarios.find(s=>s.id===openedScenarioId);if(!sc.pads)sc.pads=[];if(editingPadId){const pad=sc.pads.find(p=>p.id===editingPadId);if(!pad)return;pad.trackId=trackId;pad.title=title;pad.icon=icon;pad.color=selectedPadColor}else sc.pads.push({id:Date.now(),trackId,title,icon,color:selectedPadColor,order:sc.pads.length});const tx=db.transaction("scenarios","readwrite");tx.objectStore("scenarios").put(sc);tx.oncomplete=()=>{closeModal("padModal");padTrackChangeMode=false;activeSection="scenarios";document.getElementById("tabAllMusic").classList.remove("active");document.getElementById("tabScenarios").classList.add("active");hasUnsavedChanges=true;renderCurrentView()}}
 
-   function deletePad(){
-    if(!editingPadId)return;
-    const sc=scenarios.find(s=>s.id===openedScenarioId);
-    if(!sc)return;
+   function deletePadById(padId){
+    const sc=scenarios.find(s=>s.id===openedScenarioId);if(!sc)return;
     showDeleteConfirmation("Пэд будет удалён. Остальные пэды сдвинутся на его место, сохранив свой порядок и цвета.",()=>{
-      const padIndex=(sc.pads||[]).findIndex(p=>p.id===editingPadId);
-      if(padIndex<0)return;
-      sc.pads.splice(padIndex,1);
-      sc.pads.forEach((pad,index)=>{pad.order=index});
-      const tx=db.transaction("scenarios","readwrite");
-      tx.objectStore("scenarios").put(sc);
-      tx.oncomplete=()=>{
-        closeModal("padModal");
-        editingPadId=null;
-        hasUnsavedChanges=true;
-        renderCurrentView();
-      };
+      const padIndex=(sc.pads||[]).findIndex(p=>p.id===padId);if(padIndex<0)return;
+      sc.pads.splice(padIndex,1);sc.pads.forEach((pad,index)=>{pad.order=index});
+      const tx=db.transaction("scenarios","readwrite");tx.objectStore("scenarios").put(sc);
+      tx.oncomplete=()=>{if(currentPadId===padId){currentPadId=null;currentPadScenarioId=null;currentPlaybackMode="music"}if(editingPadId===padId)editingPadId=null;hasUnsavedChanges=true;renderCurrentView()};
     });
   }
 
@@ -1127,20 +1121,55 @@ function preloadScenarioAudio(sc){[...new Set((sc.pads||[]).map(p=>p.trackId).fi
     });
   }
 
+  const trackCoverObjectUrls = new Map();
+  function extractId3Artwork(track){
+    if(!track||track.coverChecked||!track.data)return null;
+    const bytes=track.data instanceof ArrayBuffer?new Uint8Array(track.data):new Uint8Array(track.data.buffer,track.data.byteOffset,track.data.byteLength);
+    if(bytes.length<10||bytes[0]!==73||bytes[1]!==68||bytes[2]!==51)return null;
+    const version=bytes[3],tagEnd=10+((bytes[6]&127)<<21)+((bytes[7]&127)<<14)+((bytes[8]&127)<<7)+(bytes[9]&127);let offset=10;
+    while(offset+10<=Math.min(tagEnd,bytes.length)){
+      let id="",size=0,header=10;
+      if(version===2){id=String.fromCharCode(bytes[offset],bytes[offset+1],bytes[offset+2]);size=(bytes[offset+3]<<16)|(bytes[offset+4]<<8)|bytes[offset+5];header=6}
+      else{id=String.fromCharCode(bytes[offset],bytes[offset+1],bytes[offset+2],bytes[offset+3]);size=version===4?((bytes[offset+4]&127)<<21)|((bytes[offset+5]&127)<<14)|((bytes[offset+6]&127)<<7)|(bytes[offset+7]&127):((bytes[offset+4]<<24)|(bytes[offset+5]<<16)|(bytes[offset+6]<<8)|bytes[offset+7])}
+      if(!id.replace(/\0/g,"").trim()||!size)break;
+      const start=offset+header,end=Math.min(start+size,bytes.length);
+      if((id==="APIC"||id==="PIC")&&end>start+5){
+        const enc=bytes[start];let p=start+1,mime="";
+        if(id==="PIC"){mime=String.fromCharCode(bytes[p],bytes[p+1],bytes[p+2]).toLowerCase();p+=3;mime=mime==="png"?"image/png":"image/jpeg"}
+        else{while(p<end&&bytes[p]!==0)mime+=String.fromCharCode(bytes[p++]);p++;mime=mime||"image/jpeg"}
+        p++;
+        if(enc===1||enc===2){while(p+1<end&&!(bytes[p]===0&&bytes[p+1]===0))p+=2;p+=2}
+        else{while(p<end&&bytes[p]!==0)p++;p++}
+        if(p<end)return {data:track.data.slice(p,end),mime};
+      }
+      offset=start+size;
+    }
+    return null;
+  }
+  function getTrackArtworkUrl(track){
+    if(!track)return null;
+    if(!track.coverData&&!track.coverChecked){
+      const art=extractId3Artwork(track),updated={...track,coverChecked:true};
+      if(art){updated.coverData=art.data;updated.coverMimeType=art.mime}
+      Object.assign(track,updated);
+      try{const tx=db.transaction("tracks","readwrite");tx.objectStore("tracks").put(updated)}catch(_){}
+    }
+    if(!track.coverData)return null;
+    if(!trackCoverObjectUrls.has(track.id))trackCoverObjectUrls.set(track.id,URL.createObjectURL(new Blob([track.coverData],{type:track.coverMimeType||"image/jpeg"})));
+    return trackCoverObjectUrls.get(track.id);
+  }
+
   function updatePlayerUI(track, pad) {
     if (!track) return;
     const bar = document.getElementById("playerBar");
     const cover = document.getElementById("playerCover");
+    const artworkUrl=getTrackArtworkUrl(track);cover.style.background="#0b1422";
+    if(artworkUrl)cover.innerHTML='<img alt="" src="'+artworkUrl+'" style="display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit">';
+    else{cover.textContent="♫";cover.style.color="rgba(220,235,255,.9)";cover.style.fontSize="25px"}
     if (pad) {
-      const [bg] = (track.tag || "linear-gradient(135deg,#1565c0,#42a5f5)|🎵").split("|");
-      cover.style.background = bg;
-      cover.innerText = "";
       document.getElementById("playerTitle").innerText = pad.title || track.name;
       document.getElementById("playerSub").innerText = track.name;
     } else {
-      const [bg, ico] = (track.tag || "linear-gradient(135deg,#1565c0,#42a5f5)|🎵").split("|");
-      cover.style.background = bg;
-      cover.innerText = ico;
       document.getElementById("playerTitle").innerText = track.name;
       document.getElementById("playerSub").innerText = "Вся музыка";
     }
