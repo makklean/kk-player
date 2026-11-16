@@ -358,6 +358,10 @@ body.player-visible #mainContainer>.music-list-scroll,body.player-visible #mainC
 .delete-confirm-icon svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .delete-confirm-message{margin:0 0 20px;color:var(--text-muted);font-size:14px;line-height:1.5}
 .delete-confirm-box .m-btn-danger{background:linear-gradient(135deg,#b93639,#e34d50);box-shadow:0 6px 18px rgba(190,48,52,.2)}
+/* Keep the floating player fully off-screen unless it has a track and is shown. */
+.player-bar{transform:translateX(-50%) translateY(calc(150% + 24px))!important;pointer-events:none!important}
+.player-bar.visible{transform:translateX(-50%) translateY(0)!important;pointer-events:auto!important}
+.player-bar.user-hidden{transform:translateX(-50%) translateY(calc(150% + 24px))!important;pointer-events:none!important}
 </style>
 </head>
 <body>
