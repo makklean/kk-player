@@ -376,6 +376,10 @@ body.player-visible #mainContainer>.music-list-scroll,
 body.player-visible #mainContainer>.scenario-library-scroll,
 body.player-visible #mainContainer>.pads-scroll{padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))!important;scroll-padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))!important}
 
+/* Reordering starts with a long press on the row itself; no corner dot/offset. */
+.list-drag-dot{display:none!important}
+.list-row.drag-ready,.scenario-card.drag-ready{padding-left:12px!important}
+.list-row.list-dragging,.scenario-card.list-dragging{touch-action:none;user-select:none;-webkit-user-select:none}
 /* Use the real measured header edge as the top of the shared content viewport.
    This avoids Android WebView flex-height collapse across ALL app sections. */
 #mainContainer{
@@ -527,7 +531,6 @@ body.player-visible #mainContainer>.pads-scroll{padding-bottom:calc(20px + env(s
     <label class="field-label">Цвет пэда:</label><div class="color-palette" id="padColorPalette"></div>
     <input type="hidden" id="inputPadIcon" value="">
      <div class="modal-btns" style="margin-top:10px"><button class="m-btn" onclick="closeModal('padModal')">Отмена</button><button class="m-btn m-btn-primary" onclick="savePad()">Сохранить</button></div>
-    <div class="modal-btns" style="margin-top:10px"><button class="m-btn m-btn-danger" 
   </div>
 </div>
 
@@ -814,7 +817,7 @@ body.player-visible #mainContainer>.pads-scroll{padding-bottom:calc(20px + env(s
   function appIcon(type){const p={note:'<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',pads:'<rect x="3" y="3" width="7" height="7" rx="1.5" fill="currentColor" stroke="none"/><rect x="14" y="3" width="7" height="7" rx="1.5" fill="currentColor" stroke="none"/><rect x="3" y="14" width="7" height="7" rx="1.5" fill="currentColor" stroke="none"/><rect x="14" y="14" width="7" height="7" rx="1.5" fill="none" stroke="currentColor"/>',folder:'<path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H10l2 2h6.5A2.5 2.5 0 0 1 21 9.5v8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/>'};return '<svg viewBox="0 0 24 24" aria-hidden="true">'+(p[type]||p.pads)+'</svg>'}
 function renderScenarioLibrary(host){
  host.innerHTML='<div class="scenario-toolbar"><button class="primary-action-btn" onclick="openScenarioModal(null)">＋ Создать сценарий</button></div>'+'<input class="music-search scenario-search" type="search" placeholder="Поиск по названию и описанию сценария…" value="'+escapeHtml(scenarioSearchQuery)+'" oninput="filterScenarioList(this.value)">'+'<div class="scenario-library-scroll"><div class="items-list" id="itemsList"></div></div>';
- const list=host.querySelector("#itemsList");scenarios.slice().sort((a,b)=>(a.order??a.id)-(b.order??b.id)).forEach(sc=>{const e=document.createElement("div");e.className="list-row scenario-card";e.dataset.itemId=String(sc.id);e.dataset.search=(sc.name+" "+(sc.description||"")).toLocaleLowerCase("ru");e.innerHTML='<div class="row-cover">'+appIcon("pads")+'</div><div class="row-info"><div class="row-title"></div><div class="scenario-description"></div><div class="row-subtitle"></div></div><div class="scenario-actions"><button class="row-btn delete-btn" title="Удалить">✕</button><button class="row-btn" title="Дублировать">⧉</button><button class="row-btn" title="Редактировать">✎</button></div>';e.querySelector(".row-title").textContent=sc.name;e.querySelector(".scenario-description").textContent=sc.description||"";e.querySelector(".row-subtitle").textContent="Пэдов: "+(sc.pads||[]).length;e.onclick=ev=>{if(ev.target.closest(".scenario-actions")||ev.target.closest(".list-drag-dot"))return;if(e.dataset.suppressClick==="1"){delete e.dataset.suppressClick;return}openScenario(sc.id)};const bs=e.querySelectorAll(".scenario-actions button");bs[0].onclick=ev=>deleteScenarioAction(ev,sc.id);bs[1].onclick=ev=>{ev.stopPropagation();duplicateScenario(sc.id)};bs[2].onclick=ev=>editScenarioAction(ev,sc.id);attachLongPressDrag(e,"scenario",sc.id);list.appendChild(e)});if(!scenarios.length){const empty=document.createElement("div");empty.className="empty-state";empty.textContent="Сценариев пока нет. Создайте первый сценарий.";list.appendChild(empty)}filterScenarioList(scenarioSearchQuery);
+ const list=host.querySelector("#itemsList");scenarios.slice().sort((a,b)=>(a.order??a.id)-(b.order??b.id)).forEach(sc=>{const e=document.createElement("div");e.className="list-row scenario-card";e.dataset.itemId=String(sc.id);e.dataset.search=(sc.name+" "+(sc.description||"")).toLocaleLowerCase("ru");e.innerHTML='<div class="row-cover">'+appIcon("pads")+'</div><div class="row-info"><div class="row-title"></div><div class="scenario-description"></div><div class="row-subtitle"></div></div><div class="scenario-actions"><button class="row-btn" title="Редактировать">✎</button><button class="row-btn" title="Дублировать">⧉</button><button class="row-btn delete-btn" title="Удалить">✕</button></div>';e.querySelector(".row-title").textContent=sc.name;e.querySelector(".scenario-description").textContent=sc.description||"";e.querySelector(".row-subtitle").textContent="Пэдов: "+(sc.pads||[]).length;e.onclick=ev=>{if(ev.target.closest(".scenario-actions"))return;if(e.dataset.suppressClick==="1"){delete e.dataset.suppressClick;return}openScenario(sc.id)};const bs=e.querySelectorAll(".scenario-actions button");bs[0].onclick=ev=>editScenarioAction(ev,sc.id);bs[1].onclick=ev=>{ev.stopPropagation();duplicateScenario(sc.id)};bs[2].onclick=ev=>deleteScenarioAction(ev,sc.id);attachLongPressDrag(e,"scenario",sc.id);list.appendChild(e)});if(!scenarios.length){const empty=document.createElement("div");empty.className="empty-state";empty.textContent="Сценариев пока нет. Создайте первый сценарий.";list.appendChild(empty)}filterScenarioList(scenarioSearchQuery);
 }
 
 function filterScenarioList(value){
@@ -822,9 +825,130 @@ function filterScenarioList(value){
  document.querySelectorAll("#itemsList [data-search]").forEach(el=>el.style.display=el.dataset.search.includes(scenarioSearchQuery)?"":"none");
 }
 function duplicateScenario(id){const s=scenarios.find(x=>x.id===id);if(!s)return;const tx=db.transaction("scenarios","readwrite"),st=tx.objectStore("scenarios");scenarios.filter(x=>(x.order??0)>(s.order??0)).forEach(x=>st.put({...x,order:x.order+1}));const c={...s,name:s.name+" (копия)",order:(s.order??0)+1,pads:(s.pads||[]).map((p,i)=>({...p,id:Date.now()+i}))};delete c.id;st.add(c);tx.oncomplete=loadAllData}
-function attachLongPressDrag(row,type,id){let timer=null,x=0,y=0,pid=null;const add=()=>{row.classList.add("drag-ready");row.dataset.suppressClick="1";if(row.querySelector(".list-drag-dot"))return;const dot=document.createElement("button");dot.type="button";dot.className="list-drag-dot";dot.setAttribute("aria-label","Перетащить");dot.addEventListener("pointerdown",ev=>{ev.preventDefault();ev.stopPropagation();try{dot.setPointerCapture(ev.pointerId)}catch(_){}startListDrag(row,type,id)});row.appendChild(dot)};row.addEventListener("pointerdown",e=>{if(e.target.closest("button")||e.target.closest(".row-actions"))return;x=e.clientX;y=e.clientY;pid=e.pointerId;timer=setTimeout(()=>{timer=null;add();try{row.setPointerCapture(pid)}catch(_){}startListDrag(row,type,id)},480)});row.addEventListener("pointermove",e=>{if(timer&&Math.hypot(e.clientX-x,e.clientY-y)>9){clearTimeout(timer);timer=null}});const end=()=>{if(timer){clearTimeout(timer);timer=null}};row.addEventListener("pointerup",end);row.addEventListener("pointercancel",end)}
-function startListDrag(row,type,id){row.classList.add("list-dragging");const selector=type==="track"?"[data-track-id]":".scenario-card[data-item-id]",clear=()=>document.querySelectorAll(".list-drop-target").forEach(x=>x.classList.remove("list-drop-target")),move=e=>{e.preventDefault();const t=document.elementFromPoint(e.clientX,e.clientY)?.closest(selector);clear();if(t&&t!==row)t.classList.add("list-drop-target")},end=e=>{document.removeEventListener("pointermove",move);document.removeEventListener("pointerup",end);document.removeEventListener("pointercancel",end);row.classList.remove("list-dragging");clear();const t=document.elementFromPoint(e.clientX,e.clientY)?.closest(selector);if(!t||t===row)return;const tid=Number(type==="track"?t.dataset.trackId:t.dataset.itemId);if(tid!==id)reorderVisibleItems(type,id,tid,e.clientY,t.getBoundingClientRect())};document.addEventListener("pointermove",move,{passive:false});document.addEventListener("pointerup",end);document.addEventListener("pointercancel",end)}
-function reorderVisibleItems(type,movingId,targetId,dropY,rect){const track=type==="track",all=(track?tracks:scenarios).slice().sort((a,b)=>(a.order??a.id)-(b.order??b.id)),q=(track?musicSearchQuery:scenarioSearchQuery).toLocaleLowerCase("ru").trim(),visible=all.filter(x=>!q||(track?x.name:(x.name+" "+(x.description||""))).toLocaleLowerCase("ru").includes(q)),moving=visible.find(x=>x.id===movingId);if(!moving||!visible.some(x=>x.id===targetId))return;const rest=visible.filter(x=>x.id!==movingId);let at=rest.findIndex(x=>x.id===targetId);if(rect&&dropY>rect.top+rect.height/2)at++;rest.splice(at,0,moving);const ids=new Set(visible.map(x=>x.id));let n=0;const ordered=all.map(x=>ids.has(x.id)?rest[n++]:x),tx=db.transaction(track?"tracks":"scenarios","readwrite"),store=tx.objectStore(track?"tracks":"scenarios");ordered.forEach((x,i)=>{const item={...x,order:i};delete item.folder;store.put(item)});tx.oncomplete=loadAllData}
+function attachLongPressDrag(row,type,id){
+  const holdDelay=480;
+  let holdTimer=null,pointerId=null,startX=0,startY=0,dragStarted=false;
+  const clearHold=()=>{if(holdTimer!==null){clearTimeout(holdTimer);holdTimer=null}};
+  row.addEventListener("contextmenu",event=>event.preventDefault());
+  row.addEventListener("pointerdown",event=>{
+    if(!event.isPrimary||(event.pointerType==="mouse"&&event.button!==0))return;
+    if(event.target.closest("button")||event.target.closest(".row-actions"))return;
+    clearHold();
+    pointerId=event.pointerId;startX=event.clientX;startY=event.clientY;dragStarted=false;
+    holdTimer=setTimeout(()=>{
+      holdTimer=null;dragStarted=true;row.dataset.suppressClick="1";
+      try{row.setPointerCapture(pointerId)}catch(_){}
+      startListDrag(row,type,id,pointerId);
+    },holdDelay);
+  });
+  row.addEventListener("pointermove",event=>{
+    if(event.pointerId!==pointerId||holdTimer===null)return;
+    if(Math.hypot(event.clientX-startX,event.clientY-startY)>10)clearHold();
+  });
+  row.addEventListener("pointerup",event=>{
+    if(event.pointerId!==pointerId)return;
+    clearHold();
+    if(dragStarted)row.dataset.suppressClick="1";
+    pointerId=null;dragStarted=false;
+  });
+  row.addEventListener("pointercancel",event=>{
+    if(event.pointerId!==pointerId)return;
+    clearHold();pointerId=null;dragStarted=false;
+  });
+}
+function findListDropTarget(row,selector,x,y){
+  const direct=document.elementFromPoint(x,y)?.closest(selector);
+  if(direct&&direct!==row&&row.parentElement.contains(direct))return direct;
+  const list=row.closest(".items-list");
+  if(!list)return null;
+  const candidates=Array.from(list.querySelectorAll(selector)).filter(el=>el!==row&&el.offsetParent!==null);
+  let best=null,bestDistance=Infinity;
+  candidates.forEach(el=>{
+    const rect=el.getBoundingClientRect();
+    const verticalDistance=y<rect.top?rect.top-y:(y>rect.bottom?y-rect.bottom:0);
+    const horizontalDistance=x<rect.left?rect.left-x:(x>rect.right?x-rect.right:0);
+    const distance=verticalDistance+horizontalDistance*1.5;
+    if(distance<bestDistance){bestDistance=distance;best=el}
+  });
+  return best;
+}
+function startListDrag(row,type,id,pointerId){
+  const selector=type==="track"?"[data-track-id]":".scenario-card[data-item-id]";
+  let finished=false,lastX=0,lastY=0;
+  const clear=()=>document.querySelectorAll(".list-drop-target").forEach(el=>el.classList.remove("list-drop-target"));
+  const move=event=>{
+    if(event.pointerId!==pointerId||finished)return;
+    event.preventDefault();lastX=event.clientX;lastY=event.clientY;
+    const target=findListDropTarget(row,selector,lastX,lastY);
+    clear();
+    if(target)target.classList.add("list-drop-target");
+  };
+  const finish=(event,commit)=>{
+    if(event.pointerId!==pointerId||finished)return;
+    finished=true;
+    document.removeEventListener("pointermove",move);
+    document.removeEventListener("pointerup",onUp);
+    document.removeEventListener("pointercancel",onCancel);
+    row.classList.remove("list-dragging");
+    row.dataset.suppressClick="1";
+    clear();
+    if(!commit)return;
+    const x=Number.isFinite(event.clientX)?event.clientX:lastX;
+    const y=Number.isFinite(event.clientY)?event.clientY:lastY;
+    const target=findListDropTarget(row,selector,x,y);
+    if(!target)return;
+    const targetId=Number(type==="track"?target.dataset.trackId:target.dataset.itemId);
+    if(targetId!==id)reorderVisibleItems(type,id,targetId,y,target.getBoundingClientRect());
+  };
+  const onUp=event=>finish(event,true);
+  const onCancel=event=>finish(event,false);
+  row.classList.add("list-dragging");
+  document.addEventListener("pointermove",move,{passive:false});
+  document.addEventListener("pointerup",onUp);
+  document.addEventListener("pointercancel",onCancel);
+}
+function reorderVisibleItems(type,movingId,targetId,dropY,targetRect){
+  const track=type==="track";
+  const all=(track?tracks:scenarios).slice().sort((a,b)=>(a.order??a.id)-(b.order??b.id));
+  const query=(track?musicSearchQuery:scenarioSearchQuery).toLocaleLowerCase("ru").trim();
+  const visible=all.filter(item=>!query||(track?item.name:(item.name+" "+(item.description||""))).toLocaleLowerCase("ru").includes(query));
+  const moving=visible.find(item=>item.id===movingId);
+  if(!moving||!visible.some(item=>item.id===targetId))return;
+  const rest=visible.filter(item=>item.id!==movingId);
+  let insertAt=rest.findIndex(item=>item.id===targetId);
+  if(insertAt<0)return;
+  if(targetRect&&dropY>targetRect.top+targetRect.height/2)insertAt++;
+  rest.splice(insertAt,0,moving);
+  const visibleIds=new Set(visible.map(item=>item.id));
+  let visibleIndex=0;
+  const ordered=all.map(item=>visibleIds.has(item.id)?rest[visibleIndex++]:item);
+  const scrollSelector=track?".music-list-scroll":".scenario-library-scroll";
+  const rowSelector=track?'[data-track-id="'+movingId+'"]':'.scenario-card[data-item-id="'+movingId+'"]';
+  const oldScrollArea=document.querySelector("#mainContainer > "+scrollSelector);
+  const oldMovingRow=oldScrollArea?.querySelector(rowSelector);
+  const oldMovingTop=oldMovingRow?oldMovingRow.getBoundingClientRect().top:null;
+  const oldScrollTop=oldScrollArea?.scrollTop||0;
+  const tx=db.transaction(track?"tracks":"scenarios","readwrite");
+  const store=tx.objectStore(track?"tracks":"scenarios");
+  ordered.forEach((item,index)=>{
+    const updated={...item,order:index};
+    delete updated.folder;
+    store.put(updated);
+  });
+  tx.oncomplete=()=>{
+    loadAllData(()=>{
+      const newScrollArea=document.querySelector("#mainContainer > "+scrollSelector);
+      const newMovingRow=newScrollArea?.querySelector(rowSelector);
+      if(!newScrollArea)return;
+      if(newMovingRow&&oldMovingTop!==null){
+        const newTop=newMovingRow.getBoundingClientRect().top;
+        newScrollArea.scrollTop+=newTop-oldMovingTop;
+      }else{
+        newScrollArea.scrollTop=oldScrollTop;
+      }
+    });
+  };
+}
 
 // ============ RENDER ============
   function renderCurrentView() {
@@ -839,7 +963,7 @@ function reorderVisibleItems(type,movingId,targetId,dropY,rect){const track=type
          row.querySelector(".row-title").textContent = track.name;
         row.classList.toggle("track-playing", currentTrackId === track.id && !!currentAudio && !currentAudio.paused);
          row.classList.toggle("track-paused", currentTrackId === track.id && !!currentAudio && currentAudio.paused);
-         row.dataset.search = track.name.toLocaleLowerCase("ru");row.onclick=e=>{if(e.target.closest(".row-actions")||e.target.closest(".list-drag-dot"))return;if(row.dataset.suppressClick==="1"){delete row.dataset.suppressClick;return}if(padTrackChangeMode){selectTrackForPad(track.id);return}toggleTrackFromList(track.id)};attachLongPressDrag(row,"track",track.id);
+         row.dataset.search = track.name.toLocaleLowerCase("ru");row.onclick=e=>{if(e.target.closest(".row-actions"))return;if(row.dataset.suppressClick==="1"){delete row.dataset.suppressClick;return}if(padTrackChangeMode){selectTrackForPad(track.id);return}toggleTrackFromList(track.id)};attachLongPressDrag(row,"track",track.id);
          listEl.appendChild(row);
       });
       filterMusicList(musicSearchQuery);
@@ -902,7 +1026,9 @@ function reorderVisibleItems(type,movingId,targetId,dropY,rect){const track=type
       if (!target) return;
       const toIndex = Number(target.dataset.index), sc = scenarios.find(s => s.id === openedScenarioId);
       if (sc && toIndex !== fromIndex) {
-        const moved = sc.pads.splice(fromIndex,1)[0]; sc.pads.splice(toIndex,0,moved);
+        const moved = sc.pads[fromIndex];
+        sc.pads[fromIndex] = sc.pads[toIndex];
+        sc.pads[toIndex] = moved;
         sc.pads.forEach((p,i) => p.order = i); hasUnsavedChanges = true; renderCurrentView();
       }
     };
@@ -911,7 +1037,15 @@ function reorderVisibleItems(type,movingId,targetId,dropY,rect){const track=type
 
   // ============ CRUD ============
   function closeModal(id) { document.getElementById(id).style.display = "none"; }
-  function openSettings() { document.getElementById("settingsModal").style.display = "flex"; }
+  function openSettings() {
+    const modal = document.getElementById("settingsModal");
+    if (!modal) {
+      console.error("Settings modal is missing from the document.");
+      return;
+    }
+    modal.style.display = "flex";
+    modal.setAttribute("aria-hidden", "false");
+  }
   
   function openTrackModal(trackId = null) {
     editingTrackId = trackId;
