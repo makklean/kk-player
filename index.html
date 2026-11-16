@@ -364,6 +364,17 @@ body.player-visible #mainContainer>.music-list-scroll,body.player-visible #mainC
 .pads-grid.edit-mode .pad-delete-corner{display:flex}
 .pad-delete-corner{display:none;position:absolute;top:7px;right:7px;z-index:8;width:34px;height:34px;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.4);border-radius:50%;background:rgba(133,28,34,.94);color:#fff;font-size:25px;line-height:1;font-weight:500;box-shadow:0 3px 12px rgba(0,0,0,.28)}
 .pad-delete-corner:active{transform:scale(.9);background:#e53935}
+
+/* Definitive floating-player layout: hidden player has no layout or hit-test footprint. */
+#playerBar{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;transform:none!important}
+#playerBar.visible{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;transform:none!important}
+#playerBar.user-hidden{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+#mainContainer>.music-list-scroll,
+#mainContainer>.scenario-library-scroll,
+#mainContainer>.pads-scroll,
+body.player-visible #mainContainer>.music-list-scroll,
+body.player-visible #mainContainer>.scenario-library-scroll,
+body.player-visible #mainContainer>.pads-scroll{padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))!important;scroll-padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))!important}
 </style>
 </head>
 <body>
